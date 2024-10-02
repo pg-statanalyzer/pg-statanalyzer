@@ -1,12 +1,23 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * Class is responsible for parsing log files and extracting benchmarking
+ * data, such as time taken, iterations, transactions per second (TPS), and average latency.
+ * Parsed data is stored in {@link BenchmarkResult} objects
+ */
+
 public class LogParser {
+
     private static final Pattern MSEC_PATTERN = Pattern.compile("Test completed after (\\d+) msec");
     private static final Pattern ITERATIONS_PATTERN = Pattern.compile("- (\\d+) iterations");
     private static final Pattern TPS_OVERALL_PATTERN = Pattern.compile("- (\\d+) tps \\(overall\\)");
