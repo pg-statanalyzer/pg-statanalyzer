@@ -14,9 +14,14 @@ public class Analyzer {
 
         BenchmarkResult logResult = LogParser.parseLog(logFilePath);
 
-        JsonSaver.saveResultsToJson(logResult, "log_results.json");
+        JsonSaver.saveResultsToJson(logResult, "bench_results.json");
 
         // Sample
-        System.out.println("Sample -- TPS overall: " + logResult.getParameter("tpsOverall"));
+        for (int i = 0; i < logResult.getAllBlocks().size(); i++) {
+            System.out.println("Iterations: " + logResult.getParameterFromBlock(i, "iterations"));
+            System.out.println("TPS overall: " + logResult.getParameterFromBlock(i, "tpsOverall"));
+            System.out.println("Latency: " + logResult.getParameterFromBlock(i, "latency"));
+            System.out.println();
+        }
     }
 }

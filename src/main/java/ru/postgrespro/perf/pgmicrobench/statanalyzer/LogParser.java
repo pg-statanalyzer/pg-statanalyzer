@@ -2,6 +2,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 
 import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,32 +15,45 @@ public class LogParser {
 
     public static BenchmarkResult parseLog(String logFilePath) {
         BenchmarkResult result = new BenchmarkResult();
+        Map<String, Object> currentBlock = null;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(logFilePath))) {
             String line;
 
             while ((line = reader.readLine()) != null) {
                 Matcher msecMatcher = MSEC_PATTERN.matcher(line);
-                Matcher iterationsMatcher = ITERATIONS_PATTERN.matcher(line);
-                Matcher tpsOverallMatcher = TPS_OVERALL_PATTERN.matcher(line);
-                Matcher tpsLast5SecMatcher = TPS_LAST_5_SEC_PATTERN.matcher(line);
-                Matcher latencyMatcher = LATENCY_PATTERN.matcher(line);
 
                 if (msecMatcher.find()) {
-                    result.addParameter("msec", Integer.parseInt(msecMatcher.group(1)));
+                    if (currentBlock != null) {
+                        result.addBlock(currentBlock);
+                    }
+                    currentBlock = new HashMap<>();
+                    currentBlock.put("msec", Integer.parseInt(msecMatcher.group(1)));
                 }
-                if (iterationsMatcher.find()) {
-                    result.addParameter("iterations", Integer.parseInt(iterationsMatcher.group(1)));
+
+                if (currentBlock != null) {
+                    Matcher iterationsMatcher = ITERATIONS_PATTERN.matcher(line);
+                    Matcher tpsOverallMatcher = TPS_OVERALL_PATTERN.matcher(line);
+                    Matcher tpsLast5SecMatcher = TPS_LAST_5_SEC_PATTERN.matcher(line);
+                    Matcher latencyMatcher = LATENCY_PATTERN.matcher(line);
+
+                    if (iterationsMatcher.find()) {
+                        currentBlock.put("iterations", Integer.parseInt(iterationsMatcher.group(1)));
+                    }
+                    if (tpsOverallMatcher.find()) {
+                        currentBlock.put("tpsOverall", Integer.parseInt(tpsOverallMatcher.group(1)));
+                    }
+                    if (tpsLast5SecMatcher.find()) {
+                        currentBlock.put("tpsLast5Sec", Integer.parseInt(tpsLast5SecMatcher.group(1)));
+                    }
+                    if (latencyMatcher.find()) {
+                        currentBlock.put("latency", Long.parseLong(latencyMatcher.group(1)));
+                    }
                 }
-                if (tpsOverallMatcher.find()) {
-                    result.addParameter("tpsOverall", Integer.parseInt(tpsOverallMatcher.group(1)));
-                }
-                if (tpsLast5SecMatcher.find()) {
-                    result.addParameter("tpsLast5Sec", Integer.parseInt(tpsLast5SecMatcher.group(1)));
-                }
-                if (latencyMatcher.find()) {
-                    result.addParameter("latency", Long.parseLong(latencyMatcher.group(1)));
-                }
+            }
+
+            if (currentBlock != null) {
+                result.addBlock(currentBlock);
             }
 
         } catch (IOException e) {
