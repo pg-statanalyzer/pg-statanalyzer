@@ -1,4 +1,6 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.QuantileEstimators;
+
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms;
 
 import java.util.Locale;
 import java.util.Objects;

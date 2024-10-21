@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.DataLoader;
 
 import java.util.Arrays;
 

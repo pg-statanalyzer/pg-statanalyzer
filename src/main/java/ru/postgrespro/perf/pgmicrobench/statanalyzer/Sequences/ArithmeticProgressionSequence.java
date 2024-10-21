@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Sequences;
 
 public class ArithmeticProgressionSequence {
     private final double start;

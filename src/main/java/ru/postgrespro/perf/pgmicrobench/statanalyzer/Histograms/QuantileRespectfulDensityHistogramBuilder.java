@@ -1,4 +1,11 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms;
+
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Common.Probability;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Exceptions.WeightedSampleNotSupportedException;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.QuantileEstimators.HarrellDavisQuantileEstimator;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.QuantileEstimators.IQuantileEstimator;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sequences.ArithmeticProgressionSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +27,7 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
     }
 
     public DensityHistogram build(Sample sample, int binCount, IQuantileEstimator quantileEstimator) {
-        if (sample == null) throw new IllegalArgumentException("Sample cannot be null");
+        if (sample == null) throw new IllegalArgumentException("f.Sample cannot be null");
         if (binCount <= 1) throw new IllegalArgumentException("binCount must be greater than 1");
 
         quantileEstimator = (quantileEstimator != null) ?

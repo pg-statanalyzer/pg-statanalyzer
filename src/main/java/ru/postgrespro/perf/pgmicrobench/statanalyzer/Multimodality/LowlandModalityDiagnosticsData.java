@@ -1,4 +1,7 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality;
+
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogram;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogramBin;
 
 import java.text.NumberFormat;
 import java.util.List;

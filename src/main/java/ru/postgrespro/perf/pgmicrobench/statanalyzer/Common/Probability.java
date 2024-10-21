@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Common;
 
 import java.util.Arrays;
 import java.util.List;

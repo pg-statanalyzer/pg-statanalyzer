@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +45,7 @@ public final class DensityHistogram {
 
     @Override
     public String toString() {
-        return "DensityHistogram[" +
+        return "f.Histograms.DensityHistogram[" +
                 "bins=" + bins + ']';
     }
 }

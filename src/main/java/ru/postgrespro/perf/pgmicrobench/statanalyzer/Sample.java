@@ -1,5 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogramBin;
+
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Supplier;
@@ -32,6 +34,20 @@ public class Sample {
             }
             return value;
         }
+    }
+
+    public double getWeightForBin(DensityHistogramBin bin) {
+        double totalWeightForBin = 0.0;
+        double binLower = bin.lower();
+        double binUpper = bin.upper();
+
+        for (int i = 0; i < values.size(); i++) {
+            double value = values.get(i);
+            if (value >= binLower && value <= binUpper) {
+                totalWeightForBin += weights.get(i);
+            }
+        }
+        return totalWeightForBin;
     }
 
     public Sample(double[] values) {
@@ -126,7 +142,7 @@ public class Sample {
     public Sample concatWithoutWeights(Sample other) {
         List<Double> newValues = new ArrayList<>(this.values);
         newValues.addAll(other.values);
-        return new Sample(newValues);  // Создаём новый Sample без весов
+        return new Sample(newValues);  // Создаём новый f.Sample без весов
     }
 
     @Override
@@ -206,7 +222,6 @@ public class Sample {
         return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
     }
 
-    // Перегрузки для int значений
     public Sample add(int value) {
         return add((double) value);
     }

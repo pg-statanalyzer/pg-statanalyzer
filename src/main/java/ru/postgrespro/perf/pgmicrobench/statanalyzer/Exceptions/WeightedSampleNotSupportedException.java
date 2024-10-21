@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Exceptions;
 
 public class WeightedSampleNotSupportedException extends RuntimeException {
     public WeightedSampleNotSupportedException() {

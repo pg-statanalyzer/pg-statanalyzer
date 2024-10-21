@@ -1,5 +1,6 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.QuantileEstimators;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import org.apache.commons.math3.distribution.BetaDistribution;
 import java.util.List;
 import java.util.Objects;

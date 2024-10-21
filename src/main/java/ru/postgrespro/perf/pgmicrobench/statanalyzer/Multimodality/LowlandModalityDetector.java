@@ -1,7 +1,12 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality;
+
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogram;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogramBin;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.IDensityHistogramBuilder;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.QuantileRespectfulDensityHistogramBuilder;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.*;
-
 public class LowlandModalityDetector {
 
     private final double sensitivity;
@@ -30,10 +35,10 @@ public class LowlandModalityDetector {
 
     public ModalityData detectModes(Sample sample, IDensityHistogramBuilder densityHistogramBuilder) {
         if (sample == null) {
-            throw new IllegalArgumentException("Sample cannot be null");
+            throw new IllegalArgumentException("f.Sample cannot be null");
         }
         if (sample.getMax() - sample.getMin() < 1e-9) {
-            throw new IllegalArgumentException("Sample should contain at least two different elements");
+            throw new IllegalArgumentException("f.Sample should contain at least two different elements");
         }
 
         densityHistogramBuilder = Optional.ofNullable(densityHistogramBuilder)
@@ -94,7 +99,9 @@ public class LowlandModalityDetector {
             previousPeaks.add(currentPeak);
         }
 
-        modeLocations.add(bins.get(previousPeaks.get(0)).getMiddle());
+        if (!previousPeaks.isEmpty()) {
+            modeLocations.add(bins.get(previousPeaks.get(0)).getMiddle());
+        }
 
         return createModalityData(modeLocations, cutPoints, bins, binHeights, histogram, sample, diagnosticsBins);
     }
@@ -152,9 +159,7 @@ public class LowlandModalityDetector {
                                             LowlandModalityDiagnosticsData.DiagnosticsBin[] diagnosticsBins) {
 
         List<RangedMode> modes = new ArrayList<>();
-        if (modeLocations.isEmpty()) {
-            modes.add(globalMode(bins, binHeights, histogram, sample));
-        } else if (modeLocations.size() == 1) {
+        if (modeLocations.size() <= 1) {
             modes.add(globalMode(bins, binHeights, histogram, sample));
         } else {
             modes.add(localMode(modeLocations.get(0), histogram.getGlobalLower(), cutPoints.get(0), sample, bins));
@@ -169,27 +174,32 @@ public class LowlandModalityDetector {
                 : new ModalityData(modes, histogram);
     }
 
-
     private RangedMode globalMode(List<DensityHistogramBin> bins, List<Double> binHeights, DensityHistogram histogram, Sample sample) {
         int maxIndex = whichMax(binHeights);
         return new RangedMode(bins.get(maxIndex).getMiddle(), histogram.getGlobalLower(), histogram.getGlobalUpper(), sample);
     }
 
     private RangedMode localMode(double modeLocation, double lower, double upper, Sample sample, List<DensityHistogramBin> bins) {
-        double modeLower = lower;
-        double modeUpper = upper;
+        List<Double> modeValues = new ArrayList<>();
+        List<Double> modeWeights = sample.isWeighted ? new ArrayList<>() : null;
 
         for (DensityHistogramBin bin : bins) {
-            if (bin.getMiddle() <= modeLocation) {
-                modeLower = bin.lower();
-            }
-            if (bin.getMiddle() >= modeLocation) {
-                modeUpper = bin.upper();
-                break;
+            double middle = bin.getMiddle();
+            if (middle >= lower && middle <= upper) {
+                modeValues.add(middle); // Add the value of the bin's middle if within bounds
+                if (modeWeights != null) {
+                    modeWeights.add(sample.getWeightForBin(bin)); // Assuming a method exists to get weight for the bin
+                }
             }
         }
 
-        return new RangedMode(modeLocation, modeLower, modeUpper, sample);
+        if (modeValues.isEmpty()) {
+            throw new IllegalStateException(
+                    String.format("Can't find any values in [%s, %s]", lower, upper));
+        }
+
+        Sample modeSample = modeWeights == null ? new Sample(modeValues) : new Sample(modeValues, modeWeights);
+        return new RangedMode(modeLocation, lower, upper, modeSample);
     }
 
     private int whichMax(List<Double> values) {
