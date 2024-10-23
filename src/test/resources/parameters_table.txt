@@ -1,0 +1,24 @@
+weibull_lognorm:
+    lognorm: mu, sigma = 0., 0.7
+    weibull: shape, scale = 5., 10.
+
+lognorm_chisqr:
+    lognorm: mu, sigma = 1.1, 0.5
+    chisqr:  df = 20.0
+
+lognorm_4278_001:
+    mu, sigma = 4.278, 0.01
+
+lognorm_13_07:
+    mu, sigma = 1.3, 0.7
+
+weibull_20_10:
+    shape, scale = 2.0, 1.0
+
+gamma_10_03:
+    shape, scale = 10.0, 0.3
+
+lognorm_weibull_normal:
+    lognorm: mu, sigma = 3., 0.3
+    weibull: shape, scale = 1., 2.5
+    normal: mu, sigma = 9., 2.
