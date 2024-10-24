@@ -1,28 +1,22 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.sequences;
 
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+
 /**
  * Represents arithmetic progression sequence, defined by starting value and constant step.
  * This class provides methods to compute specific values in sequence and generate arrays
  * containing specified number of sequence elements.
  */
 
+@Getter
+@RequiredArgsConstructor
 public class ArithmeticProgressionSequence {
 
     private final double start;
-
     private final double step;
-
-    /**
-     * Constructs {@code ArithmeticProgressionSequence} with specified starting value and step.
-     *
-     * @param start initial value of sequence.
-     * @param step  constant difference between consecutive elements in sequence.
-     */
-    public ArithmeticProgressionSequence(double start, double step) {
-        this.start = start;
-        this.step = step;
-    }
 
     /**
      * Computes value at specified index in sequence.
@@ -35,7 +29,7 @@ public class ArithmeticProgressionSequence {
     }
 
     /**
-     * Generates array containing first {@code size} elements of arithmetic progression.
+     * Generates array containing the first {@code size} elements of arithmetic progression.
      *
      * @param size number of elements to generate.
      * @return array containing generated sequence values.

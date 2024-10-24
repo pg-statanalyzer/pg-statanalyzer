@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import lombok.Getter;
 
 import java.util.List;
 
@@ -10,14 +11,31 @@ import java.util.List;
  * This class provides details about mode's position and allows access to sample's values.
  */
 
+@Getter
 public class RangedMode {
 
+    /**
+     * -- GETTER --
+     * Returns location (center point) of mode.
+     */
     private final double location;
 
+    /**
+     * -- GETTER --
+     * Returns left boundary of mode's range.
+     */
     private final double left;
 
+    /**
+     * -- GETTER --
+     * Returns right boundary of mode's range.
+     */
     private final double right;
 
+    /**
+     * -- GETTER --
+     * Returns sample data associated with mode.
+     */
     private final Sample sample;
 
     /**
@@ -46,42 +64,6 @@ public class RangedMode {
                 "Mode at %.2f in range [%.2f, %.2f] with %d points",
                 location, left, right, sample.getSize()
         );
-    }
-
-    /**
-     * Returns location (center point) of mode.
-     *
-     * @return mode's location.
-     */
-    public double getLocation() {
-        return location;
-    }
-
-    /**
-     * Returns left boundary of mode's range.
-     *
-     * @return left boundary.
-     */
-    public double getLeft() {
-        return left;
-    }
-
-    /**
-     * Returns right boundary of mode's range.
-     *
-     * @return right boundary.
-     */
-    public double getRight() {
-        return right;
-    }
-
-    /**
-     * Returns sample data associated with mode.
-     *
-     * @return {@link Sample} associated with this mode.
-     */
-    public Sample getSample() {
-        return sample;
     }
 
     /**

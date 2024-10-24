@@ -11,6 +11,7 @@ import java.util.Random;
  */
 
 public class GumbelDistribution {
+
     private final double location;
     private final double scale;
     private static final double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
@@ -59,18 +60,16 @@ public class GumbelDistribution {
         return values;
     }
 
-    public static List<Double> generate(Random random, double location, double scale, int count) {
+    public static List<Double> generate(Random random,
+                                        double location,
+                                        double scale,
+                                        int count) {
         GumbelDistribution distribution = new GumbelDistribution(location, scale);
         return distribution.generate(random, count);
     }
 
-    @Override
-    public String toString() {
-        return String.format("Gumbel(%f, %f)", location, scale);
-    }
-
     public double mean() {
-        return location + scale * EulerMascheroni; // Нужно определить константу
+        return location + scale * EulerMascheroni;
     }
 
     public double median() {

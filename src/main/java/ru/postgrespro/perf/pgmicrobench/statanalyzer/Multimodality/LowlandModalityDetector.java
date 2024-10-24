@@ -50,7 +50,8 @@ public class LowlandModalityDetector {
      * @return ModalityData containing detected modes and related data.
      * @throws IllegalArgumentException if sample is null or contains less than two unique elements.
      */
-    public ModalityData detectModes(Sample sample, IDensityHistogramBuilder densityHistogramBuilder) {
+    public ModalityData detectModes(Sample sample,
+                                    IDensityHistogramBuilder densityHistogramBuilder) {
         if (sample == null) {
             throw new IllegalArgumentException("Sample cannot be null");
         }
@@ -63,11 +64,11 @@ public class LowlandModalityDetector {
 
         int desiredBinCount = (int) Math.round(1 / precision);
         DensityHistogram histogram = densityHistogramBuilder.build(sample, desiredBinCount);
-        List<DensityHistogramBin> bins = histogram.bins();
+        List<DensityHistogramBin> bins = histogram.getBins();
         List<Double> binHeights = new ArrayList<>();
 
         for (DensityHistogramBin bin : bins) {
-            binHeights.add(bin.height());
+            binHeights.add(bin.getHeight());
         }
 
         List<Integer> peaks = findPeaks(bins, binHeights);
@@ -82,15 +83,20 @@ public class LowlandModalityDetector {
     private List<Integer> findPeaks(List<DensityHistogramBin> bins, List<Double> binHeights) {
         List<Integer> peaks = new ArrayList<>();
         for (int i = 1; i < bins.size() - 1; i++) {
-            if (binHeights.get(i) > binHeights.get(i - 1) && binHeights.get(i) >= binHeights.get(i + 1)) {
+            if (binHeights.get(i) > binHeights.get(i - 1)
+                    && binHeights.get(i) >= binHeights.get(i + 1)) {
                 peaks.add(i);
             }
         }
         return peaks;
     }
 
-    private ModalityData analyzePeaks(List<Integer> peaks, List<DensityHistogramBin> bins, List<Double> binHeights,
-                                      DensityHistogram histogram, DiagnosticsBin[] diagnosticsBins, Sample sample) {
+    private ModalityData analyzePeaks(List<Integer> peaks,
+                                      List<DensityHistogramBin> bins,
+                                      List<Double> binHeights,
+                                      DensityHistogram histogram,
+                                      DiagnosticsBin[] diagnosticsBins,
+                                      Sample sample) {
 
         List<Double> modeLocations = new ArrayList<>();
         List<Double> cutPoints = new ArrayList<>();
@@ -101,16 +107,36 @@ public class LowlandModalityDetector {
         for (int i = 1; i < peaks.size(); i++) {
             int currentPeak = peaks.get(i);
 
-            while (!previousPeaks.isEmpty() && binHeights.get(previousPeaks.get(previousPeaks.size() - 1)) < binHeights.get(currentPeak)) {
-                if (trySplit(previousPeaks.get(0), previousPeaks.get(previousPeaks.size() - 1), currentPeak, bins, binHeights, modeLocations, cutPoints, diagnosticsBins)) {
+            while (!previousPeaks.isEmpty() && binHeights
+                    .get(previousPeaks.get(previousPeaks.size() - 1))
+                    < binHeights.get(currentPeak)) {
+
+                if (trySplit(previousPeaks.get(0),
+                        previousPeaks.get(previousPeaks.size() - 1),
+                        currentPeak,
+                        bins,
+                        binHeights,
+                        modeLocations,
+                        cutPoints,
+                        diagnosticsBins)) {
                     previousPeaks.clear();
                 } else {
                     previousPeaks.remove(previousPeaks.size() - 1);
                 }
             }
 
-            if (!previousPeaks.isEmpty() && binHeights.get(previousPeaks.get(previousPeaks.size() - 1)) > binHeights.get(currentPeak)) {
-                if (trySplit(previousPeaks.get(0), previousPeaks.get(previousPeaks.size() - 1), currentPeak, bins, binHeights, modeLocations, cutPoints, diagnosticsBins)) {
+            if (!previousPeaks.isEmpty() && binHeights
+                    .get(previousPeaks.get(previousPeaks.size() - 1))
+                    > binHeights.get(currentPeak)) {
+
+                if (trySplit(previousPeaks.get(0),
+                        previousPeaks.get(previousPeaks.size() - 1),
+                        currentPeak,
+                        bins,
+                        binHeights,
+                        modeLocations,
+                        cutPoints,
+                        diagnosticsBins)) {
                     previousPeaks.clear();
                 }
             }
@@ -122,11 +148,24 @@ public class LowlandModalityDetector {
             modeLocations.add(bins.get(previousPeaks.get(0)).getMiddle());
         }
 
-        return createModalityData(modeLocations, cutPoints, bins, binHeights, histogram, sample, diagnosticsBins);
+        return createModalityData(modeLocations,
+                cutPoints,
+                bins,
+                binHeights,
+                histogram,
+                sample,
+                diagnosticsBins);
     }
 
-    private boolean trySplit(int peak0, int peak1, int peak2, List<DensityHistogramBin> bins, List<Double> binHeights,
-                             List<Double> modeLocations, List<Double> cutPoints, DiagnosticsBin[] diagnosticsBins) {
+    private boolean trySplit(int peak0,
+                             int peak1,
+                             int peak2,
+                             List<DensityHistogramBin> bins,
+                             List<Double> binHeights,
+                             List<Double> modeLocations,
+                             List<Double> cutPoints,
+                             DiagnosticsBin[] diagnosticsBins) {
+
         int left = peak1, right = peak2;
         double height = Math.min(binHeights.get(peak1), binHeights.get(peak2));
 
@@ -139,20 +178,21 @@ public class LowlandModalityDetector {
             }
         }
 
-        double width = bins.get(right).upper() - bins.get(left).lower();
+        double width = bins.get(right).getUpper() - bins.get(left).getLower();
         double totalArea = width * height;
         double binArea = 1.0 / bins.size();
         double totalBinArea = (right - left + 1) * binArea;
         double binProportion = totalBinArea / totalArea;
 
         if (binProportion < sensitivity) {
+
             modeLocations.add(bins.get(peak0).getMiddle());
             cutPoints.add(bins.get(whichMin(binHeights, peak1, peak2)).getMiddle());
 
             if (diagnostics) {
-                diagnosticsBins[peak0].setIsMode(true);
+                diagnosticsBins[peak0].setMode(true);
                 for (int i = left; i <= right; i++) {
-                    diagnosticsBins[i].setIsLowland(true);
+                    diagnosticsBins[i].setLowland(true);
                 }
             }
             return true;
@@ -172,35 +212,64 @@ public class LowlandModalityDetector {
         return minIndex;
     }
 
-    private ModalityData createModalityData(List<Double> modeLocations, List<Double> cutPoints,
-                                            List<DensityHistogramBin> bins, List<Double> binHeights,
-                                            DensityHistogram histogram, Sample sample,
+    private ModalityData createModalityData(List<Double> modeLocations,
+                                            List<Double> cutPoints,
+                                            List<DensityHistogramBin> bins,
+                                            List<Double> binHeights,
+                                            DensityHistogram histogram,
+                                            Sample sample,
                                             DiagnosticsBin[] diagnosticsBins) {
 
         List<RangedMode> modes = new ArrayList<>();
         if (modeLocations.size() <= 1) {
             modes.add(globalMode(bins, binHeights, histogram, sample));
         } else {
-            modes.add(localMode(modeLocations.get(0), histogram.getGlobalLower(), cutPoints.get(0), sample, bins));
+            modes.add(localMode(modeLocations.get(0),
+                    histogram.getGlobalLower(),
+                    cutPoints.get(0),
+                    sample,
+                    bins));
+
             for (int i = 1; i < modeLocations.size() - 1; i++) {
-                modes.add(localMode(modeLocations.get(i), cutPoints.get(i - 1), cutPoints.get(i), sample, bins));
+                modes.add(localMode(modeLocations.get(i),
+                        cutPoints.get(i - 1),
+                        cutPoints.get(i),
+                        sample,
+                        bins));
             }
-            modes.add(localMode(modeLocations.get(modeLocations.size() - 1), cutPoints.get(cutPoints.size() - 1), histogram.getGlobalUpper(), sample, bins));
+
+            modes.add(localMode(modeLocations.get(modeLocations.size() - 1),
+                    cutPoints.get(cutPoints.size() - 1),
+                    histogram.getGlobalUpper(),
+                    sample,
+                    bins));
         }
 
         return diagnostics
-                ? new LowlandModalityDiagnosticsData(modes, histogram, Arrays.asList(diagnosticsBins))
+                ? new LowlandModalityDiagnosticsData(modes,
+                histogram,
+                Arrays.asList(diagnosticsBins))
                 : new ModalityData(modes, histogram);
     }
 
-    private RangedMode globalMode(List<DensityHistogramBin> bins, List<Double> binHeights, DensityHistogram histogram, Sample sample) {
+    private RangedMode globalMode(List<DensityHistogramBin> bins,
+                                  List<Double> binHeights,
+                                  DensityHistogram histogram,
+                                  Sample sample) {
         int maxIndex = whichMax(binHeights);
-        return new RangedMode(bins.get(maxIndex).getMiddle(), histogram.getGlobalLower(), histogram.getGlobalUpper(), sample);
+        return new RangedMode(bins.get(maxIndex).getMiddle(),
+                histogram.getGlobalLower(),
+                histogram.getGlobalUpper(),
+                sample);
     }
 
-    private RangedMode localMode(double modeLocation, double lower, double upper, Sample sample, List<DensityHistogramBin> bins) {
+    private RangedMode localMode(double modeLocation,
+                                 double lower,
+                                 double upper,
+                                 Sample sample,
+                                 List<DensityHistogramBin> bins) {
         List<Double> modeValues = new ArrayList<>();
-        List<Double> modeWeights = sample.isWeighted ? new ArrayList<>() : null;
+        List<Double> modeWeights = sample.isWeighted() ? new ArrayList<>() : null;
 
         for (DensityHistogramBin bin : bins) {
             double middle = bin.getMiddle();

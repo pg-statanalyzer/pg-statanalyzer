@@ -1,9 +1,12 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 
 /**
@@ -11,11 +14,14 @@ import java.util.Objects;
  * Histogram is immutable once created.
  */
 
+@Getter
+@ToString
+@EqualsAndHashCode
 public final class DensityHistogram {
     private final List<DensityHistogramBin> bins;
 
     /**
-     * Constructs {@code DensityHistogram} with specified bins.
+     * Constructs {@code DensityHistogram} with specified list of bins.
      *
      * @param bins list of {@link DensityHistogramBin} objects representing histogram's bins.
      *             Must not be {@code null} or empty.
@@ -34,7 +40,7 @@ public final class DensityHistogram {
      * @return lower bound of the first bin.
      */
     public double getGlobalLower() {
-        return bins.get(0).lower();
+        return bins.get(0).getLower();
     }
 
     /**
@@ -43,11 +49,11 @@ public final class DensityHistogram {
      * @return upper bound of the last bin.
      */
     public double getGlobalUpper() {
-        return bins.get(bins.size() - 1).upper();
+        return bins.get(bins.size() - 1).getUpper();
     }
 
     /**
-     * Returns string representation of histogram in specified format and locale.
+     * Returns formatted string representation of histogram in specified format and locale.
      * Each bin is presented in format: {@code [lower; upper]: height}.
      *
      * @param format format string for displaying numbers (e.g., {@code "%.2f"}).
@@ -58,40 +64,10 @@ public final class DensityHistogram {
         StringBuilder builder = new StringBuilder();
         for (DensityHistogramBin bin : bins) {
             builder.append(String.format(locale, "[%s; %s]: %s%n",
-                    String.format(locale, format, bin.lower()),
-                    String.format(locale, format, bin.upper()),
-                    String.format(locale, format, bin.height())));
+                    String.format(locale, format, bin.getLower()),
+                    String.format(locale, format, bin.getUpper()),
+                    String.format(locale, format, bin.getHeight())));
         }
         return builder.toString().trim();
-    }
-
-    /**
-     * Returns list of bins in histogram. Returned list is unmodifiable.
-     *
-     * @return unmodifiable list of {@link DensityHistogramBin} objects.
-     */
-    public List<DensityHistogramBin> bins() {
-        return bins;
-    }
-
-    /**
-     * Returns hash code of this histogram based on its bins.
-     *
-     * @return hash code of this histogram.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(bins);
-    }
-
-    /**
-     * Returns string representation of histogram, including list of bins.
-     *
-     * @return string representation of this {@code DensityHistogram}.
-     */
-    @Override
-    public String toString() {
-        return "f.Histograms.DensityHistogram[" +
-                "bins=" + bins + ']';
     }
 }

@@ -5,6 +5,8 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.HarrellDavisQuan
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.IQuantileEstimator;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sequences.ArithmeticProgressionSequence;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,22 +19,12 @@ import java.util.stream.Collectors;
  * This class follows Singleton pattern, and histogram can be created using quantile estimators.
  */
 
+@NoArgsConstructor(staticName = "getInstance")
 public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistogramBuilder {
 
+    @Getter
     private static final QuantileRespectfulDensityHistogramBuilder INSTANCE =
             new QuantileRespectfulDensityHistogramBuilder();
-
-    private QuantileRespectfulDensityHistogramBuilder() {
-    }
-
-    /**
-     * Returns singleton instance of {@code QuantileRespectfulDensityHistogramBuilder}.
-     *
-     * @return singleton instance of builder.
-     */
-    public static QuantileRespectfulDensityHistogramBuilder getInstance() {
-        return INSTANCE;
-    }
 
     /**
      * Builds {@link DensityHistogram} with specified number of bins using default quantile estimator.
@@ -40,7 +32,7 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
      * @param sample   {@link Sample} from which histogram is built. Must not be {@code null}.
      * @param binCount number of bins to create. Must be greater than 1.
      * @return {@link DensityHistogram} built from provided sample.
-     * @throws IllegalArgumentException if sample is {@code null} or binCount is less than or equal to 1.
+     * @throws IllegalArgumentException if sample is {@code null} or {@code binCount} is less than or equal to 1.
      */
     @Override
     public DensityHistogram build(Sample sample, int binCount) {
@@ -49,17 +41,18 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
 
     /**
      * Builds {@link DensityHistogram} with specified number of bins, using provided quantile estimator.
-     * If no quantile estimator is provided, {@link HarrellDavisQuantileEstimator} is used by default.
+     * If no estimator is provided, {@link HarrellDavisQuantileEstimator} is used by default.
      *
      * @param sample            {@link Sample} from which histogram is built. Must not be {@code null}.
      * @param binCount          number of bins to create. Must be greater than 1.
      * @param quantileEstimator {@link IQuantileEstimator} to use. If {@code null}, default estimator is used.
-     * @return a {@link DensityHistogram} built from provided sample.
-     * @throws IllegalArgumentException            if sample is {@code null} or binCount is less than or equal to 1.
-     * @throws WeightedSampleNotSupportedException if sample is weighted and quantile estimator does not
-     *                                             support weighted samples.
+     * @return {@link DensityHistogram} built from provided sample.
+     * @throws IllegalArgumentException            if sample is {@code null} or {@code binCount} is less than or equal to 1.
+     * @throws WeightedSampleNotSupportedException if sample is weighted and estimator doesn't support weighted samples.
      */
-    public DensityHistogram build(Sample sample, int binCount, IQuantileEstimator quantileEstimator) {
+    public DensityHistogram build(Sample sample,
+                                  int binCount,
+                                  IQuantileEstimator quantileEstimator) {
         if (sample == null) {
             throw new IllegalArgumentException("Sample cannot be null");
         }
@@ -70,11 +63,12 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
         quantileEstimator = (quantileEstimator != null) ?
                 quantileEstimator : HarrellDavisQuantileEstimator.getInstance();
 
-        if (sample.isWeighted && !quantileEstimator.supportsWeightedSamples()) {
+        if (sample.isWeighted() && !quantileEstimator.supportsWeightedSamples()) {
             throw new WeightedSampleNotSupportedException();
         }
 
-        double[] probabilityValues = new ArithmeticProgressionSequence(0, 1.0 / binCount)
+        double[] probabilityValues = new ArithmeticProgressionSequence(0,
+                1.0 / binCount)
                 .generateArray(binCount + 1);
 
         List<Double> probabilities = Arrays.stream(probabilityValues)

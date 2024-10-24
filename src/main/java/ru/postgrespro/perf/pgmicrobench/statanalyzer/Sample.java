@@ -1,6 +1,8 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
+import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -9,10 +11,11 @@ import java.util.stream.Collectors;
 
 /**
  * {@code Sample} class represents collection of numerical values with optional weights.
- * It provides various statistical operations, including mean, min, max, and ability to sort values.
+ * It provides various statistical operations, including mean, min, max and ability to sort values.
  * Additionally, it supports arithmetic operations on all values and parsing from string representations.
  */
 
+@Getter
 public class Sample {
 
     private static final String DEFAULT_FORMAT = "G";
@@ -23,7 +26,7 @@ public class Sample {
     private final List<Double> values;
     private final List<Double> weights;
     private final double totalWeight;
-    public final boolean isWeighted;
+    private final boolean isWeighted;
     private final Lazy<List<Double>> lazySortedValues;
     private final Lazy<List<Double>> lazySortedWeights;
 
@@ -46,18 +49,8 @@ public class Sample {
         }
     }
 
-    public double getWeightForBin(DensityHistogramBin bin) {
-        double totalWeightForBin = 0.0;
-        double binLower = bin.lower();
-        double binUpper = bin.upper();
-
-        for (int i = 0; i < values.size(); i++) {
-            double value = values.get(i);
-            if (value >= binLower && value <= binUpper) {
-                totalWeightForBin += weights.get(i);
-            }
-        }
-        return totalWeightForBin;
+    public boolean isWeighted() {
+        return isWeighted;
     }
 
     /**
@@ -70,96 +63,12 @@ public class Sample {
     }
 
     /**
-     * Constructs {@code Sample} with specified list of values and equal weights.
-     *
-     * @param values list of sample values.
-     * @throws IllegalArgumentException if values are null or empty.
-     */
-    public Sample(List<Double> values) {
-        if (values == null || values.isEmpty()) {
-            throw new IllegalArgumentException("Values cannot be null or empty");
-        }
-
-        this.values = values;
-        double weight = 1.0 / values.size();
-        this.weights = Collections.nCopies(values.size(), weight);
-        this.totalWeight = 1.0;
-        this.isWeighted = false;
-
-        this.lazySortedValues = new Lazy<>(() -> sortList(values));
-        this.lazySortedWeights = new Lazy<>(() -> weights);
-    }
-
-    /**
-     * Constructs weighted {@code Sample} with specified values and weights.
-     *
-     * @param values  list of sample values.
-     * @param weights list of corresponding weights.
-     * @throws IllegalArgumentException if values or weights are null, empty, or of unequal length.
-     */
-    public Sample(List<Double> values, List<Double> weights) {
-        if (values == null || values.isEmpty() || weights == null || weights.isEmpty()) {
-            throw new IllegalArgumentException("Values and weights cannot be null or empty");
-        }
-        if (values.size() != weights.size()) {
-            throw new IllegalArgumentException("Values and weights must have the same length");
-        }
-
-        this.values = values;
-        this.weights = weights;
-        this.totalWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
-        if (this.totalWeight < 1e-9) {
-            throw new IllegalArgumentException("Total weight must be positive.");
-        }
-        this.isWeighted = true;
-
-        this.lazySortedValues = new Lazy<>(() -> sortList(values));
-        this.lazySortedWeights = new Lazy<>(() -> sortList(weights));
-    }
-
-    /**
-     * Returns sorted values.
-     *
-     * @return list of sorted values.
-     */
-    public List<Double> getSortedValues() {
-        return lazySortedValues.get();
-    }
-
-    /**
-     * Returns sorted weights.
-     *
-     * @return list of sorted weights.
-     */
-    public List<Double> getSortedWeights() {
-        return lazySortedWeights.get();
-    }
-
-    /**
      * Returns size of sample.
      *
      * @return number of elements in sample.
      */
     public int getSize() {
         return values.size();
-    }
-
-    /**
-     * Returns weighted size of sample.
-     *
-     * @return effective size based on weights.
-     */
-    public double getWeightedSize() {
-        return totalWeight * totalWeight / weights.stream().mapToDouble(w -> w * w).sum();
-    }
-
-    /**
-     * Returns mean of sample values.
-     *
-     * @return mean value, or NaN if sample is empty.
-     */
-    public double getMean() {
-        return values.stream().mapToDouble(Double::doubleValue).average().orElse(Double.NaN);
     }
 
     /**
@@ -181,50 +90,89 @@ public class Sample {
     }
 
     /**
-     * Returns total weight of sample.
+     * Constructs {@code Sample} with specified list of values and equal weights.
      *
-     * @return total weight.
+     * @param values list of sample values.
+     * @throws IllegalArgumentException if values are null or empty.
      */
-    public double getTotalWeight() {
-        return totalWeight;
+    public Sample(@NonNull List<Double> values) {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException("Values cannot be empty");
+        }
+
+        this.values = values;
+        double weight = 1.0 / values.size();
+        this.weights = Collections.nCopies(values.size(), weight);
+        this.totalWeight = 1.0;
+        this.isWeighted = false;
+
+        this.lazySortedValues = new Lazy<>(() -> sortList(values));
+        this.lazySortedWeights = new Lazy<>(() -> weights);
     }
 
     /**
-     * Concatenates current sample with another sample.
+     * Constructs weighted {@code Sample} with specified values and weights.
      *
-     * @param other other sample to concatenate.
-     * @return new {@code Sample} containing combined values and weights.
+     * @param values  list of sample values.
+     * @param weights list of corresponding weights.
+     * @throws IllegalArgumentException if values or weights are null, empty, or of unequal length.
      */
-    public Sample concat(Sample other) {
-        List<Double> newValues = new ArrayList<>(this.values);
-        newValues.addAll(other.values);
+    public Sample(@NonNull List<Double> values, @NonNull List<Double> weights) {
+        if (values.isEmpty() || weights.isEmpty()) {
+            throw new IllegalArgumentException("Values and weights cannot be empty");
+        }
+        if (values.size() != weights.size()) {
+            throw new IllegalArgumentException("Values and weights must have the same length");
+        }
 
-        List<Double> newWeights = new ArrayList<>(this.weights);
-        newWeights.addAll(other.weights);
+        this.values = values;
+        this.weights = weights;
+        this.totalWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
+        if (this.totalWeight < 1e-9) {
+            throw new IllegalArgumentException("Total weight must be positive.");
+        }
+        this.isWeighted = true;
 
-        return new Sample(newValues, newWeights);
+        this.lazySortedValues = new Lazy<>(() -> sortList(values));
+        this.lazySortedWeights = new Lazy<>(() -> sortList(weights));
     }
 
     /**
-     * Adds constant value to all elements of sample.
+     * Returns the weight for a specified histogram bin.
      *
-     * @param value value to add.
-     * @return new {@code Sample} with modified values.
+     * @param bin the histogram bin to calculate weight for.
+     * @return total weight of the sample values falling within the bin range.
      */
-    public Sample add(double value) {
-        List<Double> newValues = values.stream().map(v -> v + value).collect(Collectors.toList());
-        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
+    public double getWeightForBin(DensityHistogramBin bin) {
+        double totalWeightForBin = 0.0;
+        double binLower = bin.getLower();
+        double binUpper = bin.getUpper();
+
+        for (int i = 0; i < values.size(); i++) {
+            double value = values.get(i);
+            if (value >= binLower && value <= binUpper) {
+                totalWeightForBin += weights.get(i);
+            }
+        }
+        return totalWeightForBin;
     }
 
     /**
-     * Multiplies all elements of sample by constant value.
+     * Returns sorted values.
      *
-     * @param value multiplier.
-     * @return new {@code Sample} with modified values.
+     * @return list of sorted values.
      */
-    public Sample multiply(double value) {
-        List<Double> newValues = values.stream().map(v -> v * value).collect(Collectors.toList());
-        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
+    public List<Double> getSortedValues() {
+        return lazySortedValues.get();
+    }
+
+    /**
+     * Returns sorted weights.
+     *
+     * @return list of sorted weights.
+     */
+    public List<Double> getSortedWeights() {
+        return lazySortedWeights.get();
     }
 
     public static boolean tryParse(String s, SampleHolder holder) {
@@ -235,7 +183,8 @@ public class Sample {
 
             int openBracketIndex = s.indexOf(OPEN_BRACKET);
             int closeBracketIndex = s.indexOf(CLOSE_BRACKET);
-            String[] valueStrings = s.substring(openBracketIndex + 1, closeBracketIndex).split(String.valueOf(SEPARATOR));
+            String[] valueStrings = s.substring(openBracketIndex + 1,
+                    closeBracketIndex).split(String.valueOf(SEPARATOR));
             List<Double> values = Arrays.stream(valueStrings)
                     .map(Double::parseDouble)
                     .collect(Collectors.toList());

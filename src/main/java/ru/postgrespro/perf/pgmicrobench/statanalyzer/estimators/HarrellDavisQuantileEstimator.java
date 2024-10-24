@@ -1,6 +1,9 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.math3.distribution.BetaDistribution;
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +15,12 @@ import java.util.Objects;
  */
 
 public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
-    private static final HarrellDavisQuantileEstimator INSTANCE = new HarrellDavisQuantileEstimator();
+
+    private static final HarrellDavisQuantileEstimator INSTANCE;
+
+    static {
+        INSTANCE = new HarrellDavisQuantileEstimator();
+    }
 
     private HarrellDavisQuantileEstimator() {
     }
@@ -37,7 +45,7 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
     public double[] quantiles(Sample sample, List<Double> probabilities) {
         double[] result = new double[probabilities.size()];
         for (int i = 0; i < probabilities.size(); i++) {
-            result[i] = getMoment(sample, probabilities.get(i), false).c1;
+            result[i] = getMoment(sample, probabilities.get(i), false).getC1();
         }
         return result;
     }
@@ -68,7 +76,7 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
 
         for (int j = 0; j < n; j++) {
             double betaCdfLeft = betaCdfRight;
-            currentProbability += sample.isWeighted
+            currentProbability += sample.isWeighted()
                     ? sortedWeights.get(j) / sample.getTotalWeight()
                     : 1.0 / n;
 
@@ -84,26 +92,16 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
         return new Moments(c1, c2);
     }
 
+    @Getter
+    @ToString
+    @RequiredArgsConstructor
     private static final class Moments {
         private final double c1;
         private final double c2;
-
-        private Moments(double c1, double c2) {
-            this.c1 = c1;
-            this.c2 = c2;
-        }
 
         @Override
         public int hashCode() {
             return Objects.hash(c1, c2);
         }
-
-        @Override
-        public String toString() {
-            return "Moments[" +
-                    "c1=" + c1 + ", " +
-                    "c2=" + c2 + ']';
-        }
-
     }
 }

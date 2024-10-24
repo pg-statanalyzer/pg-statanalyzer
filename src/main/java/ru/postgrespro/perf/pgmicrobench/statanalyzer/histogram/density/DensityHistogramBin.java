@@ -1,7 +1,9 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import java.util.Locale;
-import java.util.Objects;
 
 
 /**
@@ -10,6 +12,8 @@ import java.util.Objects;
  * Instances of this class are immutable.
  */
 
+@Getter
+@EqualsAndHashCode
 public final class DensityHistogramBin {
     private final double lower;
     private final double upper;
@@ -27,7 +31,7 @@ public final class DensityHistogramBin {
         if (height < 0) {
             throw new IllegalArgumentException("Height cannot be negative");
         }
-        if (upper - lower <= 0) {
+        if (upper <= lower) {
             throw new IllegalArgumentException("Upper must be greater than lower");
         }
 
@@ -37,39 +41,12 @@ public final class DensityHistogramBin {
     }
 
     /**
-     * Returns middle value of bin, calculated as average of lower and upper bounds.
+     * Returns middle value of bin, calculated as the average of lower and upper bounds.
      *
      * @return middle value of bin.
      */
     public double getMiddle() {
         return (lower + upper) / 2;
-    }
-
-    /**
-     * Returns lower bound of bin.
-     *
-     * @return lower bound of bin.
-     */
-    public double lower() {
-        return lower;
-    }
-
-    /**
-     * Returns upper bound of bin.
-     *
-     * @return upper bound of bin.
-     */
-    public double upper() {
-        return upper;
-    }
-
-    /**
-     * Returns height of bin.
-     *
-     * @return height of bin.
-     */
-    public double height() {
-        return height;
     }
 
     /**
@@ -79,19 +56,6 @@ public final class DensityHistogramBin {
      */
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "[%s; %s] H = %s",
-                String.valueOf(lower),
-                String.valueOf(upper),
-                String.valueOf(height));
-    }
-
-    /**
-     * Returns hash code for this bin based on its lower bound, upper bound and height.
-     *
-     * @return hash code of this bin.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(lower, upper, height);
+        return String.format(Locale.ROOT, "[%s; %s] H = %s", lower, upper, height);
     }
 }

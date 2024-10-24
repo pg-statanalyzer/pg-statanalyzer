@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
+import lombok.Getter;
 
 import java.util.List;
 
@@ -10,10 +11,19 @@ import java.util.List;
  * This class provides methods to access and analyze modes and histogram.
  */
 
+@Getter
 public class ModalityData {
 
+    /**
+     * -- GETTER --
+     * Returns list of detected modes.
+     */
     private final List<RangedMode> modes;
 
+    /**
+     * -- GETTER --
+     * Returns density histogram associated with detected modes.
+     */
     private final DensityHistogram densityHistogram;
 
     /**
@@ -29,24 +39,6 @@ public class ModalityData {
         }
         this.modes = modes;
         this.densityHistogram = densityHistogram;
-    }
-
-    /**
-     * Returns list of detected modes.
-     *
-     * @return unmodifiable list of {@link RangedMode} objects.
-     */
-    public List<RangedMode> getModes() {
-        return modes;
-    }
-
-    /**
-     * Returns density histogram associated with detected modes.
-     *
-     * @return {@link DensityHistogram} instance.
-     */
-    public DensityHistogram getDensityHistogram() {
-        return densityHistogram;
     }
 
     /**

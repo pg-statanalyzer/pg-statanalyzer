@@ -11,7 +11,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,15 +18,35 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ModalityDetectorTests2 {
-    private final LowlandModalityDetector detector = new LowlandModalityDetector(0.5, 0.01, false);
-    private static final List<ModalityTestData> referenceDataSet = ModalityReferenceDataSet.generate(new Random(42), 5);
 
+/**
+ * Unit tests for {@code LowlandModalityDetector} class.
+ * This class tests modality detection using reference datasets and weighted samples.
+ */
+
+class LowlandModalityDetectorTests {
+
+    private final LowlandModalityDetector detector = new LowlandModalityDetector(0.5,
+            0.01,
+            false);
+
+    private static final List<ModalityTestData> referenceDataSet = ModalityReferenceDataSet
+            .generate(new Random(42),
+                    5);
+
+    /**
+     * Sets up test environment before each test case.
+     */
     @BeforeEach
     void setup() {
         System.out.println("Setting up the test...");
     }
 
+    /**
+     * Parameterized test that runs modality detection on set of reference data.
+     *
+     * @param name name of modality test data to be used in test
+     */
     @ParameterizedTest
     @MethodSource("provideReferenceDataSetNames")
     @DisplayName("Test with reference data set")
@@ -45,7 +64,8 @@ class ModalityDetectorTests2 {
                 QuantileRespectfulDensityHistogramBuilder.getInstance()
         );
 
-        Assertions.assertNotNull(modalityData, "Failed to get ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData from DetectModes");
+        Assertions.assertNotNull(modalityData,
+                "Failed to get ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData from DetectModes");
 
         int actualModality = modalityData.getModality();
 
@@ -59,6 +79,11 @@ class ModalityDetectorTests2 {
         assertEquals(expectedModality, actualModality);
     }
 
+    /**
+     * Tests modality detection with weighted sample.
+     * Generates two sets of values from Gumbel distributions and applies weights.
+     * Compares modality detection results between simple and weighted samples.
+     */
     @DisplayName("Weighted ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample Test")
     @Test
     public void weightedSampleTest() {
@@ -84,19 +109,26 @@ class ModalityDetectorTests2 {
         System.out.println("SimpleModalityData.Modes:");
         System.out.println(simpleModalityData);
         System.out.println();
-        System.out.println(simpleModalityData.getDensityHistogram().present("N2", Locale.US));
+        System.out.println(simpleModalityData.getDensityHistogram().present("N2",
+                Locale.US));
         System.out.println("------------------------------");
 
         ModalityData weightedModalityData = detector.detectModes(sample);
         System.out.println("WeightedModalityData.Modes:");
         System.out.println(weightedModalityData);
         System.out.println();
-        System.out.println(weightedModalityData.getDensityHistogram().present("N2", Locale.US));
+        System.out.println(weightedModalityData.getDensityHistogram().present("N2",
+                Locale.US));
 
         Assertions.assertEquals(2, simpleModalityData.getModality());
         Assertions.assertEquals(1, weightedModalityData.getModality());
     }
 
+    /**
+     * Provides names of reference data sets for parameterized testing.
+     *
+     * @return stream of names from reference data set
+     */
     private static Stream<String> provideReferenceDataSetNames() {
         return referenceDataSet.stream().map(ModalityTestData::getName);
     }

@@ -1,9 +1,19 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets;
 
+import java.util.Arrays;
 import java.util.List;
+
+
+/**
+ * {@code ModalityManualDataSet} class contains predefined datasets for testing modalities.
+ * These datasets are represented as instances of {@link ModalityTestData}.
+ */
 
 public class ModalityManualDataSet {
 
+    /**
+     * Predefined test dataset named {@code Manual1} containing sequence of numerical values.
+     */
     public static final ModalityTestData Manual1 = new ModalityTestData(
             "Manual1",
             new double[]{171, 159, 150, 160, 160, 150, 151, 150, 160, 150, 160, 156, 144, 170, 150, 150, 160, 150, 150, 160, 150, 150, 160,
@@ -53,5 +63,9 @@ public class ModalityManualDataSet {
             3
     );
 
-    public static final List<ModalityTestData> ALL = List.of(Manual1);
+    /**
+     * List of all predefined datasets.
+     * Currently, it only contains {@link #Manual1}.
+     */
+    public static final List<ModalityTestData> ALL = Arrays.asList(Manual1);
 }
