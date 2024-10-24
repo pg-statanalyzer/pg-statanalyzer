@@ -1,0 +1,19 @@
+N - number of distributions
+dist_i - name of distribution
+[params_i] - parameters of distribution
+n_i - number of values
+[values] - list of values, amount = n_1 + n_2 + ... + n_N
+
+
+Supported distributions:
+gamma [shape scale]
+lognorm [mu sigma]
+
+
+Format:
+N
+dist_1 [params_1] n_1
+dist_2 [params_2] n_2
+...
+dist_N [params_N] n_N
+[values]
