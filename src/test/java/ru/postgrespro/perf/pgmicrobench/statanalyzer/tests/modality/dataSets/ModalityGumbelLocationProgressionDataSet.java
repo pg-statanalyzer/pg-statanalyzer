@@ -27,8 +27,7 @@ public class ModalityGumbelLocationProgressionDataSet {
      * @param batch          size of each batch of generated values.
      * @param namePostfix    optional postfix to append to dataset name for identification.
      * @param noisy          whether to add noise to dataset using uniform distributions.
-     * @return {@link ModalityTestData} instance containing generated values, or {@code null}
-     * if specific edge case condition is met.
+     * @return {@link ModalityTestData} instance containing generated values.
      */
     private static ModalityTestData generateSingle(
             Random random, int count, int locationFactor, double scale, int batch,

@@ -60,8 +60,8 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
             throw new IllegalArgumentException("binCount must be greater than 1");
         }
 
-        quantileEstimator = (quantileEstimator != null) ?
-                quantileEstimator : HarrellDavisQuantileEstimator.getInstance();
+        quantileEstimator = (quantileEstimator != null)
+                ? quantileEstimator : HarrellDavisQuantileEstimator.getInstance();
 
         if (sample.isWeighted() && !quantileEstimator.supportsWeightedSamples()) {
             throw new WeightedSampleNotSupportedException();

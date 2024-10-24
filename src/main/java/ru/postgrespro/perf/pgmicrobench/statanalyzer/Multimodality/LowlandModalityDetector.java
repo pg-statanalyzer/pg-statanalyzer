@@ -6,7 +6,10 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.IDensityH
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
