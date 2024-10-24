@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.GumbelDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.UniformDistribution;

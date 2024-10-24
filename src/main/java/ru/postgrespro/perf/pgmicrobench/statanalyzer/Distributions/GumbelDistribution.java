@@ -24,6 +24,9 @@ public class GumbelDistribution {
         this(location, 1);
     }
 
+    /**
+     * Gumbel distribution.
+     */
     public GumbelDistribution(double location, double scale) {
         if (scale <= 0) {
             throw new IllegalArgumentException("Scale must be positive");

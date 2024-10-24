@@ -108,7 +108,7 @@ public class LowlandModalityDetector {
         List<Double> cutPoints = new ArrayList<>();
 
         List<Integer> previousPeaks = new ArrayList<>();
-        
+
         if (!peaks.isEmpty()) {
             previousPeaks.add(peaks.get(0));
         }
@@ -175,11 +175,16 @@ public class LowlandModalityDetector {
                              List<Double> cutPoints,
                              DiagnosticsBin[] diagnosticsBins) {
 
-        int left = peak1, right = peak2;
+        int left = peak1;
+        int right = peak2;
         double height = Math.min(binHeights.get(peak1), binHeights.get(peak2));
 
-        while (left < right && binHeights.get(left) > height) left++;
-        while (left < right && binHeights.get(right) > height) right--;
+        while (left < right && binHeights.get(left) > height) {
+            left++;
+        }
+        while (left < right && binHeights.get(right) > height) {
+            right--;
+        }
 
         if (diagnostics) {
             for (int i = left; i <= right; i++) {

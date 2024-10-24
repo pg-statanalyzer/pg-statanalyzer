@@ -5,8 +5,8 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileR
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets.ModalityReferenceDataSet;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets.ModalityTestData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityReferenceDataSet;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityTestData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
