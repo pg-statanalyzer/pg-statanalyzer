@@ -1,13 +1,19 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Distributions;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+
+/**
+ * Represents Gumbel distribution, probability distribution used to model
+ * distribution of maximum (or minimum) of number of samples of various distributions.
+ */
+
 public class GumbelDistribution {
     private final double location;
     private final double scale;
-    public double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
+    private static final double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
 
     public GumbelDistribution() {
         this(0, 1);
@@ -58,10 +64,6 @@ public class GumbelDistribution {
         return distribution.generate(random, count);
     }
 
-    private double z(double x) {
-        return (x - location) / scale;
-    }
-
     @Override
     public String toString() {
         return String.format("Gumbel(%f, %f)", location, scale);
@@ -81,5 +83,9 @@ public class GumbelDistribution {
 
     public double standardDeviation() {
         return Math.sqrt(variance());
+    }
+
+    private double z(double x) {
+        return (x - location) / scale;
     }
 }

@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Tests.TestDataSets;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets;
 
 import java.util.ArrayList;
 import java.util.List;

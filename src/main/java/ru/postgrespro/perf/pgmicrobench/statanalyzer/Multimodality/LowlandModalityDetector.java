@@ -1,12 +1,18 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogram;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogramBin;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.IDensityHistogramBuilder;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.QuantileRespectfulDensityHistogramBuilder;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.IDensityHistogramBuilder;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.*;
+
+
+/**
+ * LowlandModalityDetector class detects modality patterns from sample using density histogram.
+ */
+
 public class LowlandModalityDetector {
 
     private final double sensitivity;
@@ -25,20 +31,31 @@ public class LowlandModalityDetector {
         this.diagnostics = diagnostics;
     }
 
-    public LowlandModalityDetector() {
-        this(0.5, 0.01, false);
-    }
-
+    /**
+     * Detects modality data from given sample.
+     *
+     * @param sample input sample for modality detection.
+     * @return ModalityData containing detected modes and related data.
+     * @throws IllegalArgumentException if sample is null or contains less than two unique elements.
+     */
     public ModalityData detectModes(Sample sample) {
         return detectModes(sample, QuantileRespectfulDensityHistogramBuilder.getInstance());
     }
 
+    /**
+     * Detects modality data from given sample using specified density histogram builder.
+     *
+     * @param sample                  input sample for modality detection.
+     * @param densityHistogramBuilder builder for constructing density histogram.
+     * @return ModalityData containing detected modes and related data.
+     * @throws IllegalArgumentException if sample is null or contains less than two unique elements.
+     */
     public ModalityData detectModes(Sample sample, IDensityHistogramBuilder densityHistogramBuilder) {
         if (sample == null) {
-            throw new IllegalArgumentException("f.Sample cannot be null");
+            throw new IllegalArgumentException("Sample cannot be null");
         }
         if (sample.getMax() - sample.getMin() < 1e-9) {
-            throw new IllegalArgumentException("f.Sample should contain at least two different elements");
+            throw new IllegalArgumentException("Sample should contain at least two different elements");
         }
 
         densityHistogramBuilder = Optional.ofNullable(densityHistogramBuilder)
@@ -53,25 +70,27 @@ public class LowlandModalityDetector {
             binHeights.add(bin.height());
         }
 
-        List<Integer> peaks = new ArrayList<>();
-        LowlandModalityDiagnosticsData.DiagnosticsBin[] diagnosticsBins = diagnostics
-                ? bins.stream().map(LowlandModalityDiagnosticsData.DiagnosticsBin::new).toArray(LowlandModalityDiagnosticsData.DiagnosticsBin[]::new)
-                : new LowlandModalityDiagnosticsData.DiagnosticsBin[0];
+        List<Integer> peaks = findPeaks(bins, binHeights);
 
-        for (int i = 1; i < bins.size() - 1; i++) {
-            if (binHeights.get(i) > binHeights.get(i - 1) && binHeights.get(i) >= binHeights.get(i + 1)) {
-                peaks.add(i);
-                if (diagnostics) {
-                    diagnosticsBins[i].setIsPeak(true);
-                }
-            }
-        }
+        DiagnosticsBin[] diagnosticsBins = diagnostics
+                ? bins.stream().map(DiagnosticsBin::new).toArray(DiagnosticsBin[]::new)
+                : new DiagnosticsBin[0];
 
         return analyzePeaks(peaks, bins, binHeights, histogram, diagnosticsBins, sample);
     }
 
+    private List<Integer> findPeaks(List<DensityHistogramBin> bins, List<Double> binHeights) {
+        List<Integer> peaks = new ArrayList<>();
+        for (int i = 1; i < bins.size() - 1; i++) {
+            if (binHeights.get(i) > binHeights.get(i - 1) && binHeights.get(i) >= binHeights.get(i + 1)) {
+                peaks.add(i);
+            }
+        }
+        return peaks;
+    }
+
     private ModalityData analyzePeaks(List<Integer> peaks, List<DensityHistogramBin> bins, List<Double> binHeights,
-                                      DensityHistogram histogram, LowlandModalityDiagnosticsData.DiagnosticsBin[] diagnosticsBins, Sample sample) {
+                                      DensityHistogram histogram, DiagnosticsBin[] diagnosticsBins, Sample sample) {
 
         List<Double> modeLocations = new ArrayList<>();
         List<Double> cutPoints = new ArrayList<>();
@@ -107,7 +126,7 @@ public class LowlandModalityDetector {
     }
 
     private boolean trySplit(int peak0, int peak1, int peak2, List<DensityHistogramBin> bins, List<Double> binHeights,
-                             List<Double> modeLocations, List<Double> cutPoints, LowlandModalityDiagnosticsData.DiagnosticsBin[] diagnosticsBins) {
+                             List<Double> modeLocations, List<Double> cutPoints, DiagnosticsBin[] diagnosticsBins) {
         int left = peak1, right = peak2;
         double height = Math.min(binHeights.get(peak1), binHeights.get(peak2));
 
@@ -156,7 +175,7 @@ public class LowlandModalityDetector {
     private ModalityData createModalityData(List<Double> modeLocations, List<Double> cutPoints,
                                             List<DensityHistogramBin> bins, List<Double> binHeights,
                                             DensityHistogram histogram, Sample sample,
-                                            LowlandModalityDiagnosticsData.DiagnosticsBin[] diagnosticsBins) {
+                                            DiagnosticsBin[] diagnosticsBins) {
 
         List<RangedMode> modes = new ArrayList<>();
         if (modeLocations.size() <= 1) {
@@ -186,9 +205,9 @@ public class LowlandModalityDetector {
         for (DensityHistogramBin bin : bins) {
             double middle = bin.getMiddle();
             if (middle >= lower && middle <= upper) {
-                modeValues.add(middle); // Add the value of the bin's middle if within bounds
+                modeValues.add(middle);
                 if (modeWeights != null) {
-                    modeWeights.add(sample.getWeightForBin(bin)); // Assuming a method exists to get weight for the bin
+                    modeWeights.add(sample.getWeightForBin(bin));
                 }
             }
         }

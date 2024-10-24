@@ -1,15 +1,16 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Tests;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Distributions.GumbelDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.QuantileRespectfulDensityHistogramBuilder;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality.LowlandModalityDetector;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality.ModalityData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.GumbelDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Tests.TestDataSets.ModalityReferenceDataSet;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Tests.TestDataSets.ModalityTestData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets.ModalityReferenceDataSet;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets.ModalityTestData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ class ModalityDetectorTests2 {
                 QuantileRespectfulDensityHistogramBuilder.getInstance()
         );
 
-        Assertions.assertNotNull(modalityData, "Failed to get f.Multimodality.ModalityData from DetectModes");
+        Assertions.assertNotNull(modalityData, "Failed to get ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData from DetectModes");
 
         int actualModality = modalityData.getModality();
 
@@ -58,7 +59,7 @@ class ModalityDetectorTests2 {
         assertEquals(expectedModality, actualModality);
     }
 
-    @DisplayName("Weighted f.Sample Test")
+    @DisplayName("Weighted ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample Test")
     @Test
     public void weightedSampleTest() {
         Random random = new Random(42);

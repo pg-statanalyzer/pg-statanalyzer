@@ -1,77 +1,39 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogram;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogramBin;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
 
 import java.text.NumberFormat;
 import java.util.List;
 
-public class LowlandModalityDiagnosticsData extends ModalityData {
-    private final List<DiagnosticsBin> bins;
 
+/**
+ * Represents diagnostic data for lowland modalities, extending {@link ModalityData} class.
+ * This class provides additional information with list of {@link DiagnosticsBin} objects.
+ */
+
+public class LowlandModalityDiagnosticsData extends ModalityData {
+
+    /**
+     * Constructs {@code LowlandModalityDiagnosticsData} instance with specified modes,
+     * density histogram and diagnostic bins.
+     *
+     * @param modes            list of {@link RangedMode} representing detected modes.
+     * @param densityHistogram {@link DensityHistogram} associated with this data.
+     * @param bins             list of {@link DiagnosticsBin} providing diagnostic information.
+     */
     public LowlandModalityDiagnosticsData(List<RangedMode> modes,
                                           DensityHistogram densityHistogram,
                                           List<DiagnosticsBin> bins) {
         super(modes, densityHistogram);
-        this.bins = bins;
     }
 
-    public List<DiagnosticsBin> getBins() {
-        return bins;
-    }
-
-    public static class DiagnosticsBin {
-        private final DensityHistogramBin histogramBin;
-        private double waterLevel;
-        private boolean isMode;
-        private boolean isLowland;
-        private boolean isPeak;
-
-        public DiagnosticsBin(DensityHistogramBin histogramBin) {
-            this.histogramBin = histogramBin;
-            this.waterLevel = histogramBin.height();
-            this.isMode = false;
-            this.isLowland = false;
-            this.isPeak = false;
-        }
-
-        public DensityHistogramBin getHistogramBin() {
-            return histogramBin;
-        }
-
-        public double getWaterLevel() {
-            return waterLevel;
-        }
-
-        public void setWaterLevel(double waterLevel) {
-            this.waterLevel = waterLevel;
-        }
-
-        public boolean getIsMode() {
-            return isMode;
-        }
-
-        public void setIsMode(boolean isMode) {
-            this.isMode = isMode;
-        }
-
-        public boolean getIsLowland() {
-            return isLowland;
-        }
-
-        public void setIsLowland(boolean isLowland) {
-            this.isLowland = isLowland;
-        }
-
-        public boolean getIsPeak() {
-            return isPeak;
-        }
-
-        public void setIsPeak(boolean isPeak) {
-            this.isPeak = isPeak;
-        }
-    }
-
+    /**
+     * Formats number using specified {@link NumberFormat}.
+     *
+     * @param value        numeric value to format.
+     * @param numberFormat {@link NumberFormat} to apply.
+     * @return formatted string representation of value.
+     */
     private String formatNumber(double value, NumberFormat numberFormat) {
         return numberFormat.format(value);
     }

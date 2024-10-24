@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 

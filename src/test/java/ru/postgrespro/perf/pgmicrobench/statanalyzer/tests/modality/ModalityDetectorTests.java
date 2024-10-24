@@ -1,9 +1,10 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Tests;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.DataLoader.Loader;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality.LowlandModalityDetector;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality.ModalityData;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Multimodality.RangedMode;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.UniformDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.loader.Loader;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

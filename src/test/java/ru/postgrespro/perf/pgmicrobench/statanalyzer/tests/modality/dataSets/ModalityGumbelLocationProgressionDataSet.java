@@ -1,7 +1,7 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Tests.TestDataSets;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Distributions.GumbelDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Distributions.UniformDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.GumbelDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.UniformDistribution;
 
 import java.util.ArrayList;
 import java.util.List;

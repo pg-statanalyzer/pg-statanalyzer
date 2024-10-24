@@ -1,12 +1,11 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.Tests.TestDataSets;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class ModalityManualDataSet {
 
     public static final ModalityTestData Manual1 = new ModalityTestData(
-            "Manual1", // Имя выборки
+            "Manual1",
             new double[]{171, 159, 150, 160, 160, 150, 151, 150, 160, 150, 160, 156, 144, 170, 150, 150, 160, 150, 150, 160, 150, 150, 160,
                     149, 161, 150, 150, 160, 150, 160, 150, 160, 150, 150, 160, 150, 160, 160, 154, 147, 160, 150, 160, 150, 160, 150,
                     150, 160, 150, 160, 151, 160, 150, 150, 160, 150, 160, 157, 153, 150, 160, 150, 160, 150, 150, 161, 160, 150, 160,
@@ -51,9 +50,8 @@ public class ModalityManualDataSet {
                     160, 161, 159, 168, 161, 166, 160, 150, 160, 166, 155, 150, 160, 150, 150, 160, 161, 159, 158, 152, 150, 160, 150,
                     160, 161, 150, 160, 160, 160, 150, 160, 150, 160, 160, 160, 160, 174, 152, 160, 156, 154, 150, 161, 160, 171, 154,
                     159, 161, 156, 166, 154, 150, 160, 160, 170, 150, 160},
-            3 // Ожидаемая мода (modality)
+            3
     );
 
-    // Список всех тестовых данных
-    public static final List<ModalityTestData> ALL = Arrays.asList(Manual1);
+    public static final List<ModalityTestData> ALL = List.of(Manual1);
 }

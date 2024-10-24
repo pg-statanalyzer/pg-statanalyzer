@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.QuantileEstimators;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 

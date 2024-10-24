@@ -1,9 +1,15 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.QuantileEstimators;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import org.apache.commons.math3.distribution.BetaDistribution;
 import java.util.List;
 import java.util.Objects;
+
+
+/**
+ * Implements Harrell-Davis quantile estimator.
+ * This estimator provides quantile estimates based on weighted sample moments.
+ */
 
 public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
     private static final HarrellDavisQuantileEstimator INSTANCE = new HarrellDavisQuantileEstimator();
@@ -11,10 +17,22 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
     private HarrellDavisQuantileEstimator() {
     }
 
+    /**
+     * Returns singleton instance of this estimator.
+     *
+     * @return singleton instance of {@code HarrellDavisQuantileEstimator}.
+     */
     public static HarrellDavisQuantileEstimator getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * Estimates quantiles for given sample and list of probabilities.
+     *
+     * @param sample        sample data for which quantiles are to be estimated.
+     * @param probabilities list of probabilities for which quantiles are calculated.
+     * @return array of quantile estimates corresponding to input probabilities.
+     */
     @Override
     public double[] quantiles(Sample sample, List<Double> probabilities) {
         double[] result = new double[probabilities.size()];
@@ -24,6 +42,11 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
         return result;
     }
 
+    /**
+     * Indicates whether estimator supports weighted samples.
+     *
+     * @return {@code true} since this estimator supports weighted samples.
+     */
     @Override
     public boolean supportsWeightedSamples() {
         return true;

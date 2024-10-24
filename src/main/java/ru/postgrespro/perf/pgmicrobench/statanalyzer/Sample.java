@@ -1,13 +1,20 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Histograms.DensityHistogramBin;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
 
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+
+/**
+ * {@code Sample} class represents collection of numerical values with optional weights.
+ * It provides various statistical operations, including mean, min, max, and ability to sort values.
+ * Additionally, it supports arithmetic operations on all values and parsing from string representations.
+ */
+
 public class Sample {
+
     private static final String DEFAULT_FORMAT = "G";
     private static final char OPEN_BRACKET = '[';
     private static final char CLOSE_BRACKET = ']';
@@ -20,6 +27,9 @@ public class Sample {
     private final Lazy<List<Double>> lazySortedValues;
     private final Lazy<List<Double>> lazySortedWeights;
 
+    /**
+     * Helper class for lazy initialization of values using {@link Supplier}.
+     */
     private static class Lazy<T> {
         private T value;
         private final Supplier<T> supplier;
@@ -50,10 +60,21 @@ public class Sample {
         return totalWeightForBin;
     }
 
+    /**
+     * Constructs {@code Sample} with specified array of values, assuming equal weights.
+     *
+     * @param values array of sample values.
+     */
     public Sample(double[] values) {
         this(Arrays.stream(values).boxed().collect(Collectors.toList()), null);
     }
 
+    /**
+     * Constructs {@code Sample} with specified list of values and equal weights.
+     *
+     * @param values list of sample values.
+     * @throws IllegalArgumentException if values are null or empty.
+     */
     public Sample(List<Double> values) {
         if (values == null || values.isEmpty()) {
             throw new IllegalArgumentException("Values cannot be null or empty");
@@ -69,6 +90,13 @@ public class Sample {
         this.lazySortedWeights = new Lazy<>(() -> weights);
     }
 
+    /**
+     * Constructs weighted {@code Sample} with specified values and weights.
+     *
+     * @param values  list of sample values.
+     * @param weights list of corresponding weights.
+     * @throws IllegalArgumentException if values or weights are null, empty, or of unequal length.
+     */
     public Sample(List<Double> values, List<Double> weights) {
         if (values == null || values.isEmpty() || weights == null || weights.isEmpty()) {
             throw new IllegalArgumentException("Values and weights cannot be null or empty");
@@ -79,7 +107,6 @@ public class Sample {
 
         this.values = values;
         this.weights = weights;
-
         this.totalWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
         if (this.totalWeight < 1e-9) {
             throw new IllegalArgumentException("Total weight must be positive.");
@@ -90,45 +117,84 @@ public class Sample {
         this.lazySortedWeights = new Lazy<>(() -> sortList(weights));
     }
 
-    private List<Double> sortList(List<Double> list) {
-        List<Double> sortedList = new ArrayList<>(list);
-        Collections.sort(sortedList);
-        return sortedList;
-    }
-
+    /**
+     * Returns sorted values.
+     *
+     * @return list of sorted values.
+     */
     public List<Double> getSortedValues() {
         return lazySortedValues.get();
     }
 
+    /**
+     * Returns sorted weights.
+     *
+     * @return list of sorted weights.
+     */
     public List<Double> getSortedWeights() {
         return lazySortedWeights.get();
     }
 
+    /**
+     * Returns size of sample.
+     *
+     * @return number of elements in sample.
+     */
     public int getSize() {
         return values.size();
     }
 
+    /**
+     * Returns weighted size of sample.
+     *
+     * @return effective size based on weights.
+     */
     public double getWeightedSize() {
         return totalWeight * totalWeight / weights.stream().mapToDouble(w -> w * w).sum();
     }
 
+    /**
+     * Returns mean of sample values.
+     *
+     * @return mean value, or NaN if sample is empty.
+     */
     public double getMean() {
         return values.stream().mapToDouble(Double::doubleValue).average().orElse(Double.NaN);
     }
 
+    /**
+     * Returns minimum value in sample.
+     *
+     * @return minimum value.
+     */
     public double getMin() {
         return getSortedValues().get(0);
     }
 
+    /**
+     * Returns maximum value in sample.
+     *
+     * @return maximum value.
+     */
     public double getMax() {
         return getSortedValues().get(getSortedValues().size() - 1);
     }
 
-    // Добавленный метод
+    /**
+     * Returns total weight of sample.
+     *
+     * @return total weight.
+     */
     public double getTotalWeight() {
         return totalWeight;
     }
 
+    /**
+     * Concatenates current sample with another sample.
+     *
+     * @param other other sample to concatenate.
+     * @return new {@code Sample} containing combined values and weights.
+     */
     public Sample concat(Sample other) {
         List<Double> newValues = new ArrayList<>(this.values);
         newValues.addAll(other.values);
@@ -139,31 +205,26 @@ public class Sample {
         return new Sample(newValues, newWeights);
     }
 
-    public Sample concatWithoutWeights(Sample other) {
-        List<Double> newValues = new ArrayList<>(this.values);
-        newValues.addAll(other.values);
-        return new Sample(newValues);  // Создаём новый f.Sample без весов
+    /**
+     * Adds constant value to all elements of sample.
+     *
+     * @param value value to add.
+     * @return new {@code Sample} with modified values.
+     */
+    public Sample add(double value) {
+        List<Double> newValues = values.stream().map(v -> v + value).collect(Collectors.toList());
+        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
     }
 
-    @Override
-    public String toString() {
-        return toString(null, Locale.getDefault());
-    }
-
-    public String toString(String format, Locale locale) {
-        format = format != null ? format : DEFAULT_FORMAT;
-        NumberFormat numberFormat = NumberFormat.getInstance(locale);
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(OPEN_BRACKET);
-        for (int i = 0; i < values.size(); i++) {
-            if (i != 0) {
-                builder.append(SEPARATOR);
-            }
-            builder.append(numberFormat.format(values.get(i)));
-        }
-        builder.append(CLOSE_BRACKET);
-        return builder.toString();
+    /**
+     * Multiplies all elements of sample by constant value.
+     *
+     * @param value multiplier.
+     * @return new {@code Sample} with modified values.
+     */
+    public Sample multiply(double value) {
+        List<Double> newValues = values.stream().map(v -> v * value).collect(Collectors.toList());
+        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
     }
 
     public static boolean tryParse(String s, SampleHolder holder) {
@@ -186,10 +247,13 @@ public class Sample {
         }
     }
 
-    public static class SampleHolder {
-        public Sample sample;
-    }
-
+    /**
+     * Parses {@code Sample} from string representation.
+     *
+     * @param s string representation of sample.
+     * @return parsed {@code Sample}.
+     * @throws IllegalArgumentException if format is invalid.
+     */
     public static Sample parse(String s) {
         SampleHolder holder = new SampleHolder();
         if (tryParse(s, holder)) {
@@ -199,42 +263,16 @@ public class Sample {
         }
     }
 
-    public Sample add(double value) {
-        List<Double> newValues = values.stream().map(v -> v + value).collect(Collectors.toList());
-        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
+    /**
+     * Helper class for holding {@code Sample} instance during parsing.
+     */
+    public static class SampleHolder {
+        public Sample sample;
     }
 
-    public Sample subtract(double value) {
-        List<Double> newValues = values.stream().map(v -> v - value).collect(Collectors.toList());
-        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
-    }
-
-    public Sample multiply(double value) {
-        List<Double> newValues = values.stream().map(v -> v * value).collect(Collectors.toList());
-        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
-    }
-
-    public Sample divide(double value) {
-        if (value == 0) {
-            throw new ArithmeticException("Cannot divide by zero");
-        }
-        List<Double> newValues = values.stream().map(v -> v / value).collect(Collectors.toList());
-        return isWeighted ? new Sample(newValues, weights) : new Sample(newValues);
-    }
-
-    public Sample add(int value) {
-        return add((double) value);
-    }
-
-    public Sample subtract(int value) {
-        return subtract((double) value);
-    }
-
-    public Sample multiply(int value) {
-        return multiply((double) value);
-    }
-
-    public Sample divide(int value) {
-        return divide((double) value);
+    private List<Double> sortList(List<Double> list) {
+        List<Double> sortedList = new ArrayList<>(list);
+        Collections.sort(sortedList);
+        return sortedList;
     }
 }
