@@ -7,16 +7,21 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets.ModalityReferenceDataSet;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.dataSets.ModalityTestData;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -120,8 +125,8 @@ class LowlandModalityDetectorTests {
         System.out.println(weightedModalityData.getDensityHistogram().present("N2",
                 Locale.US));
 
-        Assertions.assertEquals(2, simpleModalityData.getModality());
-        Assertions.assertEquals(1, weightedModalityData.getModality());
+        assertEquals(2, simpleModalityData.getModality());
+        assertEquals(1, weightedModalityData.getModality());
     }
 
     /**

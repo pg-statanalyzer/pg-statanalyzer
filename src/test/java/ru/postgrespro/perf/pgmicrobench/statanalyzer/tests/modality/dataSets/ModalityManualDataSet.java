@@ -9,6 +9,7 @@ import java.util.List;
  * These datasets are represented as instances of {@link ModalityTestData}.
  */
 
+@SuppressWarnings("Indentation")
 public class ModalityManualDataSet {
 
     /**
