@@ -35,26 +35,45 @@ public class GumbelDistribution {
         this.scale = scale;
     }
 
+    /**
+     * PDF.
+     */
     public double pdf(double x) {
         double z = z(x);
         return Math.exp(-(z + Math.exp(-z))) / scale;
     }
 
+    /**
+     * CDF.
+     */
     public double cdf(double x) {
         return Math.exp(-Math.exp(-z(x)));
     }
 
+    /**
+     * Quantile.
+     */
     public double quantile(double p) {
-        if (p == 0) return Double.NEGATIVE_INFINITY;
-        if (p == 1) return Double.POSITIVE_INFINITY;
+        if (p == 0) {
+            return Double.NEGATIVE_INFINITY;
+        }
+        if (p == 1) {
+            return Double.POSITIVE_INFINITY;
+        }
         return location - scale * Math.log(-Math.log(p));
     }
 
+    /**
+     * Random.
+     */
     public double random(Random random) {
         double u = random.nextDouble();
         return location - scale * Math.log(-Math.log(u));
     }
 
+    /**
+     * Generation.
+     */
     public List<Double> generate(Random random, int count) {
         List<Double> values = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -63,6 +82,9 @@ public class GumbelDistribution {
         return values;
     }
 
+    /**
+     * Generation.
+     */
     public static List<Double> generate(Random random,
                                         double location,
                                         double scale,
@@ -71,18 +93,30 @@ public class GumbelDistribution {
         return distribution.generate(random, count);
     }
 
+    /**
+     * Mean.
+     */
     public double mean() {
         return location + scale * EulerMascheroni;
     }
 
+    /**
+     * Median.
+     */
     public double median() {
         return location - scale * Math.log(Math.log(2));
     }
 
+    /**
+     * Variance.
+     */
     public double variance() {
         return (Math.PI * Math.PI * scale * scale) / 6;
     }
 
+    /**
+     * Standart deviation.
+     */
     public double standardDeviation() {
         return Math.sqrt(variance());
     }

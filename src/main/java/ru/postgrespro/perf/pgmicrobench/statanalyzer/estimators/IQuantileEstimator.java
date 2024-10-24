@@ -28,8 +28,7 @@ public interface IQuantileEstimator {
      * Indicates whether quantile estimator supports weighted samples.
      * Some estimators may take into account weights associated with sample elements.
      *
-     * @return {@code true} if estimator supports weighted samples,
-     * {@code false} otherwise.
+     * @return {@code true} if estimator supports weighted samples, {@code false} otherwise.
      */
     boolean supportsWeightedSamples();
 }

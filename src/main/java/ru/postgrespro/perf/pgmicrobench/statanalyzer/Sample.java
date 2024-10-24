@@ -49,6 +49,9 @@ public class Sample {
         }
     }
 
+    /**
+     * Weighted or not.
+     */
     public boolean isWeighted() {
         return isWeighted;
     }
@@ -175,6 +178,9 @@ public class Sample {
         return lazySortedWeights.get();
     }
 
+    /**
+     * Try to parse.
+     */
     public static boolean tryParse(String s, SampleHolder holder) {
         try {
             if (!s.startsWith(String.valueOf(OPEN_BRACKET)) || !s.contains(String.valueOf(CLOSE_BRACKET))) {
