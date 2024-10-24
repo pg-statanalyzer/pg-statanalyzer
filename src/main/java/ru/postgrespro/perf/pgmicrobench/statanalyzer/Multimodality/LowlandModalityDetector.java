@@ -22,6 +22,9 @@ public class LowlandModalityDetector {
     private final double precision;
     private final boolean diagnostics;
 
+    /**
+     * Detects modality patterns from sample using density histogram.
+     */
     public LowlandModalityDetector(double sensitivity, double precision, boolean diagnostics) {
         if (sensitivity < 0 || sensitivity > 1) {
             throw new IllegalArgumentException("Sensitivity must be between 0 and 1.");
@@ -105,7 +108,10 @@ public class LowlandModalityDetector {
         List<Double> cutPoints = new ArrayList<>();
 
         List<Integer> previousPeaks = new ArrayList<>();
-        if (!peaks.isEmpty()) previousPeaks.add(peaks.get(0));
+        
+        if (!peaks.isEmpty()) {
+            previousPeaks.add(peaks.get(0));
+        }
 
         for (int i = 1; i < peaks.size(); i++) {
             int currentPeak = peaks.get(i);
