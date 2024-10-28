@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.loader;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -9,16 +10,16 @@ import java.util.Arrays;
  */
 
 public class Loader {
-    private double[] latencies;
+    private List<Double> latencies;
 
     /**
-     * Loads given array of latencies into this loader.
-     * A copy of provided array is stored to avoid external modifications.
+     * Loads given list of latencies into this loader.
+     * Copy of provided list is stored to avoid external modifications.
      *
-     * @param latencies array of latency values to be loaded. Must not be {@code null}.
+     * @param latencies list of latency values to be loaded. Must not be {@code null}.
      */
-    public void loadLatencies(double[] latencies) {
-        this.latencies = Arrays.copyOf(latencies, latencies.length);
+    public void loadLatencies(List<Double> latencies) {
+        this.latencies = new ArrayList<>(latencies);
     }
 
     /**
@@ -27,16 +28,16 @@ public class Loader {
      * @return count of latency values.
      */
     public int getLatencyCount() {
-        return latencies.length;
+        return latencies.size();
     }
 
     /**
      * Returns copy of stored latencies.
      * This ensures that internal state remains immutable from outside changes.
      *
-     * @return new array containing stored latencies.
+     * @return new list containing stored latencies.
      */
-    public double[] getLatencies() {
-        return Arrays.copyOf(latencies, latencies.length);
+    public List<Double> getLatencies() {
+        return new ArrayList<>(latencies);
     }
 }

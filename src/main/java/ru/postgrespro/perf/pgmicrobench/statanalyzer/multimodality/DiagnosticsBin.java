@@ -3,8 +3,6 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 
 /**
@@ -26,29 +24,21 @@ public class DiagnosticsBin {
      * Water level associated with this bin.
      * Defaults to height of corresponding histogram bin.
      */
-    @Getter
-    @Setter
     private double waterLevel;
 
     /**
      * Flag indicating whether this bin represents mode.
      */
-    @Getter
-    @Setter
     private boolean isMode;
 
     /**
      * Flag indicating whether this bin is considered lowland.
      */
-    @Getter
-    @Setter
     private boolean isLowland;
 
     /**
      * Flag indicating whether this bin is identified as peak.
      */
-    @Getter
-    @Setter
     private boolean isPeak;
 
     /**

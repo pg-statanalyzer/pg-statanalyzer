@@ -47,8 +47,7 @@ public class ModalityDetectorTests {
      */
     @Test
     public void testLatencyLoading() {
-        double[] latencies = NormalDistribution.generate(10000, 5.0, 1.0)
-                .stream().mapToDouble(Double::doubleValue).toArray();
+        List<Double> latencies = NormalDistribution.generate(10000, 5.0, 1.0);
         analyzer.loadLatencies(latencies);
 
         Assertions.assertEquals(10000,
