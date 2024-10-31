@@ -1,9 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.criteria;
 
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
-import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
-import org.apache.commons.math3.random.JDKRandomGenerator;
 
 import java.util.Arrays;
 
