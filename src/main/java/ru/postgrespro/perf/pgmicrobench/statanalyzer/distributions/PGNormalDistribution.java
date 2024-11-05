@@ -1,12 +1,23 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.distribution.RealDistribution;
 
-public class PGNormalDistribution extends AbstractDistribution {
+import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.Pearson.pearsonFitImplementation;
+
+/**
+ * The PGLogNormalDistribution class implements normal distribution.
+ */
+public class PGNormalDistribution {
 	private static final int PARAMETER_NUMBER = 2;
 
-	static RealDistribution pearsonFit(double[] data, double[] startPoint) {
+	/**
+	 * Fits a normal distribution to the provided data using the Pearson fitting method.
+	 *
+	 * @param data       an array of double values representing the dataset to fit.
+	 * @param startPoint an array of double values representing the initial guess for the parameters.
+	 * @return a FittedDistribution object representing the fitted log-normal distribution.
+	 */
+	public static FittedDistribution pearsonFit(double[] data, double[] startPoint) {
 		return pearsonFitImplementation(data, startPoint, PARAMETER_NUMBER, (params -> {
 			if (params[1] <= 0) {
 				throw new IllegalArgumentException("Wrong number of parameters");
@@ -14,19 +25,4 @@ public class PGNormalDistribution extends AbstractDistribution {
 			return new NormalDistribution(params[0], params[1]);
 		}));
 	}
-
-	public static void main(String[] args) {
-		NormalDistribution nd = new NormalDistribution(-10, 5);
-		double[] sample = nd.sample(100000);
-
-		pearsonFit(sample, new double[]{1, 1});
-	}
-
-	@Override
-	double cdf(double x) {
-
-
-		return 0;
-	}
-
 }

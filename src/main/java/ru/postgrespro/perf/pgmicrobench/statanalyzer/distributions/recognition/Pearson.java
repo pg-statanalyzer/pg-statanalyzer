@@ -1,4 +1,4 @@
-package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
@@ -10,13 +10,31 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.FittedDistribution;
 
 import java.util.Arrays;
 import java.util.function.Function;
 
-public abstract class AbstractDistribution {
-	static RealDistribution pearsonFitImplementation(double[] data, double[] startPoint,
-	                                                 int degreeOfFreedom, Function<double[], RealDistribution> getDistribution) {
+/**
+ * The {@code Pearson} class provides implementation of Pearson's algorithm.
+ */
+public class Pearson {
+	// TODO change RealDistribution to PGDistribution
+
+	/**
+	 * Fits a distribution to the provided data using Pearson's method.
+	 *
+	 * @param data            An array of double values representing the dataset to be fitted.
+	 * @param startPoint      An array of double values representing the initial guess for the
+	 *                        parameters of the distribution.
+	 * @param degreeOfFreedom The degrees of freedom for the fitted distribution.
+	 * @param getDistribution A function that takes an array of parameters and returns a
+	 *                        {@link RealDistribution} representing the distribution to be fitted.
+	 * @return A {@link FittedDistribution} object containing the fitted distribution, the
+	 * parameters of the fitted distribution, and the p-value of the fit.
+	 */
+	public static FittedDistribution pearsonFitImplementation(double[] data, double[] startPoint,
+	                                                          int degreeOfFreedom, Function<double[], RealDistribution> getDistribution) {
 		int bins = (int) Math.sqrt(data.length) + 1;
 
 		double[] bounds = boundsOfBins(data, bins);
@@ -62,18 +80,23 @@ public abstract class AbstractDistribution {
 		statistic /= (bins * bins);
 		statistic *= data.length;
 
-		System.out.println("Оптимальное решение: x = " + solution[0] + ", y = " + solution[1]);
-		System.out.println("Значение функции в минимуме: " + functionValue);
-
-
 		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(bins - 1 - degreeOfFreedom);
-		System.out.println("pValue " + (1 - chiSquaredDistribution.cumulativeProbability(statistic)));
+		double pValue = 1 - chiSquaredDistribution.cumulativeProbability(statistic);
 
-		return getDistribution.apply(solution);
+		return new FittedDistribution(getDistribution.apply(solution), solution, pValue);
 	}
 
 
-	protected static double[] boundsOfBins(double[] arr, int bins) {
+	// TODO change splitting method
+
+	/**
+	 * Calculates the bounds of the bins for the histogram based on the provided data.
+	 *
+	 * @param arr  An array of double values representing the dataset.
+	 * @param bins The number of bins to be created.
+	 * @return An array of double values representing the upper bounds of the bins.
+	 */
+	private static double[] boundsOfBins(double[] arr, int bins) {
 		int N = arr.length;
 
 		double[] sorted = Arrays.stream(arr).sorted().toArray();
@@ -91,7 +114,4 @@ public abstract class AbstractDistribution {
 
 		return bounds;
 	}
-
-	abstract double cdf(double x);
-
 }

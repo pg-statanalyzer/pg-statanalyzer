@@ -6,9 +6,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/**
+ * The DistributionParser class provides functionality to parse distribution data
+ * from a specified file and create corresponding distribution objects.
+ */
 public class DistributionParser {
 	private static final String DIRECTORY = "distributionSample/";
 
+	/**
+	 * Parses a distribution file and creates an array of RealDistribution objects along
+	 * with the associated data.
+	 *
+	 * @param fileName the name of the file containing the distribution data.
+	 * @return a ParsedDistribution object containing the parsed distributions and data.
+	 * @throws FileNotFoundException if the specified file does not exist.
+	 */
 	public static ParsedDistribution parseDistribution(String fileName) throws FileNotFoundException {
 		String path = DIRECTORY + fileName;
 		int totalCount = 0;
