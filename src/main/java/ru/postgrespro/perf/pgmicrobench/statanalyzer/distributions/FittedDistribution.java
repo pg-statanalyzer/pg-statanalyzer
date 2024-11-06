@@ -25,6 +25,8 @@ public class FittedDistribution {
     }
 
     /**
+     * Distribution getter.
+     *
      * @return the fitted distribution
      */
     public RealDistribution getDistribution() {
@@ -32,6 +34,8 @@ public class FittedDistribution {
     }
 
     /**
+     * Params getter.
+     *
      * @return an array of parameters for the fitted distribution
      */
     public double[] getParams() {
@@ -39,6 +43,8 @@ public class FittedDistribution {
     }
 
     /**
+     * PValue getter.
+     *
      * @return the p-value indicating the fit quality
      */
     public double getPValue() {

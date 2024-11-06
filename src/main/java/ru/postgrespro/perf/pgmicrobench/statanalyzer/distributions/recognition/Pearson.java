@@ -47,18 +47,18 @@ public class Pearson {
                 return Double.POSITIVE_INFINITY;
             }
 
-            double[] tP = new double[bins];
+            double[] theoreticalFreq = new double[bins];
             double prev = 0;
             for (int i = 0; i < bins - 1; i++) {
                 double cur = distribution.cumulativeProbability(bounds[i]);
-                tP[i] = cur - prev;
+                theoreticalFreq[i] = cur - prev;
                 prev = cur;
             }
-            tP[bins - 1] = 1 - prev;
+            theoreticalFreq[bins - 1] = 1 - prev;
 
             double sum = 0;
             for (int i = 0; i < bins; i++) {
-                sum += 1.0 / tP[i];
+                sum += 1.0 / theoreticalFreq[i];
             }
 
             return sum;
@@ -97,14 +97,14 @@ public class Pearson {
      * @return An array of double values representing the upper bounds of the bins.
      */
     private static double[] boundsOfBins(double[] arr, int bins) {
-        int N = arr.length;
+        int dataSize = arr.length;
 
         double[] sorted = Arrays.stream(arr).sorted().toArray();
 
         double[] bounds = new double[bins - 1];
 
-        int amount = N / bins;
-        int rem = N - amount * bins;
+        int amount = dataSize / bins;
+        int rem = dataSize - amount * bins;
         int curPos = 0;
 
         for (int i = 0; i < bounds.length; i++) {

@@ -7,7 +7,7 @@ import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recogn
 /**
  * The PGLogNormalDistribution class implements normal distribution.
  */
-public class PGNormalDistribution {
+public class PgNormalDistribution {
     private static final int PARAMETER_NUMBER = 2;
 
     /**
