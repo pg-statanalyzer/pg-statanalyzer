@@ -8,35 +8,35 @@ import org.apache.commons.math3.distribution.RealDistribution;
  * used in the analysis.
  */
 public class ParsedDistribution {
-	private final RealDistribution[] distributions;
-	private final double[] data;
+    private final RealDistribution[] distributions;
+    private final double[] data;
 
-	/**
-	 * Constructs a ParsedDistribution with the specified distributions and data.
-	 *
-	 * @param distributions an array of RealDistribution objects representing the distributions.
-	 * @param data          an array of double values representing the associated data.
-	 */
-	ParsedDistribution(RealDistribution[] distributions, double[] data) {
-		this.distributions = distributions;
-		this.data = data;
-	}
+    /**
+     * Constructs a ParsedDistribution with the specified distributions and data.
+     *
+     * @param distributions an array of RealDistribution objects representing the distributions.
+     * @param data          an array of double values representing the associated data.
+     */
+    ParsedDistribution(RealDistribution[] distributions, double[] data) {
+        this.distributions = distributions;
+        this.data = data;
+    }
 
-	/**
-	 * Returns the array of distributions contained in this ParsedDistribution.
-	 *
-	 * @return an array of RealDistribution objects.
-	 */
-	public RealDistribution[] getDistribution() {
-		return distributions;
-	}
+    /**
+     * Returns the array of distributions contained in this ParsedDistribution.
+     *
+     * @return an array of RealDistribution objects.
+     */
+    public RealDistribution[] getDistribution() {
+        return distributions;
+    }
 
-	/**
-	 * Returns the array of data associated with the distributions.
-	 *
-	 * @return an array of double values representing the data.
-	 */
-	public double[] getData() {
-		return data;
-	}
+    /**
+     * Returns the array of data associated with the distributions.
+     *
+     * @return an array of double values representing the data.
+     */
+    public double[] getData() {
+        return data;
+    }
 }

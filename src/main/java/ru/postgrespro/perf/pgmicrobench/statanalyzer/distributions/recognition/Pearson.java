@@ -19,99 +19,99 @@ import java.util.function.Function;
  * The {@code Pearson} class provides implementation of Pearson's algorithm.
  */
 public class Pearson {
-	// TODO change RealDistribution to PGDistribution
+    // TODO change RealDistribution to PGDistribution
 
-	/**
-	 * Fits a distribution to the provided data using Pearson's method.
-	 *
-	 * @param data            An array of double values representing the dataset to be fitted.
-	 * @param startPoint      An array of double values representing the initial guess for the
-	 *                        parameters of the distribution.
-	 * @param degreeOfFreedom The degrees of freedom for the fitted distribution.
-	 * @param getDistribution A function that takes an array of parameters and returns a
-	 *                        {@link RealDistribution} representing the distribution to be fitted.
-	 * @return A {@link FittedDistribution} object containing the fitted distribution, the
-	 * parameters of the fitted distribution, and the p-value of the fit.
-	 */
-	public static FittedDistribution pearsonFitImplementation(double[] data, double[] startPoint,
-	                                                          int degreeOfFreedom, Function<double[], RealDistribution> getDistribution) {
-		int bins = (int) Math.sqrt(data.length) + 1;
+    /**
+     * Fits a distribution to the provided data using Pearson's method.
+     *
+     * @param data            An array of double values representing the dataset to be fitted.
+     * @param startPoint      An array of double values representing the initial guess for the
+     *                        parameters of the distribution.
+     * @param degreeOfFreedom The degrees of freedom for the fitted distribution.
+     * @param getDistribution A function that takes an array of parameters and returns a
+     *                        {@link RealDistribution} representing the distribution to be fitted.
+     * @return A {@link FittedDistribution} object containing the fitted distribution, the
+     * parameters of the fitted distribution, and the p-value of the fit.
+     */
+    public static FittedDistribution pearsonFitImplementation(double[] data, double[] startPoint,
+                                                              int degreeOfFreedom, Function<double[], RealDistribution> getDistribution) {
+        int bins = (int) Math.sqrt(data.length) + 1;
 
-		double[] bounds = boundsOfBins(data, bins);
+        double[] bounds = boundsOfBins(data, bins);
 
-		MultivariateFunction evaluationFunction = point -> {
-			RealDistribution distribution;
-			try {
-				distribution = getDistribution.apply(point);
-			} catch (Exception e) {
-				return Double.POSITIVE_INFINITY;
-			}
+        MultivariateFunction evaluationFunction = point -> {
+            RealDistribution distribution;
+            try {
+                distribution = getDistribution.apply(point);
+            } catch (Exception e) {
+                return Double.POSITIVE_INFINITY;
+            }
 
-			double[] tP = new double[bins];
-			double prev = 0;
-			for (int i = 0; i < bins - 1; i++) {
-				double cur = distribution.cumulativeProbability(bounds[i]);
-				tP[i] = cur - prev;
-				prev = cur;
-			}
-			tP[bins - 1] = 1 - prev;
+            double[] tP = new double[bins];
+            double prev = 0;
+            for (int i = 0; i < bins - 1; i++) {
+                double cur = distribution.cumulativeProbability(bounds[i]);
+                tP[i] = cur - prev;
+                prev = cur;
+            }
+            tP[bins - 1] = 1 - prev;
 
-			double sum = 0;
-			for (int i = 0; i < bins; i++) {
-				sum += 1.0 / tP[i];
-			}
+            double sum = 0;
+            for (int i = 0; i < bins; i++) {
+                sum += 1.0 / tP[i];
+            }
 
-			return sum;
-		};
+            return sum;
+        };
 
-		SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
-		PointValuePair result = optimizer.optimize(
-				new MaxEval(10000),
-				new ObjectiveFunction(evaluationFunction),
-				GoalType.MINIMIZE,
-				new InitialGuess(startPoint),
-				new NelderMeadSimplex(2)
-		);
+        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
+        PointValuePair result = optimizer.optimize(
+                new MaxEval(10000),
+                new ObjectiveFunction(evaluationFunction),
+                GoalType.MINIMIZE,
+                new InitialGuess(startPoint),
+                new NelderMeadSimplex(2)
+        );
 
-		double[] solution = result.getPoint();
-		double functionValue = result.getValue();
+        double[] solution = result.getPoint();
+        double functionValue = result.getValue();
 
-		double statistic = functionValue - bins * bins;
-		statistic /= (bins * bins);
-		statistic *= data.length;
+        double statistic = functionValue - bins * bins;
+        statistic /= (bins * bins);
+        statistic *= data.length;
 
-		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(bins - 1 - degreeOfFreedom);
-		double pValue = 1 - chiSquaredDistribution.cumulativeProbability(statistic);
+        ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(bins - 1 - degreeOfFreedom);
+        double pValue = 1 - chiSquaredDistribution.cumulativeProbability(statistic);
 
-		return new FittedDistribution(getDistribution.apply(solution), solution, pValue);
-	}
+        return new FittedDistribution(getDistribution.apply(solution), solution, pValue);
+    }
 
 
-	// TODO change splitting method
+    // TODO change splitting method
 
-	/**
-	 * Calculates the bounds of the bins for the histogram based on the provided data.
-	 *
-	 * @param arr  An array of double values representing the dataset.
-	 * @param bins The number of bins to be created.
-	 * @return An array of double values representing the upper bounds of the bins.
-	 */
-	private static double[] boundsOfBins(double[] arr, int bins) {
-		int N = arr.length;
+    /**
+     * Calculates the bounds of the bins for the histogram based on the provided data.
+     *
+     * @param arr  An array of double values representing the dataset.
+     * @param bins The number of bins to be created.
+     * @return An array of double values representing the upper bounds of the bins.
+     */
+    private static double[] boundsOfBins(double[] arr, int bins) {
+        int N = arr.length;
 
-		double[] sorted = Arrays.stream(arr).sorted().toArray();
+        double[] sorted = Arrays.stream(arr).sorted().toArray();
 
-		double[] bounds = new double[bins - 1];
+        double[] bounds = new double[bins - 1];
 
-		int amount = N / bins;
-		int rem = N - amount * bins;
-		int curPos = 0;
+        int amount = N / bins;
+        int rem = N - amount * bins;
+        int curPos = 0;
 
-		for (int i = 0; i < bounds.length; i++) {
-			curPos += amount + (i < rem ? 1 : 0);
-			bounds[i] = sorted[curPos - 1];
-		}
+        for (int i = 0; i < bounds.length; i++) {
+            curPos += amount + (i < rem ? 1 : 0);
+            bounds[i] = sorted[curPos - 1];
+        }
 
-		return bounds;
-	}
+        return bounds;
+    }
 }
