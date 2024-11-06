@@ -1,6 +1,5 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting;
 
-import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.knowm.xchart.Histogram;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
@@ -12,74 +11,101 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * The Plot class provides methods to create and display histograms and density functions
+ * for a given set of data points.
+ */
 public class Plot {
-	public static void main(String[] args) {
-		LogNormalDistribution normalDistribution = new LogNormalDistribution(1, 0.5);
+    /**
+     * Plots a histogram for the given array of double values.
+     *
+     * @param data an array of double values to be plotted as a histogram.
+     */
+    public static void plot(double[] data) {
+        ArrayList<Double> dataList = new ArrayList<>();
+        for (double datum : data) {
+            dataList.add(datum);
+        }
+        plot(dataList);
+    }
 
-		double[] data = normalDistribution.sample(100000);
+    /**
+     * Plots a histogram for the given collection of double values.
+     *
+     * @param data a collection of Double values to be plotted as a histogram.
+     */
+    public static void plot(Collection<Double> data) {
+        int bins = (int) Math.sqrt(data.size()) + 1;
 
-		List<Double> dataList = new ArrayList<>();
-		for (double datum : data) {
-			dataList.add(datum);
-		}
+        Histogram histogram = new Histogram(data, bins);
 
-		plot(dataList, normalDistribution::density);
-	}
+        XYChart chart = new XYChart(800, 600);
+        chart.addSeries("Гистограмма", histogram.getxAxisData(), histogram.getyAxisData())
+                .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)
+                .setMarker(SeriesMarkers.NONE);
 
-	public static void plot(Collection<Double> data) {
-		int bins = (int) Math.sqrt(data.size()) + 1;
+        chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
+        chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
 
-		Histogram histogram = new Histogram(data, bins);
+        new SwingWrapper<>(chart).displayChart();
+    }
 
-		XYChart chart = new XYChart(800, 600);
-		chart.addSeries("Гистограмма", histogram.getxAxisData(), histogram.getyAxisData())
-				.setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)
-				.setMarker(SeriesMarkers.NONE);
+    /**
+     * Plots a histogram and a density function for the given array of double values.
+     *
+     * @param data    an array of double values to be plotted as a histogram.
+     * @param density a function that defines the density to be plotted alongside the histogram.
+     */
+    public static void plot(double[] data, Function<Double, Double> density) {
+        ArrayList<Double> dataList = new ArrayList<>();
+        for (double datum : data) {
+            dataList.add(datum);
+        }
+        plot(dataList, density);
+    }
 
-		chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
-		chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
+    /**
+     * Plots a histogram and a density function for the given collection of double values.
+     *
+     * @param data    a collection of Double values to be plotted as a histogram.
+     * @param density a function that defines the density to be plotted alongside the histogram.
+     */
+    public static void plot(Collection<Double> data, Function<Double, Double> density) {
+        int bins = (int) Math.sqrt(data.size()) + 1;
 
-		new SwingWrapper<>(chart).displayChart();
-	}
+        Histogram histogram = new Histogram(data, bins);
 
-	public static void plot(Collection<Double> data, Function<Double, Double> function) {
-		int bins = (int) Math.sqrt(data.size()) + 1;
+        double delta = (histogram.getMax() - histogram.getMin()) / bins;
+        double cur = histogram.getMin();
 
-		Histogram histogram = new Histogram(data, bins);
+        double[] xFunction = new double[bins];
+        double[] yFunction = new double[bins];
 
-		double delta = (histogram.getMax() - histogram.getMin()) / bins;
-		double cur = histogram.getMin();
+        for (int i = 0; i < xFunction.length; i++) {
+            xFunction[i] = cur;
+            yFunction[i] = density.apply(cur);
+            cur += delta;
+        }
 
-		double[] xFunction = new double[bins];
-		double[] yFunction = new double[bins];
+        List<Double> yHistogram = histogram.getyAxisData();
+        for (int i = 0; i < yFunction.length; i++) {
+            yHistogram.set(i, yHistogram.get(i) / delta / data.size());
+        }
 
-		for (int i = 0; i < xFunction.length; i++) {
-			xFunction[i] = cur;
-			yFunction[i] = function.apply(cur);
-			cur += delta;
-		}
+        XYChart chart = new XYChart(800, 600);
 
-		List<Double> yHistogram = histogram.getyAxisData();
-		for (int i = 0; i < yFunction.length; i++) {
-			yHistogram.set(i, yHistogram.get(i) / delta / data.size());
-		}
+        chart.addSeries("Histogram", histogram.getxAxisData(), histogram.getyAxisData())
+                .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)
+                .setMarker(SeriesMarkers.NONE);
 
-		System.out.println(histogram.getyAxisData());
+        chart.addSeries("Function", xFunction, yFunction)
+                .setMarker(SeriesMarkers.NONE)
+                .setLineColor(java.awt.Color.RED)
+                .setLineWidth(2.0f);
 
-		XYChart chart = new XYChart(800, 600);
+        chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
+        chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
 
-		chart.addSeries("Histogram", histogram.getxAxisData(), histogram.getyAxisData())
-				.setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)
-				.setMarker(SeriesMarkers.NONE);
-
-		chart.addSeries("Function", xFunction, yFunction)
-				.setMarker(SeriesMarkers.NONE)
-				.setLineColor(java.awt.Color.RED)
-				.setLineWidth(2.0f);
-
-		chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
-		chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
-
-		new SwingWrapper<>(chart).displayChart();
-	}
+        new SwingWrapper<>(chart).displayChart();
+    }
 }
