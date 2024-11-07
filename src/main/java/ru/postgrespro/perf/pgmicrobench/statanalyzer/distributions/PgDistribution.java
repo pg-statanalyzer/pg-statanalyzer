@@ -8,5 +8,11 @@ public interface PgDistribution {
 
     double cdf(double value);
 
+    double mean();
+
+    double variance();
+
+    double median();
+
     List<Double> generate(int size, Random random);
 }

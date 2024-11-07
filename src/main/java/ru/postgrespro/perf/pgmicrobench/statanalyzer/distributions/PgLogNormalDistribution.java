@@ -62,6 +62,21 @@ public class PgLogNormalDistribution implements PgDistribution {
     }
 
     @Override
+    public double mean() {
+        return Math.exp(mean + standardDeviation * standardDeviation / 2);
+    }
+
+    @Override
+    public double variance() {
+        return (Math.exp(standardDeviation * standardDeviation) - 1) * Math.exp(2 * mean + standardDeviation * standardDeviation);
+    }
+
+    @Override
+    public double median() {
+        return Math.exp(mean);
+    }
+
+    @Override
     public List<Double> generate(int size, Random random) {
         List<Double> samples = new ArrayList<>();
         for (int i = 0; i < size; i++) {

@@ -117,6 +117,7 @@ public class PgGumbelDistribution implements PgDistribution {
     /**
      * Mean.
      */
+    @Override
     public double mean() {
         return location + scale * EulerMascheroni;
     }
@@ -124,6 +125,7 @@ public class PgGumbelDistribution implements PgDistribution {
     /**
      * Median.
      */
+    @Override
     public double median() {
         return location - scale * Math.log(Math.log(2));
     }
@@ -131,6 +133,7 @@ public class PgGumbelDistribution implements PgDistribution {
     /**
      * Variance.
      */
+    @Override
     public double variance() {
         return (Math.PI * Math.PI * scale * scale) / 6;
     }

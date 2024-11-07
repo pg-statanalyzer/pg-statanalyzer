@@ -70,6 +70,21 @@ public class PgNormalDistribution implements PgDistribution {
     }
 
     @Override
+    public double mean() {
+        return mean;
+    }
+
+    @Override
+    public double variance() {
+        return standardDeviation * standardDeviation;
+    }
+
+    @Override
+    public double median() {
+        return mean;
+    }
+
+    @Override
     public List<Double> generate(int size, Random random) {
         List<Double> samples = new ArrayList<>();
         for (int i = 0; i < size; i++) {

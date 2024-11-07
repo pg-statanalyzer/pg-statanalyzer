@@ -68,6 +68,21 @@ public class PgUniformDistribution implements PgDistribution {
     }
 
     @Override
+    public double mean() {
+        return (max - min) / 2;
+    }
+
+    @Override
+    public double variance() {
+        return (max - min) * (max - min) / 12;
+    }
+
+    @Override
+    public double median() {
+        return (max - min) / 2;
+    }
+
+    @Override
     public List<Double> generate(int size, Random random) {
         return generate(random, min, max, size);
     }
