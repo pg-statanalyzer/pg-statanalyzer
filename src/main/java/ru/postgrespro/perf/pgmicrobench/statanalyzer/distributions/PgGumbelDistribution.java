@@ -4,30 +4,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.Pearson.pearsonFitImplementation;
+
 
 /**
  * Represents Gumbel distribution, probability distribution used to model
  * distribution of maximum (or minimum) of number of samples of various distributions.
  */
 
-public class GumbelDistribution {
-
+public class PgGumbelDistribution implements PgDistribution {
+    private static final int PARAMETER_NUMBER = 2;
+    private static final double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
     private final double location;
     private final double scale;
-    private static final double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
 
-    public GumbelDistribution() {
+    public PgGumbelDistribution() {
         this(0, 1);
     }
 
-    public GumbelDistribution(double location) {
+    public PgGumbelDistribution(double location) {
         this(location, 1);
     }
 
     /**
      * Gumbel distribution.
      */
-    public GumbelDistribution(double location, double scale) {
+    public PgGumbelDistribution(double location, double scale) {
         if (scale <= 0) {
             throw new IllegalArgumentException("Scale must be positive");
         }
@@ -36,8 +38,36 @@ public class GumbelDistribution {
     }
 
     /**
+     * Generation.
+     */
+    public static List<Double> generate(Random random,
+                                        double location,
+                                        double scale,
+                                        int count) {
+        PgGumbelDistribution distribution = new PgGumbelDistribution(location, scale);
+        return distribution.generate(count, random);
+    }
+
+    /**
+     * Fits a Gumbel distribution to the provided data using the Pearson fitting method.
+     *
+     * @param data       an array of double values representing the dataset to fit.
+     * @param startPoint an array of double values representing the initial guess for the parameters.
+     * @return a FittedDistribution object representing the fitted Gumbel distribution.
+     */
+    public static FittedDistribution pearsonFit(double[] data, double[] startPoint) {
+        return pearsonFitImplementation(data, startPoint, PARAMETER_NUMBER, (params -> {
+            if (params[1] <= 0) {
+                throw new IllegalArgumentException("Scale must be positive");
+            }
+            return new PgGumbelDistribution(params[0], params[1]);
+        }));
+    }
+
+    /**
      * PDF.
      */
+    @Override
     public double pdf(double x) {
         double z = z(x);
         return Math.exp(-(z + Math.exp(-z))) / scale;
@@ -46,6 +76,7 @@ public class GumbelDistribution {
     /**
      * CDF.
      */
+    @Override
     public double cdf(double x) {
         return Math.exp(-Math.exp(-z(x)));
     }
@@ -74,23 +105,13 @@ public class GumbelDistribution {
     /**
      * Generation.
      */
-    public List<Double> generate(Random random, int count) {
+    @Override
+    public List<Double> generate(int count, Random random) {
         List<Double> values = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             values.add(random(random));
         }
         return values;
-    }
-
-    /**
-     * Generation.
-     */
-    public static List<Double> generate(Random random,
-                                        double location,
-                                        double scale,
-                                        int count) {
-        GumbelDistribution distribution = new GumbelDistribution(location, scale);
-        return distribution.generate(random, count);
     }
 
     /**

@@ -1,6 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.GumbelDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
@@ -95,12 +95,12 @@ class LowlandModalityDetectorTests {
         Random random = new Random(42);
 
         List<Double> values = IntStream.range(0, 30)
-                .mapToDouble(i -> new GumbelDistribution().random(random))
+                .mapToDouble(i -> new PgGumbelDistribution().random(random))
                 .boxed()
                 .collect(Collectors.toList());
 
         values.addAll(IntStream.range(0, 30)
-                .mapToDouble(i -> new GumbelDistribution(10).random(random))
+                .mapToDouble(i -> new PgGumbelDistribution(10).random(random))
                 .boxed()
                 .collect(Collectors.toList()));
 
