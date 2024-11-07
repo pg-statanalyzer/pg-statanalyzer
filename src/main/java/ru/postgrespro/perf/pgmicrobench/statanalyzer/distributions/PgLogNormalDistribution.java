@@ -9,7 +9,7 @@ import java.util.Random;
 import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.Pearson.pearsonFitImplementation;
 
 /**
- * The PGLogNormalDistribution class implements log-normal distribution.
+ * The PgLogNormalDistribution class implements log-normal distribution.
  */
 public class PgLogNormalDistribution implements PgDistribution {
     private static final int PARAMETER_NUMBER = 2;
@@ -17,6 +17,9 @@ public class PgLogNormalDistribution implements PgDistribution {
     private final double mean;
     private final double standardDeviation;
 
+    /**
+     * Constructor.
+     */
     public PgLogNormalDistribution(double mean, double standardDeviation) {
         if (standardDeviation <= 0) {
             throw new IllegalArgumentException("Standard deviation must be greater than zero");
@@ -48,8 +51,8 @@ public class PgLogNormalDistribution implements PgDistribution {
             return 0;
         }
         double logValue = Math.log(value);
-        return (1 / (value * standardDeviation * Math.sqrt(2 * Math.PI))) *
-                Math.exp(-Math.pow(logValue - mean, 2) / (2 * standardDeviation * standardDeviation));
+        return (1 / (value * standardDeviation * Math.sqrt(2 * Math.PI)))
+                * Math.exp(-Math.pow(logValue - mean, 2) / (2 * standardDeviation * standardDeviation));
     }
 
     @Override

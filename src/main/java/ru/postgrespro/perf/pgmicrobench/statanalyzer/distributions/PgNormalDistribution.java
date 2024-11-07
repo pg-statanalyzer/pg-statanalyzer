@@ -17,6 +17,9 @@ public class PgNormalDistribution implements PgDistribution {
     private final double mean;
     private final double standardDeviation;
 
+    /**
+     * Constructor.
+     */
     public PgNormalDistribution(double mean, double standardDeviation) {
         if (standardDeviation <= 0) {
             throw new IllegalArgumentException("Standard deviation must be greater than zero");

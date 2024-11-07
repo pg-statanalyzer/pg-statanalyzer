@@ -64,6 +64,7 @@ public class PgGumbelDistribution implements PgDistribution {
         }));
     }
 
+
     /**
      * PDF.
      */
@@ -79,39 +80,6 @@ public class PgGumbelDistribution implements PgDistribution {
     @Override
     public double cdf(double x) {
         return Math.exp(-Math.exp(-z(x)));
-    }
-
-    /**
-     * Quantile.
-     */
-    public double quantile(double p) {
-        if (p == 0) {
-            return Double.NEGATIVE_INFINITY;
-        }
-        if (p == 1) {
-            return Double.POSITIVE_INFINITY;
-        }
-        return location - scale * Math.log(-Math.log(p));
-    }
-
-    /**
-     * Random.
-     */
-    public double random(Random random) {
-        double u = random.nextDouble();
-        return location - scale * Math.log(-Math.log(u));
-    }
-
-    /**
-     * Generation.
-     */
-    @Override
-    public List<Double> generate(int count, Random random) {
-        List<Double> values = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            values.add(random(random));
-        }
-        return values;
     }
 
     /**
@@ -137,6 +105,40 @@ public class PgGumbelDistribution implements PgDistribution {
     public double variance() {
         return (Math.PI * Math.PI * scale * scale) / 6;
     }
+
+    /**
+     * Generation.
+     */
+    @Override
+    public List<Double> generate(int count, Random random) {
+        List<Double> values = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            values.add(random(random));
+        }
+        return values;
+    }
+
+    /**
+     * Quantile.
+     */
+    public double quantile(double p) {
+        if (p == 0) {
+            return Double.NEGATIVE_INFINITY;
+        }
+        if (p == 1) {
+            return Double.POSITIVE_INFINITY;
+        }
+        return location - scale * Math.log(-Math.log(p));
+    }
+
+    /**
+     * Random.
+     */
+    public double random(Random random) {
+        double u = random.nextDouble();
+        return location - scale * Math.log(-Math.log(u));
+    }
+
 
     /**
      * Standart deviation.

@@ -3,6 +3,9 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Represents a probability distribution.
+ */
 public interface PgDistribution {
     double pdf(double value);
 

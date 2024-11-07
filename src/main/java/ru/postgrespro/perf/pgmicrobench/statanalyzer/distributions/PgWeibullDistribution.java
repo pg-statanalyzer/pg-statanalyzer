@@ -6,10 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * The PgWeibullDistribution class implements weibull distribution.
+ */
 public class PgWeibullDistribution implements PgDistribution {
     private final double shape;
     private final double scale;
 
+    /**
+     * Constructor.
+     */
     public PgWeibullDistribution(double shape, double scale) {
         this.shape = shape;
         this.scale = scale;
@@ -17,13 +23,17 @@ public class PgWeibullDistribution implements PgDistribution {
 
     @Override
     public double pdf(double value) {
-        if (value < 0) return 0;
+        if (value < 0) {
+            return 0;
+        }
         return (shape / scale) * Math.pow(value / scale, shape - 1) * Math.exp(-Math.pow(value / scale, shape));
     }
 
     @Override
     public double cdf(double value) {
-        if (value < 0) return 0;
+        if (value < 0) {
+            return 0;
+        }
         return 1 - Math.exp(-Math.pow(value / scale, shape));
     }
 

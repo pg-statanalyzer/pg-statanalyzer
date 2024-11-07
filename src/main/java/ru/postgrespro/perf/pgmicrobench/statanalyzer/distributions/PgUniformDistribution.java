@@ -9,11 +9,13 @@ import java.util.Random;
  * Represents uniform distribution, which generates random numbers uniformly
  * distributed between specified minimum and maximum value.
  */
-
 public class PgUniformDistribution implements PgDistribution {
     private final double min;
     private final double max;
 
+    /**
+     * Constructor.
+     */
     public PgUniformDistribution(double min, double max) {
         if (max <= min) {
             throw new IllegalArgumentException("Max must be greater than Min.");
