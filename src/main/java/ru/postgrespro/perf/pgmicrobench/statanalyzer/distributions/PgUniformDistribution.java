@@ -9,8 +9,20 @@ import java.util.Random;
  * Represents uniform distribution, which generates random numbers uniformly
  * distributed between specified minimum and maximum value.
  */
+public class PgUniformDistribution implements PgDistribution {
+    private final double min;
+    private final double max;
 
-public class UniformDistribution {
+    /**
+     * Constructor.
+     */
+    public PgUniformDistribution(double min, double max) {
+        if (max <= min) {
+            throw new IllegalArgumentException("Max must be greater than Min.");
+        }
+        this.min = min;
+        this.max = max;
+    }
 
     /**
      * Generates list of random numbers uniformly distributed between specified minimum and maximum values.
@@ -36,5 +48,44 @@ public class UniformDistribution {
             values.add(value);
         }
         return values;
+    }
+
+    @Override
+    public double pdf(double value) {
+        if (value < min || value >= max) {
+            return 0;
+        }
+        return 1 / (max - min);
+    }
+
+    @Override
+    public double cdf(double value) {
+        if (value < min) {
+            return 0;
+        }
+        if (value >= max) {
+            return 1;
+        }
+        return (value - min) / (max - min);
+    }
+
+    @Override
+    public double mean() {
+        return (max - min) / 2;
+    }
+
+    @Override
+    public double variance() {
+        return (max - min) * (max - min) / 12;
+    }
+
+    @Override
+    public double median() {
+        return (max - min) / 2;
+    }
+
+    @Override
+    public List<Double> generate(int size, Random random) {
+        return generate(random, min, max, size);
     }
 }
