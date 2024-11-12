@@ -53,8 +53,8 @@ public class Plot {
     /**
      * Plots a histogram and a density function for the given array of double values.
      *
-     * @param data    an array of double values to be plotted as a histogram.
-     * @param pdf a function that defines the density to be plotted alongside the histogram.
+     * @param data an array of double values to be plotted as a histogram.
+     * @param pdf  a function that defines the density to be plotted alongside the histogram.
      */
     public static void plot(double[] data, Function<Double, Double> pdf) {
         ArrayList<Double> dataList = new ArrayList<>();
@@ -67,8 +67,8 @@ public class Plot {
     /**
      * Plots a histogram and a density function for the given collection of double values.
      *
-     * @param data    a collection of Double values to be plotted as a histogram.
-     * @param pdf a function that defines the density to be plotted alongside the histogram.
+     * @param data a collection of Double values to be plotted as a histogram.
+     * @param pdf  a function that defines the density to be plotted alongside the histogram.
      */
     public static void plot(Collection<Double> data, Function<Double, Double> pdf) {
         int bins = (int) Math.sqrt(data.size()) + 1;

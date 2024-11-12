@@ -1,6 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistributionSample;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +35,9 @@ public class ModalityCloseModesDataSet {
                 namePostfix);
 
         List<Double> values = new ArrayList<>();
-        values.addAll(PgUniformDistribution.generate(random, 0, 1, batch)
+        values.addAll(PgUniformDistributionSample.generate(random, 0, 1, batch)
                 .stream().map(x -> delta + Math.pow(x, 3)).collect(Collectors.toList()));
-        values.addAll(PgUniformDistribution.generate(random, 0, 1, batch)
+        values.addAll(PgUniformDistributionSample.generate(random, 0, 1, batch)
                 .stream().map(x -> -delta - Math.pow(x, 3)).collect(Collectors.toList()));
 
         double[] valuesArray = values.stream().mapToDouble(Double::doubleValue).toArray();

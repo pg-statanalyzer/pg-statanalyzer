@@ -1,7 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
 import lombok.Getter;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
 
 import java.util.List;
 

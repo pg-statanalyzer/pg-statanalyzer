@@ -1,12 +1,12 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.exceptions.WeightedSampleNotSupportedException;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.HarrellDavisQuantileEstimator;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.IQuantileEstimator;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.sequences.ArithmeticProgressionSequence;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.HarrellDavisQuantileEstimator;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.IQuantileEstimator;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.exceptions.WeightedSampleNotSupportedException;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sequences.ArithmeticProgressionSequence;
 
 import java.util.ArrayList;
 import java.util.Arrays;

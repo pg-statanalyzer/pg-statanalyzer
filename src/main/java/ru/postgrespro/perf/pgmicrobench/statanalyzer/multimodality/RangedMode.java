@@ -1,7 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import lombok.Getter;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.List;
 
