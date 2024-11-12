@@ -14,10 +14,20 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributio
 
 import java.util.Arrays;
 
+/**
+ * This class provides methods to perform the Kolmogorov-Smirnov test for goodness of fit
+ * and to fit a distribution to a given dataset using the Kolmogorov-Smirnov statistic.
+ */
 public class KolmogorovSmirnov {
     private static final KolmogorovSmirnovTest KS_TEST = new KolmogorovSmirnovTest();
 
-
+    /**
+     * Calculates the Kolmogorov-Smirnov statistic for the given data and distribution.
+     *
+     * @param data the observed data
+     * @param distribution the theoretical distribution to compare against
+     * @return the Kolmogorov-Smirnov statistic
+     */
     public static double ksStatistic(double[] data, PgDistributionSample distribution) {
         int n = data.length;
         double nd = n;
@@ -37,14 +47,36 @@ public class KolmogorovSmirnov {
         return d;
     }
 
+    /**
+     * Performs the Kolmogorov-Smirnov test on the given data against a specified distribution.
+     *
+     * @param data the observed data
+     * @param distribution the theoretical distribution to compare against
+     * @return the p-value of the Kolmogorov-Smirnov test
+     */
     public static double ksTest(double[] data, PgDistributionSample distribution) {
         return ksTest(ksStatistic(data, distribution), data.length);
     }
 
+    /**
+     * Calculates the p-value for a given Kolmogorov-Smirnov statistic and sample size.
+     *
+     * @param statistic the Kolmogorov-Smirnov statistic
+     * @param n the sample size
+     * @return the p-value corresponding to the statistic
+     */
     public static double ksTest(double statistic, int n) {
         return 1.0 - KS_TEST.cdf(statistic, n);
     }
 
+    /**
+     * Fits a distribution to the given data by minimizing the Kolmogorov-Smirnov statistic.
+     *
+     * @param data the observed data
+     * @param startPoint initial guess for the parameters of the distribution
+     * @param abstractDistribution the abstract distribution to fit
+     * @return a FittedDistribution object containing the fitted parameters, distribution sample, and p-value
+     */
     public static FittedDistribution fit(double[] data, double[] startPoint, PgDistribution abstractDistribution) {
         MultivariateFunction evaluationFunction = point -> {
             PgDistributionSample distribution;

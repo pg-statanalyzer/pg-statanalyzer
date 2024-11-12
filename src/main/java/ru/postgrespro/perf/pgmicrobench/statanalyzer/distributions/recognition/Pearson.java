@@ -16,11 +16,20 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributio
 import java.util.Arrays;
 
 /**
- * The {@code Pearson} class provides implementation of Pearson's algorithm.
+ * The {@code Pearson} class provides implementation of Pearson's algorithm for fitting distributions
+ * and performing the Pearson goodness-of-fit test.
  */
 public class Pearson {
     private static final int BINS = 50;
 
+    /**
+     * Fits a distribution to the given data by minimizing the Pearson statistic.
+     *
+     * @param data the observed data
+     * @param startPoint initial guess for the parameters of the distribution
+     * @param abstractDistribution the abstract distribution to fit
+     * @return a FittedDistribution object containing the fitted parameters, distribution sample, and p-value
+     */
     public static FittedDistribution fit(double[] data, double[] startPoint, PgDistribution abstractDistribution) {
         Bounds bounds = boundsOfBins(data);
         int actualBins = bounds.counts.length;
@@ -66,10 +75,26 @@ public class Pearson {
         return new FittedDistribution(solution, abstractDistribution.getSample(solution), pValue);
     }
 
+    /**
+     * Calculates the p-value for a given Pearson statistic, number of bins, and degrees of freedom.
+     *
+     * @param statistic the Pearson statistic
+     * @param bins the number of bins used in the test
+     * @param degreeOfFreedom the degrees of freedom for the distribution
+     * @return the p-value corresponding to the statistic
+     */
     private static double pearsonTest(double statistic, int bins, int degreeOfFreedom) {
         return 1 - new ChiSquaredDistribution(bins - 1 - degreeOfFreedom).cumulativeProbability(statistic);
     }
 
+    /**
+     * Performs the Pearson goodness-of-fit test on the given data against a specified distribution.
+     *
+     * @param data the observed data
+     * @param distribution the theoretical distribution to compare against
+     * @param degreeOfFreedom the degrees of freedom for the distribution
+     * @return the p-value of the Pearson test
+     */
     public static double pearsonTest(double[] data, PgDistributionSample distribution, int degreeOfFreedom) {
         Bounds bounds = boundsOfBins(data);
         int actualBins = bounds.counts.length;
