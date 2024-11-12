@@ -11,7 +11,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionSample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 
 import java.util.Arrays;
 
@@ -23,14 +23,14 @@ public class Pearson {
     private static final int BINS = 50;
 
     /**
-     * Fits a distribution to the given data by minimizing the Pearson statistic.
+     * Fits a distribution to the observed data by minimizing the Pearson statistic.
      *
-     * @param data the observed data
-     * @param startPoint initial guess for the parameters of the distribution
-     * @param abstractDistribution the abstract distribution to fit
-     * @return a FittedDistribution object containing the fitted parameters, distribution sample, and p-value
+     * @param data             the observed data
+     * @param startPoint       initial parameter guess for the distribution
+     * @param distributionType the type of distribution to fit
+     * @return a FittedDistribution object with fitted parameters, sample, and p-value
      */
-    public static FittedDistribution fit(double[] data, double[] startPoint, PgDistribution abstractDistribution) {
+    public static FittedDistribution fit(double[] data, double[] startPoint, PgDistributionType distributionType) {
         Bounds bounds = boundsOfBins(data);
         int actualBins = bounds.counts.length;
 
@@ -40,9 +40,9 @@ public class Pearson {
         }
 
         MultivariateFunction evaluationFunction = point -> {
-            PgDistributionSample distribution;
+            PgDistribution distribution;
             try {
-                distribution = abstractDistribution.getSample(point);
+                distribution = distributionType.createDistribution(point);
             } catch (Exception e) {
                 return Double.POSITIVE_INFINITY;
             }
@@ -70,16 +70,16 @@ public class Pearson {
 
         double[] solution = result.getPoint();
         double statistic = result.getValue();
-        double pValue = pearsonTest(statistic, actualBins, abstractDistribution.getParameterNumber());
+        double pValue = pearsonTest(statistic, actualBins, distributionType.getParameterNumber());
 
-        return new FittedDistribution(solution, abstractDistribution.getSample(solution), pValue);
+        return new FittedDistribution(solution, distributionType.createDistribution(solution), pValue);
     }
 
     /**
      * Calculates the p-value for a given Pearson statistic, number of bins, and degrees of freedom.
      *
-     * @param statistic the Pearson statistic
-     * @param bins the number of bins used in the test
+     * @param statistic       the Pearson statistic
+     * @param bins            the number of bins used in the test
      * @param degreeOfFreedom the degrees of freedom for the distribution
      * @return the p-value corresponding to the statistic
      */
@@ -90,12 +90,11 @@ public class Pearson {
     /**
      * Performs the Pearson goodness-of-fit test on the given data against a specified distribution.
      *
-     * @param data the observed data
+     * @param data         the observed data
      * @param distribution the theoretical distribution to compare against
-     * @param degreeOfFreedom the degrees of freedom for the distribution
      * @return the p-value of the Pearson test
      */
-    public static double pearsonTest(double[] data, PgDistributionSample distribution, int degreeOfFreedom) {
+    public static double pearsonTest(double[] data, PgDistribution distribution) {
         Bounds bounds = boundsOfBins(data);
         int actualBins = bounds.counts.length;
 
@@ -115,7 +114,7 @@ public class Pearson {
 
         double statistic = statistic(observed, expected, data.length);
 
-        return pearsonTest(statistic, actualBins, degreeOfFreedom);
+        return pearsonTest(statistic, actualBins, distribution.getType().getParameterNumber());
     }
 
     private static double statistic(double[] observed, double[] expected, int n) {

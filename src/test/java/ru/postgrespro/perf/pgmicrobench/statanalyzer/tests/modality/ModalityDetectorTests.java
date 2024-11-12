@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistributionSample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistributionSample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.loader.Loader;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
@@ -47,7 +47,7 @@ public class ModalityDetectorTests {
      */
     @Test
     public void testLatencyLoading() {
-        List<Double> latencies = PgNormalDistributionSample.generate(10000, 5.0, 1.0);
+        List<Double> latencies = PgNormalDistribution.generate(10000, 5.0, 1.0);
         analyzer.loadLatencies(latencies);
 
         Assertions.assertEquals(10000,
@@ -64,9 +64,9 @@ public class ModalityDetectorTests {
     public void testModalityDetectionWithMixedDistributions() {
         List<Double> values = new ArrayList<>();
 
-        values.addAll(PgNormalDistributionSample.generate(10000, 5.0, 1.0));
+        values.addAll(PgNormalDistribution.generate(10000, 5.0, 1.0));
 
-        values.addAll(PgUniformDistributionSample.generate(new Random(),
+        values.addAll(PgUniformDistribution.generate(new Random(),
                 10.0,
                 15.0,
                 10000));
@@ -95,7 +95,7 @@ public class ModalityDetectorTests {
      */
     @Test
     public void testHistogramDatasetCreation() {
-        List<Double> values = PgNormalDistributionSample.generate(1000, 5.0, 1.0);
+        List<Double> values = PgNormalDistribution.generate(1000, 5.0, 1.0);
         HistogramDataset dataset = createHistogramDataset(values, 20);
 
         assertEquals(1,

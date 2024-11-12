@@ -1,7 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistributionSample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistributionSample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistribution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,12 +51,12 @@ public class ModalityGumbelLocationProgressionDataSet {
 
         List<Double> valuesList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            valuesList.addAll(PgGumbelDistributionSample.generate(random, locationFactor * i, scale, batch));
+            valuesList.addAll(PgGumbelDistribution.generate(random, locationFactor * i, scale, batch));
 
             if (noisy) {
                 double d = locationFactor / 5.0;
-                valuesList.addAll(PgUniformDistributionSample.generate(random, 0, 3 * d, batch / 10));
-                valuesList.addAll(PgUniformDistributionSample.generate(random, -2 * d, 0, batch / 10));
+                valuesList.addAll(PgUniformDistribution.generate(random, 0, 3 * d, batch / 10));
+                valuesList.addAll(PgUniformDistribution.generate(random, -2 * d, 0, batch / 10));
             }
         }
 

@@ -1,7 +1,23 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
-public interface PgDistribution {
-    int getParameterNumber();
+import java.util.List;
+import java.util.Random;
 
-    PgDistributionSample getSample(double[] params);
+/**
+ * Represents a probability distribution.
+ */
+public interface PgDistribution {
+    double pdf(double value);
+
+    double cdf(double value);
+
+    double mean();
+
+    double variance();
+
+    double median();
+
+    List<Double> generate(int size, Random random);
+
+    PgDistributionType getType();
 }

@@ -10,7 +10,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionSample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 
 import java.util.Arrays;
 
@@ -28,7 +28,7 @@ public class KolmogorovSmirnov {
      * @param distribution the theoretical distribution to compare against
      * @return the Kolmogorov-Smirnov statistic
      */
-    public static double ksStatistic(double[] data, PgDistributionSample distribution) {
+    public static double ksStatistic(double[] data, PgDistribution distribution) {
         int n = data.length;
         double nd = n;
         double[] dataCopy = new double[n];
@@ -54,7 +54,7 @@ public class KolmogorovSmirnov {
      * @param distribution the theoretical distribution to compare against
      * @return the p-value of the Kolmogorov-Smirnov test
      */
-    public static double ksTest(double[] data, PgDistributionSample distribution) {
+    public static double ksTest(double[] data, PgDistribution distribution) {
         return ksTest(ksStatistic(data, distribution), data.length);
     }
 
@@ -70,18 +70,18 @@ public class KolmogorovSmirnov {
     }
 
     /**
-     * Fits a distribution to the given data by minimizing the Kolmogorov-Smirnov statistic.
+     * Fits a distribution to the observed data by minimizing the Kolmogorov-Smirnov statistic.
      *
      * @param data the observed data
-     * @param startPoint initial guess for the parameters of the distribution
-     * @param abstractDistribution the abstract distribution to fit
-     * @return a FittedDistribution object containing the fitted parameters, distribution sample, and p-value
+     * @param startPoint initial parameter guess for the distribution
+     * @param distributionType the type of distribution to fit
+     * @return a FittedDistribution object with fitted parameters, sample, and p-value
      */
-    public static FittedDistribution fit(double[] data, double[] startPoint, PgDistribution abstractDistribution) {
+    public static FittedDistribution fit(double[] data, double[] startPoint, PgDistributionType distributionType) {
         MultivariateFunction evaluationFunction = point -> {
-            PgDistributionSample distribution;
+            PgDistribution distribution;
             try {
-                distribution = abstractDistribution.getSample(point);
+                distribution = distributionType.createDistribution(point);
             } catch (Exception e) {
                 return Double.POSITIVE_INFINITY;
             }
@@ -102,6 +102,6 @@ public class KolmogorovSmirnov {
         double statistic = result.getValue();
         double pValue = ksTest(statistic, data.length);
 
-        return new FittedDistribution(solution, abstractDistribution.getSample(solution), pValue);
+        return new FittedDistribution(solution, distributionType.createDistribution(solution), pValue);
     }
 }
