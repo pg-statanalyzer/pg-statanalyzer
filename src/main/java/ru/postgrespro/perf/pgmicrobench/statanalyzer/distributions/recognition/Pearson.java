@@ -83,7 +83,7 @@ public class Pearson {
      * @param degreeOfFreedom the degrees of freedom for the distribution
      * @return the p-value corresponding to the statistic
      */
-    private static double pearsonTest(double statistic, int bins, int degreeOfFreedom) {
+    public static double pearsonTest(double statistic, int bins, int degreeOfFreedom) {
         return 1 - new ChiSquaredDistribution(bins - 1 - degreeOfFreedom).cumulativeProbability(statistic);
     }
 
