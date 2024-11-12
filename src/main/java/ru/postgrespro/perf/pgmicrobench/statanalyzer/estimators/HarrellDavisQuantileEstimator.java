@@ -1,10 +1,11 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.math3.distribution.BetaDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+
 import java.util.List;
 import java.util.Objects;
 

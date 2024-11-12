@@ -1,18 +1,18 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityReferenceDataSet;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityTestData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityReferenceDataSet;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityTestData;
 
 import java.util.List;
 import java.util.Locale;

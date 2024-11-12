@@ -88,4 +88,9 @@ public class PgUniformDistribution implements PgDistribution {
     public List<Double> generate(int size, Random random) {
         return generate(random, min, max, size);
     }
+
+    @Override
+    public PgDistributionType getType() {
+        return PgDistributionType.UNIFORM;
+    }
 }

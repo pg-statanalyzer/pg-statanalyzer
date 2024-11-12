@@ -15,7 +15,7 @@ public class HistogramUtil {
      * Saves the given histogram to a CSV file, with bucketed values based on linear binning.
      *
      * @param histogram the histogram to save
-     * @param csv the file to save the histogram data to
+     * @param csv       the file to save the histogram data to
      */
     public static synchronized void saveHistogram2csv(Histogram histogram, File csv) {
         try (PrintWriter pw = new PrintWriter(csv)) {

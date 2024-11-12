@@ -6,14 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.Pearson.pearsonFitImplementation;
-
 /**
  * The PgLogNormalDistribution class implements log-normal distribution.
  */
 public class PgLogNormalDistribution implements PgDistribution {
-    private static final int PARAMETER_NUMBER = 2;
-
     private final double mean;
     private final double standardDeviation;
 
@@ -22,28 +18,11 @@ public class PgLogNormalDistribution implements PgDistribution {
      */
     public PgLogNormalDistribution(double mean, double standardDeviation) {
         if (standardDeviation <= 0) {
-            throw new IllegalArgumentException("Standard deviation must be greater than zero");
+            throw new IllegalArgumentException("Standard deviation must be positive");
         }
         this.mean = mean;
         this.standardDeviation = standardDeviation;
     }
-
-    /**
-     * Fits a log-normal distribution to the provided data using the Pearson fitting method.
-     *
-     * @param data       an array of double values representing the dataset to fit.
-     * @param startPoint an array of double values representing the initial guess for the parameters.
-     * @return a FittedDistribution object representing the fitted log-normal distribution.
-     */
-    public static FittedDistribution pearsonFit(double[] data, double[] startPoint) {
-        return pearsonFitImplementation(data, startPoint, PARAMETER_NUMBER, (params -> {
-            if (params[1] <= 0) {
-                throw new IllegalArgumentException("Wrong number of parameters");
-            }
-            return new PgLogNormalDistribution(params[0], params[1]);
-        }));
-    }
-
 
     @Override
     public double pdf(double value) {
@@ -87,5 +66,10 @@ public class PgLogNormalDistribution implements PgDistribution {
             samples.add(sample);
         }
         return samples;
+    }
+
+    @Override
+    public PgDistributionType getType() {
+        return PgDistributionType.LOGNORMAL;
     }
 }

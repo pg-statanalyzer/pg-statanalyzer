@@ -1,10 +1,10 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.IDensityHistogramBuilder;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
 import java.util.Arrays;

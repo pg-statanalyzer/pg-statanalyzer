@@ -18,4 +18,6 @@ public interface PgDistribution {
     double median();
 
     List<Double> generate(int size, Random random);
+
+    PgDistributionType getType();
 }

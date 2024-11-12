@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.Pearson.pearsonFitImplementation;
-
 
 /**
  * Represents Gumbel distribution, probability distribution used to model
@@ -13,7 +11,6 @@ import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recogn
  */
 
 public class PgGumbelDistribution implements PgDistribution {
-    private static final int PARAMETER_NUMBER = 2;
     private static final double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
     private final double location;
     private final double scale;
@@ -47,23 +44,6 @@ public class PgGumbelDistribution implements PgDistribution {
         PgGumbelDistribution distribution = new PgGumbelDistribution(location, scale);
         return distribution.generate(count, random);
     }
-
-    /**
-     * Fits a Gumbel distribution to the provided data using the Pearson fitting method.
-     *
-     * @param data       an array of double values representing the dataset to fit.
-     * @param startPoint an array of double values representing the initial guess for the parameters.
-     * @return a FittedDistribution object representing the fitted Gumbel distribution.
-     */
-    public static FittedDistribution pearsonFit(double[] data, double[] startPoint) {
-        return pearsonFitImplementation(data, startPoint, PARAMETER_NUMBER, (params -> {
-            if (params[1] <= 0) {
-                throw new IllegalArgumentException("Scale must be positive");
-            }
-            return new PgGumbelDistribution(params[0], params[1]);
-        }));
-    }
-
 
     /**
      * PDF.
@@ -116,6 +96,11 @@ public class PgGumbelDistribution implements PgDistribution {
             values.add(random(random));
         }
         return values;
+    }
+
+    @Override
+    public PgDistributionType getType() {
+        return PgDistributionType.GUMBEL;
     }
 
     /**

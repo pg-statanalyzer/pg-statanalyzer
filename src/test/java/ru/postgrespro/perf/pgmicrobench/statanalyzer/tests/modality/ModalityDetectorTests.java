@@ -1,15 +1,16 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality;
 
+import org.jfree.data.statistics.HistogramDataset;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.loader.Loader;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.jfree.data.statistics.HistogramDataset;
 
 
 /**

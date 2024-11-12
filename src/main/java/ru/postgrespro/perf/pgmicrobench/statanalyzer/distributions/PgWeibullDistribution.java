@@ -19,6 +19,12 @@ public class PgWeibullDistribution implements PgDistribution {
     public PgWeibullDistribution(double shape, double scale) {
         this.shape = shape;
         this.scale = scale;
+        if (shape <= 0) {
+            throw new IllegalArgumentException("Shape must be positive");
+        }
+        if (scale <= 0) {
+            throw new IllegalArgumentException("Scale must be positive");
+        }
     }
 
     @Override
@@ -61,5 +67,10 @@ public class PgWeibullDistribution implements PgDistribution {
             samples.add(sample);
         }
         return samples;
+    }
+
+    @Override
+    public PgDistributionType getType() {
+        return PgDistributionType.WEIBULL;
     }
 }
