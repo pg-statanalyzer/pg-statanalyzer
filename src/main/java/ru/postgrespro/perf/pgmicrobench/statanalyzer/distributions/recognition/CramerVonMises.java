@@ -32,7 +32,7 @@ public class CramerVonMises {
 
         double sum = 0.0;
         for (int i = 0; i < n; i++) {
-            double empiricalCdf = (i + 1) / (double) n;
+            double empiricalCdf = (2 * i + 1) / (2.0 * n);
             double theoreticalCdf = distribution.cdf(data[i]);
             double diff = empiricalCdf - theoreticalCdf;
             sum += diff * diff;
@@ -60,8 +60,9 @@ public class CramerVonMises {
      * @return p-value for Cramer–Von Mises test
      */
     public static double cvmTest(double statistic, int n) {
-        double scaleFactor = Math.sqrt(n);
-        return Math.exp(-scaleFactor * statistic);
+        double lambda = statistic * (1 + 0.5 / n);
+        double pValue = Math.exp(-lambda);
+        return Math.min(pValue, 1.0);
     }
 
     /**
