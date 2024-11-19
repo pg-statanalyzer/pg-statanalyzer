@@ -84,6 +84,19 @@ public class PgUniformDistribution implements PgDistribution {
         return (max - min) / 2;
     }
 
+
+    @Override
+    public double skewness() {
+        return 0;
+    }
+
+
+    @Override
+    public double kurtosis() {
+        return 1.8;
+    }
+
+
     @Override
     public List<Double> generate(int size, Random random) {
         return generate(random, min, max, size);
