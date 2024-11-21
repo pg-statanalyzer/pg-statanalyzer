@@ -3,6 +3,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.KolmogorovSmirnov;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,15 +19,12 @@ public class StatAnalyzer {
     static final PgDistributionType[] supportedDistributions = PgDistributionType.values();
 
     public static void main(String[] args) {
-        String file = "distributionSample/lognorm_13_07";
+        String file = "distributionSample/SELECT.csv";
 
         List<Double> dataList = new ArrayList<>(10000);
         try (Scanner scanner = new Scanner(new File(file))) {
-            scanner.nextLine();
-            scanner.nextLine();
-
             while (scanner.hasNextDouble()) {
-                dataList.add(scanner.nextDouble());
+                dataList.add(scanner.nextDouble() / 100000.0); // division to simplify the search for parameters
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -56,6 +54,9 @@ public class StatAnalyzer {
             System.out.println("Params: " + Arrays.toString(fd.getParams()));
             double pValue = KolmogorovSmirnov.ksTest(test, fd.getDistribution());
             System.out.println("pValue: " + pValue);
+
+
+            Plot.plot(dataList, fd.getDistribution()::pdf, distributionType.name());
 
             System.out.println();
         }
