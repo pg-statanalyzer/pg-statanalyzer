@@ -5,6 +5,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.F
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.KolmogorovSmirnov;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  * Application class.
@@ -39,39 +41,45 @@ public class StatAnalyzer {
 
         System.out.println("Detected modality: " + result.getModality());
 
-        result.getModes().forEach(mode -> {
-            System.out.println(mode.toString());
-        });
+        for (RangedMode mode : result.getModes()) {
+            System.out.println("Processing mode: " + mode);
 
-        double[] params = new double[dataList.size() / 2 + (dataList.size() & 1)];
-        double[] test = new double[dataList.size() / 2];
+            List<Double> modeData = dataList.stream()
+                    .filter(value -> value >= mode.getLeft() && value <= mode.getRight())
+                    .collect(Collectors.toList());
 
-        for (int i = 0; i < dataList.size(); i++) {
-            if ((i & 1) == 0) {
-                params[i / 2] = dataList.get(i);
-            } else {
-                test[i / 2] = dataList.get(i);
+            System.out.println("Data size in this mode: " + modeData.size());
+
+            double[] params = new double[modeData.size() / 2 + (modeData.size() & 1)];
+            double[] test = new double[modeData.size() / 2];
+            for (int i = 0; i < modeData.size(); i++) {
+                if ((i & 1) == 0) {
+                    params[i / 2] = modeData.get(i);
+                } else {
+                    test[i / 2] = modeData.get(i);
+                }
             }
-        }
 
-        for (PgDistributionType distributionType : supportedDistributions) {
-            System.out.println(distributionType.name() + ":");
-            FittedDistribution fd;
-            try {
-                fd = KolmogorovSmirnov.fit(params, new double[]{1, 1}, distributionType);
-            } catch (Exception e) {
-                System.out.println("Cant find parameters");
+            for (PgDistributionType distributionType : supportedDistributions) {
+                System.out.println("Fitting distribution: " + distributionType.name());
+                FittedDistribution fd;
+                try {
+                    fd = KolmogorovSmirnov.fit(params, new double[]{1, 1}, distributionType);
+                } catch (Exception e) {
+                    System.out.println("Cant find parameters: " + distributionType.name());
+                    System.out.println();
+                    continue;
+                }
+
+                Plot.plot(modeData, fd.getDistribution()::pdf, distributionType.name() + " (Mode)");
+
+                System.out.println("Params: " + Arrays.toString(fd.getParams()));
+
+                double pValue = KolmogorovSmirnov.ksTest(test, fd.getDistribution());
+                System.out.println("pValue: " + pValue);
+
                 System.out.println();
-                continue;
             }
-            System.out.println("Params: " + Arrays.toString(fd.getParams()));
-            double pValue = KolmogorovSmirnov.ksTest(test, fd.getDistribution());
-            System.out.println("pValue: " + pValue);
-
-
-            Plot.plot(dataList, fd.getDistribution()::pdf, distributionType.name());
-
-            System.out.println();
         }
     }
 }
