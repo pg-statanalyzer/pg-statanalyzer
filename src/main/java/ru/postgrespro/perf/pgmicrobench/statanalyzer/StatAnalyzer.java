@@ -3,6 +3,9 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.KolmogorovSmirnov;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.io.File;
@@ -11,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  * Application class.
  */
 public class StatAnalyzer {
     static final PgDistributionType[] supportedDistributions = PgDistributionType.values();
+    private static final LowlandModalityDetector detector = new LowlandModalityDetector(0.5, 0.01, false);
 
     public static void main(String[] args) {
         String file = "distributionSample/SELECT.csv";
@@ -29,6 +34,16 @@ public class StatAnalyzer {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+
+        Sample sample = new Sample(dataList);
+
+        ModalityData result = detector.detectModes(sample);
+
+        System.out.println("Detected modality: " + result.getModality());
+
+        result.getModes().forEach(mode -> {
+            System.out.println(mode.toString());
+        });
 
         double[] params = new double[dataList.size() / 2 + (dataList.size() & 1)];
         double[] test = new double[dataList.size() / 2];
