@@ -113,7 +113,7 @@ public class CramerVonMises {
             throw new IllegalArgumentException("z must be non-negative.");
         }
 
-        if (z > 75) {
+        if (z > 70) {
             return Math.exp(z) / Math.sqrt(2 * Math.PI * z);
         }
 
