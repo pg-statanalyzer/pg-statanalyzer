@@ -64,7 +64,7 @@ public class StatAnalyzer {
                 System.out.println("Fitting distribution: " + distributionType.name());
                 FittedDistribution fd;
                 try {
-                    fd = KolmogorovSmirnov.fit(params, new double[]{1, 1}, distributionType);
+                    fd = KolmogorovSmirnov.fit(params, distributionType);
                 } catch (Exception e) {
                     System.out.println("Cant find parameters: " + distributionType.name());
                     System.out.println();
