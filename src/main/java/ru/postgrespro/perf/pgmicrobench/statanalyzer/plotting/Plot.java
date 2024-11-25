@@ -61,7 +61,7 @@ public class Plot {
         for (double datum : data) {
             dataList.add(datum);
         }
-        plot(dataList, pdf);
+        plot(dataList, pdf, "Histogram");
     }
 
     /**
@@ -70,7 +70,7 @@ public class Plot {
      * @param data a collection of Double values to be plotted as a histogram.
      * @param pdf  a function that defines the density to be plotted alongside the histogram.
      */
-    public static void plot(Collection<Double> data, Function<Double, Double> pdf) {
+    public static void plot(Collection<Double> data, Function<Double, Double> pdf, String title) {
         int bins = (int) Math.sqrt(data.size()) + 1;
 
         Histogram histogram = new Histogram(data, bins);
@@ -93,6 +93,7 @@ public class Plot {
         }
 
         XYChart chart = new XYChart(800, 600);
+        chart.setTitle(title);
 
         chart.addSeries("Histogram", histogram.getxAxisData(), histogram.getyAxisData())
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)

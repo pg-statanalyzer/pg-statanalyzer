@@ -91,6 +91,6 @@ public class PgUniformDistribution implements PgDistribution {
 
     @Override
     public PgDistributionType getType() {
-        return PgDistributionType.UNIFORM;
+        return null;
     }
 }
