@@ -117,8 +117,8 @@ public class CramerVonMises {
             return Math.exp(z) / Math.sqrt(2 * Math.PI * z);
         }
 
+        double term;
         double sum = 0.0;
-        double term = Math.pow(z / 2, v) / gamma(v + 1);
         double factorial = 1.0;
         double powerZ = 1.0;
 
