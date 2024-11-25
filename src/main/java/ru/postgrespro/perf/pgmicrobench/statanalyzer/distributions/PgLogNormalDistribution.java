@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.*;
+
 /**
  * The PgLogNormalDistribution class implements log-normal distribution.
  */
@@ -30,8 +32,8 @@ public class PgLogNormalDistribution implements PgDistribution {
             return 0;
         }
         double logValue = Math.log(value);
-        return (1 / (value * standardDeviation * Math.sqrt(2 * Math.PI)))
-                * Math.exp(-Math.pow(logValue - mean, 2) / (2 * standardDeviation * standardDeviation));
+        return (1 / (value * standardDeviation * sqrt(2 * Math.PI)))
+                * exp(-Math.pow(logValue - mean, 2) / (2 * standardDeviation * standardDeviation));
     }
 
     @Override
@@ -40,29 +42,44 @@ public class PgLogNormalDistribution implements PgDistribution {
             return 0;
         }
         double logValue = Math.log(value);
-        return 0.5 * (1 + Erf.erf((logValue - mean) / (standardDeviation * Math.sqrt(2))));
+        return 0.5 * (1 + Erf.erf((logValue - mean) / (standardDeviation * sqrt(2))));
     }
 
     @Override
     public double mean() {
-        return Math.exp(mean + standardDeviation * standardDeviation / 2);
+        return exp(mean + standardDeviation * standardDeviation / 2);
     }
 
     @Override
     public double variance() {
-        return (Math.exp(standardDeviation * standardDeviation) - 1) * Math.exp(2 * mean + standardDeviation * standardDeviation);
+        return (exp(standardDeviation * standardDeviation) - 1) * exp(2 * mean + standardDeviation * standardDeviation);
     }
 
     @Override
     public double median() {
-        return Math.exp(mean);
+        return exp(mean);
     }
+
+
+    @Override
+    public double skewness() {
+        return (exp(standardDeviation * standardDeviation) + 2) * sqrt(expm1(standardDeviation * standardDeviation));
+    }
+
+
+    @Override
+    public double kurtosis() {
+        return 3 * exp(2 * standardDeviation * standardDeviation)
+                + 2 * exp(3 * standardDeviation * standardDeviation)
+                + exp(4 * standardDeviation * standardDeviation) - 3;
+    }
+
 
     @Override
     public List<Double> generate(int size, Random random) {
         List<Double> samples = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            double sample = Math.exp(mean + standardDeviation * random.nextGaussian());
+            double sample = exp(mean + standardDeviation * random.nextGaussian());
             samples.add(sample);
         }
         return samples;

@@ -67,6 +67,19 @@ public class PgNormalDistribution implements PgDistribution {
         return mean;
     }
 
+
+    @Override
+    public double skewness() {
+        return 0;
+    }
+
+
+    @Override
+    public double kurtosis() {
+        return 3;
+    }
+
+
     @Override
     public List<Double> generate(int size, Random random) {
         List<Double> samples = new ArrayList<>();

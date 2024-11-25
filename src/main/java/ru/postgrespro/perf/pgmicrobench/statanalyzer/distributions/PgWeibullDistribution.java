@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.pow;
+
 /**
  * The PgWeibullDistribution class implements weibull distribution.
  */
@@ -32,7 +34,7 @@ public class PgWeibullDistribution implements PgDistribution {
         if (value < 0) {
             return 0;
         }
-        return (shape / scale) * Math.pow(value / scale, shape - 1) * Math.exp(-Math.pow(value / scale, shape));
+        return (shape / scale) * pow(value / scale, shape - 1) * Math.exp(-pow(value / scale, shape));
     }
 
     @Override
@@ -40,7 +42,7 @@ public class PgWeibullDistribution implements PgDistribution {
         if (value < 0) {
             return 0;
         }
-        return 1 - Math.exp(-Math.pow(value / scale, shape));
+        return 1 - Math.exp(-pow(value / scale, shape));
     }
 
     @Override
@@ -50,20 +52,42 @@ public class PgWeibullDistribution implements PgDistribution {
 
     @Override
     public double variance() {
-        return scale * scale * (Gamma.gamma(1 + 2 / shape) - Math.pow(Gamma.gamma(1 + 1 / shape), 2));
+        return scale * scale * (Gamma.gamma(1 + 2 / shape) - pow(Gamma.gamma(1 + 1 / shape), 2));
     }
 
     @Override
     public double median() {
-        return scale * Math.pow(Math.log(2), 1 / shape);
+        return scale * pow(Math.log(2), 1 / shape);
     }
+
+
+    @Override
+    public double skewness() {
+        double mu = mean();
+        double stnDev = Math.sqrt(variance());
+        return (Gamma.gamma(1 + 3 / shape) * pow(scale, 3) - 3 * mu * pow(stnDev, 2) - pow(mu, 3))
+                / pow(stnDev, 3);
+    }
+
+
+    @Override
+    public double kurtosis() {
+        double mu = mean();
+        double stnDev = Math.sqrt(variance());
+        return (pow(scale, 4) * Gamma.gamma(1 + 4 / shape)
+                - 4 * skewness() * pow(stnDev, 3) * mu
+                - 6 * pow(mu, 2) * pow(stnDev, 2)
+                - pow(mu, 4)
+                ) / pow(stnDev, 4);
+    }
+
 
     @Override
     public List<Double> generate(int size, Random random) {
         List<Double> samples = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             double u = random.nextDouble();
-            double sample = scale * Math.pow(-Math.log(1 - u), 1 / shape);
+            double sample = scale * pow(-Math.log(1 - u), 1 / shape);
             samples.add(sample);
         }
         return samples;

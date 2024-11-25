@@ -86,6 +86,18 @@ public class PgGumbelDistribution implements PgDistribution {
         return (Math.PI * Math.PI * scale * scale) / 6;
     }
 
+
+    @Override
+    public double skewness() {
+        return 1.139547099404;
+    }
+
+
+    @Override
+    public double kurtosis() {
+        return 5.4;
+    }
+
     /**
      * Generation.
      */
