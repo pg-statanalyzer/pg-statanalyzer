@@ -1,8 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.KolmogorovSmirnov;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.*;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
@@ -75,7 +74,8 @@ public class StatAnalyzer {
 
                 System.out.println("Params: " + Arrays.toString(fd.getParams()));
 
-                double pValue = KolmogorovSmirnov.ksTest(test, fd.getDistribution());
+//                double pValue = KolmogorovSmirnov.ksTest(test, fd.getDistribution());
+                double pValue = Multicriteria.multiCriteriaStatistic(test, fd.getDistribution());
                 System.out.println("pValue: " + pValue);
 
                 System.out.println();
