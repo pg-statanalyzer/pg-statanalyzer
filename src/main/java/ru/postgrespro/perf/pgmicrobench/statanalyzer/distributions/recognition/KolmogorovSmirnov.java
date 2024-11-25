@@ -73,11 +73,10 @@ public class KolmogorovSmirnov {
      * Fits a distribution to the observed data by minimizing the Kolmogorov-Smirnov statistic.
      *
      * @param data the observed data
-     * @param startPoint initial parameter guess for the distribution
      * @param distributionType the type of distribution to fit
      * @return a FittedDistribution object with fitted parameters, sample, and p-value
      */
-    public static FittedDistribution fit(double[] data, double[] startPoint, PgDistributionType distributionType) {
+    public static FittedDistribution fit(double[] data, PgDistributionType distributionType) {
         MultivariateFunction evaluationFunction = point -> {
             PgDistribution distribution;
             try {
@@ -94,8 +93,8 @@ public class KolmogorovSmirnov {
                 new MaxEval(10000),
                 new ObjectiveFunction(evaluationFunction),
                 GoalType.MINIMIZE,
-                new InitialGuess(startPoint),
-                new NelderMeadSimplex(2)
+                new InitialGuess(distributionType.getStartPoint()),
+                new NelderMeadSimplex(distributionType.getParameterNumber())
         );
 
         double[] solution = result.getPoint();
