@@ -10,70 +10,16 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
-
-import java.util.Arrays;
 
 /**
  * The {@code Pearson} class provides implementation of Pearson's algorithm for fitting distributions
  * and performing the Pearson goodness-of-fit test.
  */
-public class Pearson {
+public class Pearson implements IDistributionTest, IParameterEstimator {
     private static final int BINS = 50;
-
-    /**
-     * Fits a distribution to the observed data by minimizing the Pearson statistic.
-     *
-     * @param data             the observed data
-     * @param startPoint       initial parameter guess for the distribution
-     * @param distributionType the type of distribution to fit
-     * @return a FittedDistribution object with fitted parameters, sample, and p-value
-     */
-    public static FittedDistribution fit(double[] data, double[] startPoint, PgDistributionType distributionType) {
-        Bounds bounds = boundsOfBins(data);
-        int actualBins = bounds.counts.length;
-
-        double[] observed = new double[actualBins];
-        for (int i = 0; i < actualBins; i++) {
-            observed[i] = (double) bounds.counts[i] / data.length;
-        }
-
-        MultivariateFunction evaluationFunction = point -> {
-            PgDistribution distribution;
-            try {
-                distribution = distributionType.createDistribution(point);
-            } catch (Exception e) {
-                return Double.POSITIVE_INFINITY;
-            }
-
-            double[] expected = new double[actualBins];
-            double prev = 0;
-            for (int i = 0; i < actualBins - 1; i++) {
-                double cur = distribution.cdf(bounds.bounds[i + 1]);
-                expected[i] = cur - prev;
-                prev = cur;
-            }
-            expected[actualBins - 1] = 1 - prev;
-
-            return statistic(expected, observed, data.length);
-        };
-
-        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
-        PointValuePair result = optimizer.optimize(
-                new MaxEval(10000),
-                new ObjectiveFunction(evaluationFunction),
-                GoalType.MINIMIZE,
-                new InitialGuess(startPoint),
-                new NelderMeadSimplex(2)
-        );
-
-        double[] solution = result.getPoint();
-        double statistic = result.getValue();
-        double pValue = pearsonTest(statistic, actualBins, distributionType.getParameterNumber());
-
-        return new FittedDistribution(solution, distributionType.createDistribution(solution), pValue);
-    }
 
     /**
      * Calculates the p-value for a given Pearson statistic, number of bins, and degrees of freedom.
@@ -85,36 +31,6 @@ public class Pearson {
      */
     public static double pearsonTest(double statistic, int bins, int degreeOfFreedom) {
         return 1 - new ChiSquaredDistribution(bins - 1 - degreeOfFreedom).cumulativeProbability(statistic);
-    }
-
-    /**
-     * Performs the Pearson goodness-of-fit test on the given data against a specified distribution.
-     *
-     * @param data         the observed data
-     * @param distribution the theoretical distribution to compare against
-     * @return the p-value of the Pearson test
-     */
-    public static double pearsonTest(double[] data, PgDistribution distribution) {
-        Bounds bounds = boundsOfBins(data);
-        int actualBins = bounds.counts.length;
-
-        double[] observed = new double[actualBins];
-        for (int i = 0; i < actualBins; i++) {
-            observed[i] = (double) bounds.counts[i] / data.length;
-        }
-
-        double[] expected = new double[actualBins];
-        double prev = 0;
-        for (int i = 0; i < actualBins - 1; i++) {
-            double cur = distribution.cdf(bounds.bounds[i + 1]);
-            expected[i] = cur - prev;
-            prev = cur;
-        }
-        expected[actualBins - 1] = 1 - prev;
-
-        double statistic = statistic(observed, expected, data.length);
-
-        return pearsonTest(statistic, actualBins, distribution.getType().getParameterNumber());
     }
 
     private static double statistic(double[] observed, double[] expected, int n) {
@@ -130,9 +46,9 @@ public class Pearson {
         return statistic * n;
     }
 
-    private static Bounds boundsOfBins(double[] arr) {
-        double min = Arrays.stream(arr).min().orElse(Double.NaN);
-        double max = Arrays.stream(arr).max().orElse(Double.NaN);
+    private static Bounds boundsOfBins(Sample sample) {
+        double min = sample.getMin();
+        double max = sample.getMax();
         double range = max - min;
 
         double binWidth = range / BINS;
@@ -144,7 +60,7 @@ public class Pearson {
             bounds[i] = min + i * binWidth;
         }
 
-        for (double value : arr) {
+        for (double value : sample) {
             int binIndex = (int) ((value - min) / binWidth);
             if (binIndex >= BINS) {
                 binIndex = BINS - 1;
@@ -177,6 +93,89 @@ public class Pearson {
         System.arraycopy(mergedBounds, 0, resultBounds, 0, mergedIndex);
 
         return new Bounds(resultCounts, resultBounds);
+    }
+
+    /**
+     * Fits a distribution to the observed data by minimizing the Pearson statistic.
+     *
+     * @param sample           the observed data
+     * @param distributionType the type of distribution to fit
+     * @return a FittedDistribution object with fitted parameters, sample, and p-value
+     */
+    @Override
+    public FittedDistribution fit(Sample sample, PgDistributionType distributionType) {
+        Bounds bounds = boundsOfBins(sample);
+        int actualBins = bounds.counts.length;
+
+        double[] observed = new double[actualBins];
+        for (int i = 0; i < actualBins; i++) {
+            observed[i] = (double) bounds.counts[i] / sample.size();
+        }
+
+        MultivariateFunction evaluationFunction = point -> {
+            PgDistribution distribution;
+            try {
+                distribution = distributionType.createDistribution(point);
+            } catch (Exception e) {
+                return Double.POSITIVE_INFINITY;
+            }
+
+            double[] expected = new double[actualBins];
+            double prev = 0;
+            for (int i = 0; i < actualBins - 1; i++) {
+                double cur = distribution.cdf(bounds.bounds[i + 1]);
+                expected[i] = cur - prev;
+                prev = cur;
+            }
+            expected[actualBins - 1] = 1 - prev;
+
+            return statistic(expected, observed, sample.size());
+        };
+
+        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
+        PointValuePair result = optimizer.optimize(
+                new MaxEval(10000),
+                new ObjectiveFunction(evaluationFunction),
+                GoalType.MINIMIZE,
+                new InitialGuess(distributionType.getStartPoint()),
+                new NelderMeadSimplex(2)
+        );
+
+        double[] solution = result.getPoint();
+        double statistic = result.getValue();
+        double pValue = pearsonTest(statistic, actualBins, distributionType.getParameterNumber());
+
+        return new FittedDistribution(solution, distributionType.createDistribution(solution), pValue);
+    }
+
+    /**
+     * Performs the Pearson goodness-of-fit test on the given data against a specified distribution.
+     *
+     * @param distribution the theoretical distribution to compare against
+     * @return the p-value of the Pearson test
+     */
+    @Override
+    public double test(Sample sample, PgDistribution distribution) {
+        Bounds bounds = boundsOfBins(sample);
+        int actualBins = bounds.counts.length;
+
+        double[] observed = new double[actualBins];
+        for (int i = 0; i < actualBins; i++) {
+            observed[i] = (double) bounds.counts[i] / sample.size();
+        }
+
+        double[] expected = new double[actualBins];
+        double prev = 0;
+        for (int i = 0; i < actualBins - 1; i++) {
+            double cur = distribution.cdf(bounds.bounds[i + 1]);
+            expected[i] = cur - prev;
+            prev = cur;
+        }
+        expected[actualBins - 1] = 1 - prev;
+
+        double statistic = statistic(observed, expected, sample.size());
+
+        return pearsonTest(statistic, actualBins, distribution.getType().getParameterNumber());
     }
 
     @Data

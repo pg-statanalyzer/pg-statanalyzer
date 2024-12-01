@@ -1,5 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+
 import java.util.List;
 import java.util.Random;
 
@@ -17,7 +19,7 @@ public interface PgDistribution {
 
     double median();
 
-    List<Double> generate(int size, Random random);
+    Sample generate(int size, Random random);
 
     PgDistributionType getType();
 }

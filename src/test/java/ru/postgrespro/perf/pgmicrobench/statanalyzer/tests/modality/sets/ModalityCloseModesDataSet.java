@@ -35,9 +35,9 @@ public class ModalityCloseModesDataSet {
                 namePostfix);
 
         List<Double> values = new ArrayList<>();
-        values.addAll(PgUniformDistribution.generate(random, 0, 1, batch)
+        values.addAll(PgUniformDistribution.generate(random, 0, 1, batch).getValues()
                 .stream().map(x -> delta + Math.pow(x, 3)).collect(Collectors.toList()));
-        values.addAll(PgUniformDistribution.generate(random, 0, 1, batch)
+        values.addAll(PgUniformDistribution.generate(random, 0, 1, batch).getValues()
                 .stream().map(x -> -delta - Math.pow(x, 3)).collect(Collectors.toList()));
 
         double[] valuesArray = values.stream().mapToDouble(Double::doubleValue).toArray();

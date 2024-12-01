@@ -1,95 +1,48 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
-import static org.apache.commons.math3.special.Gamma.gamma;
-
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.special.Gamma;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.apache.commons.math3.special.Gamma;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 
-import java.util.Arrays;
+import java.util.List;
+
+import static org.apache.commons.math3.special.Gamma.gamma;
 
 /**
  * This class provides methods to perform the Cramer–Von Mises test for goodness of fit
  * and to fit a distribution to a given dataset using the Cramer–Von Mises statistic.
  */
-public class CramerVonMises {
+public class CramerVonMises implements IDistributionTest, IParameterEstimator {
 
     /**
      * Calculates Cramer–Von Mises statistic for given data and distribution.
      *
-     * @param data         sample data
+     * @param sample       sample data
      * @param distribution distribution to compare data against
      * @return value of Cramer–Von Mises statistic
      */
-    public static double cvmStatistic(double[] data, PgDistribution distribution) {
-        int n = data.length;
-        Arrays.sort(data);
+    public static double cvmStatistic(Sample sample, PgDistribution distribution) {
+        int n = sample.size();
+        List<Double> sortedValues = sample.getSortedValues();
 
         double sum = 0.0;
         for (int i = 0; i < n; i++) {
             double empiricalCdf = (2.0 * (i + 1) - 1) / (2.0 * n);
-            double theoreticalCdf = distribution.cdf(data[i]);
+            double theoreticalCdf = distribution.cdf(sortedValues.get(i));
             double diff = theoreticalCdf - empiricalCdf;
             sum += diff * diff;
         }
 
         return (1.0 / (12.0 * n)) + sum;
-    }
-
-    /**
-     * Computes p-value for CVM test given dataset and theoretical distribution.
-     *
-     * @param data         dataset as array of doubles
-     * @param distribution theoretical distribution, providing CDF implementation
-     * @return p-value for CVM test
-     */
-    public static double cvmTest(double[] data, PgDistribution distribution) {
-        double statistic = cvmStatistic(data, distribution);
-        return computePValue(statistic);
-    }
-
-    /**
-     * Fits distribution to data by minimizing Cramer–Von Mises statistic.
-     *
-     * @param data             sample data
-     * @param distributionType type of distribution to fit to data
-     * @return FittedDistribution object containing fitted parameters, distribution and p-value
-     */
-    public static FittedDistribution fit(double[] data, PgDistributionType distributionType) {
-        MultivariateFunction evaluationFunction = point -> {
-            PgDistribution distribution;
-            try {
-                distribution = distributionType.createDistribution(point);
-            } catch (Exception e) {
-                return Double.POSITIVE_INFINITY;
-            }
-
-            return cvmStatistic(data, distribution);
-        };
-
-        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
-        PointValuePair result = optimizer.optimize(
-                new MaxEval(10000),
-                new ObjectiveFunction(evaluationFunction),
-                GoalType.MINIMIZE,
-                new InitialGuess(distributionType.getStartPoint()),
-                new NelderMeadSimplex(distributionType.getParameterNumber())
-        );
-
-        double[] fittedParams = result.getPoint();
-        double statistic = result.getValue();
-        double pValue = computePValue(statistic);
-
-        PgDistribution fittedDistribution = distributionType.createDistribution(fittedParams);
-        return new FittedDistribution(fittedParams, fittedDistribution, pValue);
     }
 
     /**
@@ -197,5 +150,55 @@ public class CramerVonMises {
     private static double safeGammaRatio(double x1, double x2) {
         double logGammaDiff = Gamma.logGamma(x1) - Gamma.logGamma(x2);
         return Math.exp(logGammaDiff) / Math.sqrt(Math.PI);
+    }
+
+    /**
+     * Computes p-value for CVM test given dataset and theoretical distribution.
+     *
+     * @param sample       dataset as array of doubles
+     * @param distribution theoretical distribution, providing CDF implementation
+     * @return p-value for CVM test
+     */
+    @Override
+    public double test(Sample sample, PgDistribution distribution) {
+        double statistic = cvmStatistic(sample, distribution);
+        return computePValue(statistic);
+    }
+
+    /**
+     * Fits distribution to data by minimizing Cramer–Von Mises statistic.
+     *
+     * @param sample           sample data
+     * @param distributionType type of distribution to fit to data
+     * @return FittedDistribution object containing fitted parameters, distribution and p-value
+     */
+    @Override
+    public FittedDistribution fit(Sample sample, PgDistributionType distributionType) {
+        MultivariateFunction evaluationFunction = point -> {
+            PgDistribution distribution;
+            try {
+                distribution = distributionType.createDistribution(point);
+            } catch (Exception e) {
+                return Double.POSITIVE_INFINITY;
+            }
+
+            return cvmStatistic(sample, distribution);
+        };
+
+        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
+        PointValuePair result = optimizer.optimize(
+                new MaxEval(10000),
+                new ObjectiveFunction(evaluationFunction),
+                GoalType.MINIMIZE,
+                new InitialGuess(distributionType.getStartPoint()),
+                new NelderMeadSimplex(distributionType.getParameterNumber())
+        );
+
+        double[] fittedParams = result.getPoint();
+        double statistic = result.getValue();
+        double pValue = computePValue(statistic);
+
+        PgDistribution fittedDistribution = distributionType.createDistribution(fittedParams);
+        return new FittedDistribution(fittedParams, fittedDistribution, pValue);
     }
 }

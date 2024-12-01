@@ -8,22 +8,24 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 
 /**
  * Class for estimating distribution parameters using the Maximum Likelihood Estimation (MLE) method.
  */
-public class MaximumLikelihoodEstimation {
+public class MaximumLikelihoodEstimation implements IParameterEstimator {
 
     /**
      * Estimates the parameters of a given distribution using the maximum likelihood estimation method.
      *
-     * @param data             an array of observed data for which the distribution parameters need to be estimated
+     * @param sample           an array of observed data for which the distribution parameters need to be estimated
      * @param distributionType the type of distribution to be fitted to the data
      * @return a FittedDistribution object containing the estimated parameters and the corresponding distribution
      */
-    public static FittedDistribution fit(double[] data, PgDistributionType distributionType) {
+    @Override
+    public FittedDistribution fit(Sample sample, PgDistributionType distributionType) {
         MultivariateFunction evaluationFunction = point -> {
             PgDistribution distribution;
             try {
@@ -34,7 +36,7 @@ public class MaximumLikelihoodEstimation {
 
             double sum = 0;
 
-            for (double datum : data) {
+            for (double datum : sample) {
                 sum -= Math.log(distribution.pdf(datum));
             }
 
