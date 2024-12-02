@@ -5,9 +5,8 @@ import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.markers.SeriesMarkers;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -17,27 +16,14 @@ import java.util.function.Function;
  */
 public class Plot {
     /**
-     * Plots a histogram for the given array of double values.
-     *
-     * @param data an array of double values to be plotted as a histogram.
-     */
-    public static void plot(double[] data) {
-        ArrayList<Double> dataList = new ArrayList<>();
-        for (double datum : data) {
-            dataList.add(datum);
-        }
-        plot(dataList);
-    }
-
-    /**
      * Plots a histogram for the given collection of double values.
      *
-     * @param data a collection of Double values to be plotted as a histogram.
+     * @param sample a collection of Double values to be plotted as a histogram.
      */
-    public static void plot(Collection<Double> data) {
-        int bins = (int) Math.sqrt(data.size()) + 1;
+    public static void plot(Sample sample) {
+        int bins = (int) Math.sqrt(sample.size()) + 1;
 
-        Histogram histogram = new Histogram(data, bins);
+        Histogram histogram = new Histogram(sample.getValues(), bins);
 
         XYChart chart = new XYChart(800, 600);
         chart.addSeries("Гистограмма", histogram.getxAxisData(), histogram.getyAxisData())
@@ -51,29 +37,15 @@ public class Plot {
     }
 
     /**
-     * Plots a histogram and a density function for the given array of double values.
-     *
-     * @param data an array of double values to be plotted as a histogram.
-     * @param pdf  a function that defines the density to be plotted alongside the histogram.
-     */
-    public static void plot(double[] data, Function<Double, Double> pdf) {
-        ArrayList<Double> dataList = new ArrayList<>();
-        for (double datum : data) {
-            dataList.add(datum);
-        }
-        plot(dataList, pdf, "Histogram");
-    }
-
-    /**
      * Plots a histogram and a density function for the given collection of double values.
      *
-     * @param data a collection of Double values to be plotted as a histogram.
-     * @param pdf  a function that defines the density to be plotted alongside the histogram.
+     * @param sample a collection of Double values to be plotted as a histogram.
+     * @param pdf    a function that defines the density to be plotted alongside the histogram.
      */
-    public static void plot(Collection<Double> data, Function<Double, Double> pdf, String title) {
-        int bins = (int) Math.sqrt(data.size()) + 1;
+    public static void plot(Sample sample, Function<Double, Double> pdf, String title) {
+        int bins = (int) Math.sqrt(sample.size()) + 1;
 
-        Histogram histogram = new Histogram(data, bins);
+        Histogram histogram = new Histogram(sample.getValues(), bins);
 
         double delta = (histogram.getMax() - histogram.getMin()) / bins;
         double cur = histogram.getMin();
@@ -89,7 +61,7 @@ public class Plot {
 
         List<Double> yHistogram = histogram.getyAxisData();
         for (int i = 0; i < yFunction.length; i++) {
-            yHistogram.set(i, yHistogram.get(i) / delta / data.size());
+            yHistogram.set(i, yHistogram.get(i) / delta / sample.size());
         }
 
         XYChart chart = new XYChart(800, 600);

@@ -300,7 +300,7 @@ public class LowlandModalityDetector {
                     String.format("Can't find any values in [%s, %s]", lower, upper));
         }
 
-        Sample modeSample = modeWeights == null ? new Sample(modeValues) : new Sample(modeValues, modeWeights);
+        Sample modeSample = modeWeights == null ? new Sample(modeValues, true) : new Sample(modeValues, modeWeights);
         return new RangedMode(modeLocation, lower, upper, modeSample);
     }
 

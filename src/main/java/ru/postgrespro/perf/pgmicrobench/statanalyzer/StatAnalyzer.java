@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Application class.
@@ -35,7 +36,7 @@ public class StatAnalyzer {
             throw new RuntimeException(e);
         }
 
-        Sample sample = new Sample(dataList);
+        Sample sample = new Sample(dataList, true);
 
         ModalityData result = detector.detectModes(sample);
 
@@ -44,27 +45,27 @@ public class StatAnalyzer {
         for (RangedMode mode : result.getModes()) {
             System.out.println("Processing mode: " + mode);
 
-            List<Double> modeData = dataList.stream()
+            Sample modeData = new Sample(dataList.stream()
                     .filter(value -> value >= mode.getLeft() && value <= mode.getRight())
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()), false);
 
             System.out.println("Data size in this mode: " + modeData.size());
 
-            double[] params = new double[modeData.size() / 2 + (modeData.size() & 1)];
-            double[] test = new double[modeData.size() / 2];
-            for (int i = 0; i < modeData.size(); i++) {
-                if ((i & 1) == 0) {
-                    params[i / 2] = modeData.get(i);
-                } else {
-                    test[i / 2] = modeData.get(i);
-                }
-            }
+            Sample paramsSample = new Sample(
+                    IntStream.iterate(0, n -> n + 2).limit((modeData.size() + 1) / 2)
+                            .mapToObj(modeData::get)
+                            .collect(Collectors.toList()));
+            Sample testSample = new Sample(
+                    IntStream.iterate(1, n -> n + 2).limit(modeData.size() / 2)
+                            .mapToObj(modeData::get)
+                            .collect(Collectors.toList()));
 
+            KolmogorovSmirnov kolmogorovSmirnov = new KolmogorovSmirnov();
             for (PgDistributionType distributionType : supportedDistributions) {
                 System.out.println("Fitting distribution: " + distributionType.name());
                 FittedDistribution fd;
                 try {
-                    fd = KolmogorovSmirnov.fit(params, distributionType);
+                    fd = kolmogorovSmirnov.fit(paramsSample, distributionType);
                 } catch (Exception e) {
                     System.out.println("Cant find parameters: " + distributionType.name());
                     System.out.println();
@@ -75,7 +76,7 @@ public class StatAnalyzer {
 
                 System.out.println("Params: " + Arrays.toString(fd.getParams()));
 
-                double pValue = KolmogorovSmirnov.ksTest(test, fd.getDistribution());
+                double pValue = kolmogorovSmirnov.test(testSample, fd.getDistribution());
                 System.out.println("pValue: " + pValue);
 
                 System.out.println();

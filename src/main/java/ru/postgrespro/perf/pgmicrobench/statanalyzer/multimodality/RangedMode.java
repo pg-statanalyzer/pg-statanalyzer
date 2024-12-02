@@ -62,7 +62,7 @@ public class RangedMode {
     public String toString() {
         return String.format(
                 "Mode at %.2f in range [%.2f, %.2f] with %d points",
-                location, left, right, sample.getSize()
+                location, left, right, sample.size()
         );
     }
 

@@ -65,7 +65,7 @@ class LowlandModalityDetectorTests {
         int expectedModality = modalityTestData.getExpectedModality();
 
         ModalityData modalityData = detector.detectModes(
-                new Sample(modalityTestData.getValues()),
+                new Sample(modalityTestData.getValues(), true),
                 QuantileRespectfulDensityHistogramBuilder.getInstance()
         );
 
@@ -110,7 +110,7 @@ class LowlandModalityDetectorTests {
                 .collect(Collectors.toList());
         Sample sample = new Sample(values, weights);
 
-        ModalityData simpleModalityData = detector.detectModes(new Sample(values));
+        ModalityData simpleModalityData = detector.detectModes(new Sample(values, true));
         System.out.println("SimpleModalityData.Modes:");
         System.out.println(simpleModalityData);
         System.out.println();
