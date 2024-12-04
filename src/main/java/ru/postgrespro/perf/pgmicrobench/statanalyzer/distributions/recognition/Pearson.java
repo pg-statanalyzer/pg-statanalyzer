@@ -100,10 +100,10 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
      *
      * @param sample           the observed data
      * @param distributionType the type of distribution to fit
-     * @return a FittedDistribution object with fitted parameters, sample, and p-value
+     * @return a EstimatedParameters object with fitted parameters, sample, and p-value
      */
     @Override
-    public FittedDistribution fit(Sample sample, PgDistributionType distributionType) {
+    public EstimatedParameters fit(Sample sample, PgDistributionType distributionType) {
         Bounds bounds = boundsOfBins(sample);
         int actualBins = bounds.counts.length;
 
@@ -145,7 +145,7 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
         double statistic = result.getValue();
         double pValue = pearsonTest(statistic, actualBins, distributionType.getParameterNumber());
 
-        return new FittedDistribution(solution, distributionType.createDistribution(solution), pValue);
+        return new EstimatedParameters(solution, distributionType.createDistribution(solution), pValue);
     }
 
     /**

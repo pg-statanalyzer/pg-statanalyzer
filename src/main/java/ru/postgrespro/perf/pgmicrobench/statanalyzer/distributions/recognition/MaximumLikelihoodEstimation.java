@@ -22,10 +22,10 @@ public class MaximumLikelihoodEstimation implements IParameterEstimator {
      *
      * @param sample           an array of observed data for which the distribution parameters need to be estimated
      * @param distributionType the type of distribution to be fitted to the data
-     * @return a FittedDistribution object containing the estimated parameters and the corresponding distribution
+     * @return a EstimatedParameters object containing the estimated parameters and the corresponding distribution
      */
     @Override
-    public FittedDistribution fit(Sample sample, PgDistributionType distributionType) {
+    public EstimatedParameters fit(Sample sample, PgDistributionType distributionType) {
         MultivariateFunction evaluationFunction = point -> {
             PgDistribution distribution;
             try {
@@ -55,6 +55,6 @@ public class MaximumLikelihoodEstimation implements IParameterEstimator {
         double[] solution = result.getPoint();
         double pValue = Math.exp(-result.getValue());
 
-        return new FittedDistribution(solution, distributionType.createDistribution(solution), pValue);
+        return new EstimatedParameters(solution, distributionType.createDistribution(solution), pValue);
     }
 }

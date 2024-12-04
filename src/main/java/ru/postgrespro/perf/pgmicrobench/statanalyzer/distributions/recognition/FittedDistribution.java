@@ -2,13 +2,16 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
 import lombok.Data;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 
 /**
- * Represents a fitted distribution along with its parameters and p-value.
+ * The FittedDistribution class represents a probability distribution
+ * that has been fitted to a dataset.
  */
 @Data
 public class FittedDistribution {
-    public final double[] params;
-    private final PgDistribution distribution;
-    private final double pValue;
+    final PgDistributionType type;
+    final double[] parameters;
+    final PgDistribution distribution;
+    final double pValue;
 }

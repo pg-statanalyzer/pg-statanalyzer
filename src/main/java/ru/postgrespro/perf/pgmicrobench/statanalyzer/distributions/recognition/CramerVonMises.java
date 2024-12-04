@@ -170,10 +170,10 @@ public class CramerVonMises implements IDistributionTest, IParameterEstimator {
      *
      * @param sample           sample data
      * @param distributionType type of distribution to fit to data
-     * @return FittedDistribution object containing fitted parameters, distribution and p-value
+     * @return EstimatedParameters object containing fitted parameters, distribution and p-value
      */
     @Override
-    public FittedDistribution fit(Sample sample, PgDistributionType distributionType) {
+    public EstimatedParameters fit(Sample sample, PgDistributionType distributionType) {
         MultivariateFunction evaluationFunction = point -> {
             PgDistribution distribution;
             try {
@@ -199,6 +199,6 @@ public class CramerVonMises implements IDistributionTest, IParameterEstimator {
         double pValue = computePValue(statistic);
 
         PgDistribution fittedDistribution = distributionType.createDistribution(fittedParams);
-        return new FittedDistribution(fittedParams, fittedDistribution, pValue);
+        return new EstimatedParameters(fittedParams, fittedDistribution, pValue);
     }
 }
