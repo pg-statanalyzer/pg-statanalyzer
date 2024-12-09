@@ -1,6 +1,8 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.math3.util.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.*;
@@ -23,17 +25,13 @@ import java.util.stream.IntStream;
  * Application class.
  */
 @Getter
+@Setter
+@NoArgsConstructor
 public class StatAnalyzer {
     private static final PgDistributionType[] supportedDistributions = PgDistributionType.values();
-    private static final LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
+    private static final LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.9, 0.01, false);
     private IDistributionTest distributionTest = new CramerVonMises();
     private IParameterEstimator parameterEstimator = new CramerVonMises();
-
-    /**
-     * Default constructor for StatAnalyzer.
-     */
-    public StatAnalyzer() {
-    }
 
     /**
      * Constructs a StatAnalyzer with the specified parameter estimator
@@ -100,7 +98,7 @@ public class StatAnalyzer {
      * @param sample the sample from which to detect modes
      * @return a ModalityData object containing the detected modes
      */
-    private ModalityData findModes(Sample sample) {
+    public ModalityData findModes(Sample sample) {
         return modeDetector.detectModes(sample);
     }
 
@@ -112,7 +110,7 @@ public class StatAnalyzer {
      * @param sample the sample from which to extract mode values
      * @return a Sample containing the values within the mode range
      */
-    private Sample findModeValues(RangedMode mode, Sample sample) {
+    public Sample findModeValues(RangedMode mode, Sample sample) {
         return new Sample(sample.getValues().stream()
                 .filter(value -> value >= mode.getLeft() && value <= mode.getRight())
                 .collect(Collectors.toList()));
@@ -125,7 +123,7 @@ public class StatAnalyzer {
      * @param sample the sample to split
      * @return a Pair containing the parameter sample and test sample
      */
-    private Pair<Sample, Sample> splitParamsTest(Sample sample) {
+    public Pair<Sample, Sample> splitParamsTest(Sample sample) {
         Sample paramsSample = new Sample(
                 IntStream.iterate(0, n -> n + 2).limit((sample.size() + 1) / 2)
                         .mapToObj(sample::get)
@@ -146,7 +144,7 @@ public class StatAnalyzer {
      * @param modeSample the sample corresponding to the mode
      * @return a ModeReport containing the results for the mode
      */
-    private ModeReport getModeReport(RangedMode mode, Sample modeSample) {
+    public ModeReport getModeReport(RangedMode mode, Sample modeSample) {
         Pair<Sample, Sample> paramsTest = splitParamsTest(modeSample);
         Sample paramsSample = paramsTest.getFirst();
         Sample testSample = paramsTest.getSecond();
@@ -165,7 +163,7 @@ public class StatAnalyzer {
      * @return a list of FittedDistribution objects containing the fitted
      * distributions and their p-values
      */
-    private List<FittedDistribution> fitDistribution(Sample parametersSample, Sample testSample) {
+    public List<FittedDistribution> fitDistribution(Sample parametersSample, Sample testSample) {
         List<FittedDistribution> fittedDistributions = new ArrayList<>(supportedDistributions.length);
 
         for (PgDistributionType distributionType : supportedDistributions) {
@@ -203,7 +201,7 @@ public class StatAnalyzer {
      * @return a Function that takes a double value (x) and returns the
      * calculated summary PDF at that point
      */
-    private Function<Double, Double> findSummaryPdf(List<ModeReport> modeReports, long sampleSize) {
+    public Function<Double, Double> findSummaryPdf(List<ModeReport> modeReports, long sampleSize) {
         return (x) -> {
             double result = 0;
             for (ModeReport modeReport : modeReports) {
