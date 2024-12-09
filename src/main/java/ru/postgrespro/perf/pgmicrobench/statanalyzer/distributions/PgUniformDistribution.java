@@ -1,5 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -34,7 +36,7 @@ public class PgUniformDistribution implements PgDistribution {
      * @return list containing generated random values.
      * @throws IllegalArgumentException if {@code max} is less than or equal to {@code min} or {@code count} is negative.
      */
-    public static List<Double> generate(Random random, double min, double max, int count) {
+    public static Sample generate(Random random, double min, double max, int count) {
         if (max <= min) {
             throw new IllegalArgumentException("Max must be greater than Min.");
         }
@@ -47,7 +49,7 @@ public class PgUniformDistribution implements PgDistribution {
             double value = min + (max - min) * random.nextDouble();
             values.add(value);
         }
-        return values;
+        return new Sample(values);
     }
 
     @Override
@@ -98,7 +100,7 @@ public class PgUniformDistribution implements PgDistribution {
 
 
     @Override
-    public List<Double> generate(int size, Random random) {
+    public Sample generate(int size, Random random) {
         return generate(random, min, max, size);
     }
 

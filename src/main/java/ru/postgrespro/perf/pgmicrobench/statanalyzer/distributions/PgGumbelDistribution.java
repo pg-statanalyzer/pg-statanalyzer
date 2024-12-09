@@ -1,5 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -37,7 +39,7 @@ public class PgGumbelDistribution implements PgDistribution {
     /**
      * Generation.
      */
-    public static List<Double> generate(Random random,
+    public static Sample generate(Random random,
                                         double location,
                                         double scale,
                                         int count) {
@@ -102,12 +104,12 @@ public class PgGumbelDistribution implements PgDistribution {
      * Generation.
      */
     @Override
-    public List<Double> generate(int count, Random random) {
+    public Sample generate(int count, Random random) {
         List<Double> values = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             values.add(random(random));
         }
-        return values;
+        return new Sample(values);
     }
 
     @Override

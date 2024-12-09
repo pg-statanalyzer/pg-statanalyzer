@@ -62,7 +62,7 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
     }
 
     private Moments getMoment(Sample sample, double probability, boolean calcSecondMoment) {
-        int n = sample.getSize();
+        int n = sample.size();
         double a = (n + 1) * probability;
         double b = (n + 1) * (1 - probability);
         BetaDistribution betaDistribution = new BetaDistribution(a, b);

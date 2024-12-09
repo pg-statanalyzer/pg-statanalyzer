@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.special.Erf;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,13 +82,13 @@ public class PgNormalDistribution implements PgDistribution {
 
 
     @Override
-    public List<Double> generate(int size, Random random) {
-        List<Double> samples = new ArrayList<>();
+    public Sample generate(int size, Random random) {
+        List<Double> values = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             double sample = mean + standardDeviation * random.nextGaussian();
-            samples.add(sample);
+            values.add(sample);
         }
-        return samples;
+        return new Sample(values);
     }
 
     @Override

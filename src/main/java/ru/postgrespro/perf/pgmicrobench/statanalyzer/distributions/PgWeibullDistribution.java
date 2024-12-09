@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.special.Gamma;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,14 +84,14 @@ public class PgWeibullDistribution implements PgDistribution {
 
 
     @Override
-    public List<Double> generate(int size, Random random) {
-        List<Double> samples = new ArrayList<>();
+    public Sample generate(int size, Random random) {
+        List<Double> values = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             double u = random.nextDouble();
             double sample = scale * pow(-Math.log(1 - u), 1 / shape);
             samples.add(sample);
         }
-        return samples;
+        return new Sample(values);
     }
 
     @Override

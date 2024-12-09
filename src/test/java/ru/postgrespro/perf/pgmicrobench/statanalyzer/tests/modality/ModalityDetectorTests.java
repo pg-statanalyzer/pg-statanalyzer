@@ -69,9 +69,9 @@ public class ModalityDetectorTests {
         values.addAll(PgUniformDistribution.generate(new Random(),
                 10.0,
                 15.0,
-                10000));
+                10000).getValues());
 
-        Sample sample = new Sample(values);
+        Sample sample = new Sample(values, true);
         ModalityData result = detector.detectModes(sample);
 
         int expectedModality = 2;
