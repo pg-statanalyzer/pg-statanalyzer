@@ -19,7 +19,15 @@ public interface PgDistribution {
 
     double median();
 
-    Sample generate(int size, Random random);
+    double skewness();
+
+    double kurtosis();
+
+    default double standardDeviation() {
+        return Math.sqrt(variance());
+    }
+
+    List<Double> generate(int size, Random random);
 
     PgDistributionType getType();
 }
