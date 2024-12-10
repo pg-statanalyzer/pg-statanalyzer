@@ -3,6 +3,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.statanalyzer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.CramerVonMises;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.EstimatedParameters;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
@@ -82,7 +83,7 @@ public class SimpleFittingTest {
         CramerVonMises cramerVonMises = new CramerVonMises();
 
         try {
-            FittedDistribution fittedDistribution = cramerVonMises.fit(modeData, distributionType);
+            EstimatedParameters fittedDistribution = cramerVonMises.fit(modeData, distributionType);
             double pValue = cramerVonMises.test(modeData, fittedDistribution.getDistribution());
 
             System.out.println("Testing distribution: " + distributionType.name());
