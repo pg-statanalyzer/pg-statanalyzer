@@ -12,6 +12,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.Math.pow;
@@ -28,9 +29,12 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
      * @return the average deviation in CDF.
      */
     private static double avgDeviationInCdf(Sample sample, PgDistribution pgDistribution) {
+        List<Double> sortedValues = sample.getSortedValues();
+
         double sumOfDeltas = 0;
-        for (Double sortedValue : sample.getSortedValues()) {
-            sumOfDeltas += Math.abs(pgDistribution.cdf(sortedValue) - cdfOfDataset(sortedValue, sample));
+        for (int i = 0; i < sortedValues.size(); i++) {
+            double sortedValue = sortedValues.get(i);
+            sumOfDeltas += Math.abs(pgDistribution.cdf(sortedValue) - ((double) (i + 1) / sample.size()));
         }
 
         return sumOfDeltas / sample.size();
@@ -44,9 +48,33 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
      * @return the average deviation in PDF.
      */
     private static double avgDeviationInPdf(Sample sample, PgDistribution pgDistribution) {
+        int bins = (int) sqrt(sample.size()) + 1;
+        double min = sample.getMin();
+        double max = sample.getMax();
+        double binWidth = (max - min) / bins;
+
+        List<Double> sortedValues = sample.getSortedValues();
         double sumOfDeltas = 0;
-        for (double datum : sample.getValues()) {
-            sumOfDeltas += Math.abs(pgDistribution.pdf(datum) - pdfOfDataset(datum, sample));
+        double binBorder = min + binWidth;
+        List<Double> part = new LinkedList<>();
+        for (int i = 0; i < sample.size(); ) {
+            double value = sortedValues.get(i);
+            if (value <= binBorder) {
+                part.add(value);
+                i++;
+            } else {
+                double pdf = (double) part.size() / sample.size() / binWidth;
+                for (double datum : part) {
+                    sumOfDeltas += Math.abs(pgDistribution.pdf(datum) - pdf);
+                }
+                part.clear();
+                binBorder += binWidth;
+            }
+        }
+
+        double pdf = (double) part.size() / sample.size() / binWidth;
+        for (double datum : part) {
+            sumOfDeltas += Math.abs(pgDistribution.pdf(datum) - pdf);
         }
 
         return sumOfDeltas / sample.size();
@@ -67,56 +95,6 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
         double skew1 = pgDistribution.skewness();
 
         return sqrt(pow((skew1 - skew2), 2) + pow((kurt1 - kurt2), 2));
-    }
-
-    /**
-     * Computes the cumulative distribution function (CDF) of the dataset at a given point.
-     *
-     * @param x      the point at which to evaluate the CDF.
-     * @param sample the dataset.
-     * @return the CDF value at the specified point.
-     */
-    private static double cdfOfDataset(double x, Sample sample) {
-        List<Double> sortedValues = sample.getSortedValues();
-
-        int count = 0;
-        for (Double sortedValue : sortedValues) {
-            if (sortedValue <= x) {
-                count++;
-            }
-        }
-
-        return (double) count / sortedValues.size();
-    }
-
-    /**
-     * Computes the probability density function (PDF) of the dataset at a given point.
-     * The PDF is estimated using histogram binning.
-     *
-     * @param x      the point at which to evaluate the PDF.
-     * @param sample the dataset.
-     * @return the PDF value at the specified point.
-     */
-    private static double pdfOfDataset(double x, Sample sample) {
-        int bins = (int) sqrt(sample.size()) + 1;
-        double min = sample.getMin();
-        double max = sample.getMax();
-        double binWidth = (max - min) / bins;
-
-        int binIndex = (int) ((x - min) / binWidth);
-        if (binIndex < 0 || binIndex >= bins) {
-            return 0.0;
-        }
-
-        int countInBin = 0;
-        for (double value : sample.getSortedValues()) {
-            int currentBin = (int) ((value - min) / binWidth);
-            if (currentBin == binIndex) {
-                countInBin++;
-            }
-        }
-
-        return (double) countInBin / (sample.size() * binWidth);
     }
 
     /**
