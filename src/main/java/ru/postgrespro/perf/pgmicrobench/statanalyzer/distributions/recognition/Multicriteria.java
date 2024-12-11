@@ -8,7 +8,6 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
@@ -20,17 +19,6 @@ import static java.lang.Math.sqrt;
 
 
 public class Multicriteria implements IDistributionTest, IParameterEstimator {
-    private static final IDistributionTest TEST = new CramerVonMises();
-
-    /**
-     * Calculates a p-value based on the given multicriteria statistic.
-     *
-     * @param statistic the multicriteria statistic value.
-     * @return the computed p-value.
-     */
-    public static double multiCriteriaTest(double statistic) {
-        return 1 - statistic;
-    }
 
     /**
      * Computes the average deviation between the CDF of the dataset and the distribution.
@@ -71,7 +59,7 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
      * @param pgDistribution the distribution to compare against.
      * @return the combined deviation in skewness and kurtosis.
      */
-    private static double deviationInSkewAndKurt(Sample sample , PgDistribution pgDistribution) {
+    private static double deviationInSkewAndKurt(Sample sample, PgDistribution pgDistribution) {
         double kurt2 = sample.getKurtosis();
         double skew2 = sample.getSkewness();
 
@@ -105,12 +93,12 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
      * Computes the probability density function (PDF) of the dataset at a given point.
      * The PDF is estimated using histogram binning.
      *
-     * @param x    the point at which to evaluate the PDF.
+     * @param x      the point at which to evaluate the PDF.
      * @param sample the dataset.
      * @return the PDF value at the specified point.
      */
     private static double pdfOfDataset(double x, Sample sample) {
-        int bins = 50;
+        int bins = (int) sqrt(sample.size()) + 1;
         double min = sample.getMin();
         double max = sample.getMax();
         double binWidth = (max - min) / bins;
@@ -132,21 +120,30 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
     }
 
     /**
+     * Calculates a p-value based on the given multicriteria statistic.
+     *
+     * @param sample input data.
+     * @return the computed p-value.
+     */
+    @Override
+    public double test(Sample sample, PgDistribution distribution) {
+        return 1 - statistic(sample, distribution);
+    }
+
+    /**
      * Computes a multicriteria statistic for evaluating the goodness-of-fit of a distribution.
      * The statistic incorporates measures such as CDF and PDF deviations, Kolmogorov-Smirnov
      * statistic, skewness, and kurtosis.
      *
-     * @param sample         the input dataset.
+     * @param sample       the input dataset.
      * @param distribution the distribution to compare against.
      * @return a combined multicriteria statistic.
      */
-    @Override
-    public double test(Sample sample, PgDistribution distribution) {
-        return
-                avgDeviationInCdf(sample, distribution)
-                        * avgDeviationInPdf(sample, distribution)
-                        * TEST.test(sample, distribution)
-                        * deviationInSkewAndKurt(sample, distribution);
+    public double statistic(Sample sample, PgDistribution distribution) {
+        return avgDeviationInCdf(sample, distribution)
+                * avgDeviationInPdf(sample, distribution)
+                * CramerVonMises.cvmStatistic(sample, distribution)
+                * deviationInSkewAndKurt(sample, distribution);
     }
 
     /**
@@ -166,7 +163,7 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
                 return Double.POSITIVE_INFINITY;
             }
 
-            return test(sample, distribution);
+            return statistic(sample, distribution);
         };
 
         SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
@@ -179,8 +176,7 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
         );
 
         double[] solution = result.getPoint();
-        double statistic = result.getValue();
-        double pValue = multiCriteriaTest(statistic);
+        double pValue = 1 - result.getValue();
 
         return new EstimatedParameters(solution, type.createDistribution(solution), pValue);
     }
