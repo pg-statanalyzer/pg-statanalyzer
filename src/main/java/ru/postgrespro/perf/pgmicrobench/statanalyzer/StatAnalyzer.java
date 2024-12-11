@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 @NoArgsConstructor
 public class StatAnalyzer {
     private static final PgDistributionType[] supportedDistributions = PgDistributionType.values();
-    private static final LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.9, 0.01, false);
+    private LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
     private IDistributionTest distributionTest = new CramerVonMises();
     private IParameterEstimator parameterEstimator = new CramerVonMises();
 
