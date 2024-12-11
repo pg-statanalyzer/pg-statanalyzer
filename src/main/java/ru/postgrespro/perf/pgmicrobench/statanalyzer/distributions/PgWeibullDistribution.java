@@ -89,7 +89,7 @@ public class PgWeibullDistribution implements PgDistribution {
         for (int i = 0; i < size; i++) {
             double u = random.nextDouble();
             double sample = scale * pow(-Math.log(1 - u), 1 / shape);
-            samples.add(sample);
+            values.add(sample);
         }
         return new Sample(values);
     }

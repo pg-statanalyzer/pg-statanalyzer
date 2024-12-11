@@ -27,7 +27,7 @@ public interface PgDistribution {
         return Math.sqrt(variance());
     }
 
-    List<Double> generate(int size, Random random);
+    Sample generate(int size, Random random);
 
     PgDistributionType getType();
 }

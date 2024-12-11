@@ -81,7 +81,7 @@ public class PgLogNormalDistribution implements PgDistribution {
         List<Double> values = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             double sample = exp(mean + standardDeviation * random.nextGaussian());
-            samples.add(sample);
+            values.add(sample);
         }
         return  new Sample(values);
     }
