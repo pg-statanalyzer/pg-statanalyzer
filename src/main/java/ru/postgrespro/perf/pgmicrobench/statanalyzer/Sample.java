@@ -2,6 +2,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import lombok.Getter;
 import lombok.NonNull;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
 
 import java.util.*;
@@ -29,6 +30,7 @@ public class Sample implements Iterable<Double> {
     private final boolean isWeighted;
     private final Lazy<List<Double>> lazySortedValues;
     private final Lazy<List<Double>> lazySortedWeights;
+    private final Lazy<DescriptiveStatistics> lazyDescriptiveStatistics;
 
 
     /**
@@ -95,6 +97,13 @@ public class Sample implements Iterable<Double> {
 
         this.lazySortedValues = new Lazy<>(() -> sortList(values));
         this.lazySortedWeights = new Lazy<>(() -> sortList(weights));
+        this.lazyDescriptiveStatistics = new Lazy<>(() -> {
+            double[] arrayValues = new double[size()];
+            for (int i = 0; i < size(); i++) {
+                arrayValues[i] = values.get(i);
+            }
+            return new DescriptiveStatistics(arrayValues);
+        });
     }
 
     /**
@@ -136,6 +145,7 @@ public class Sample implements Iterable<Double> {
 
     /**
      * Get value.
+     *
      * @param index position of value.
      * @return value.
      */
@@ -224,6 +234,14 @@ public class Sample implements Iterable<Double> {
     @Override
     public Iterator<Double> iterator() {
         return values.iterator();
+    }
+
+    public double getSkewness() {
+        return lazyDescriptiveStatistics.get().getSkewness();
+    }
+
+    public double getKurtosis() {
+        return lazyDescriptiveStatistics.get().getKurtosis();
     }
 
     /**
