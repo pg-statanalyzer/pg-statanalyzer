@@ -16,6 +16,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributio
 import java.util.List;
 
 import static org.apache.commons.math3.special.Gamma.gamma;
+import static org.apache.commons.math3.special.Gamma.logGamma;
 
 /**
  * This class provides methods to perform the Cramer–Von Mises test for goodness of fit
@@ -115,26 +116,18 @@ public class CramerVonMises implements IDistributionTest, IParameterEstimator {
             throw new IllegalArgumentException("z must be non-negative.");
         }
 
-        if (z > 70) {
-            return Math.exp(z) / Math.sqrt(2 * Math.PI * z);
-        }
-
-        double term;
         double sum = 0.0;
-        double factorial = 1.0;
-        double powerZ = 1.0;
-
+        double step = 2 * Math.log(z / 2.0);
+        double c = Math.log(Math.pow(z / 2.0, v));
         for (int k = 0; k < 1000; k++) {
-            if (k > 0) {
-                factorial *= k;
-                powerZ *= (z / 2) * (z / 2);
-            }
-            term = powerZ / (factorial * gamma(k + v + 1));
+            double term = Math.exp(c - Gamma.logGamma(k + 1) - logGamma(k + v + 1));
             sum += term;
 
             if (term < 1e-12) {
                 break;
             }
+
+            c += step;
         }
 
         return sum;
