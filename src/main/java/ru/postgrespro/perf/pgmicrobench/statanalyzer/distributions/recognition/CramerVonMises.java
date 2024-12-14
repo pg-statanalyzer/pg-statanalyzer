@@ -15,7 +15,6 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributio
 
 import java.util.List;
 
-import static org.apache.commons.math3.special.Gamma.gamma;
 import static org.apache.commons.math3.special.Gamma.logGamma;
 
 /**
@@ -118,7 +117,7 @@ public class CramerVonMises implements IDistributionTest, IParameterEstimator {
 
         double sum = 0.0;
         double step = 2 * Math.log(z / 2.0);
-        double c = Math.log(Math.pow(z / 2.0, v));
+        double c = v * Math.log(z / 2.0);
         for (int k = 0; k < 1000; k++) {
             double term = Math.exp(c - Gamma.logGamma(k + 1) - logGamma(k + v + 1));
             sum += term;
