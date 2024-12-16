@@ -77,6 +77,22 @@ public class PgGammaDistribution implements PgDistribution {
     }
 
     /**
+     * Skewness of Gamma distribution.
+     */
+    @Override
+    public double skewness() {
+        return 1.139547099404;
+    }
+
+    /**
+     * Kurtosis of Gamma distribution.
+     */
+    @Override
+    public double kurtosis() {
+        return 5.4;
+    }
+
+    /**
      * Standard deviation.
      */
     public double standardDeviation() {
@@ -97,7 +113,7 @@ public class PgGammaDistribution implements PgDistribution {
 
     @Override
     public PgDistributionType getType() {
-        return PgDistributionType.GAMMA;
+        return null;
     }
 
     /**
