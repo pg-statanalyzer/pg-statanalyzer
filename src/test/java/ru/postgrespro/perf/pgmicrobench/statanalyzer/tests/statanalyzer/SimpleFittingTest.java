@@ -8,12 +8,17 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModali
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
-import java.util.*;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SimpleFittingTest {
     private static final LowlandModalityDetector detector = new LowlandModalityDetector(0.5, 0.01, false);

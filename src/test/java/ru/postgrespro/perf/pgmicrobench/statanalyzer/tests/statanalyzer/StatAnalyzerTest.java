@@ -2,19 +2,25 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.statanalyzer;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.AnalysisResult;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.ModeReport;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.StatAnalyzer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+/**
+ * Test
+ */
 public class StatAnalyzerTest {
 
     private static final String TEST_FILE = "sampleGenerator/multi_for_test.txt";
@@ -41,7 +47,7 @@ public class StatAnalyzerTest {
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
-        Plot.plot(new Sample(dataList), analysisResult.getPdf(), "Summary pdf");
+        //Plot.plot(new Sample(dataList), analysisResult.getPdf(), "Summary pdf");
         Thread.sleep(2000);
 
         int expectedModes = EXPECTED_PARAMS.length;
@@ -98,7 +104,9 @@ public class StatAnalyzerTest {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.replace(",", ".").trim();
-                if (line.isEmpty() || !Character.isDigit(line.charAt(0))) continue;
+                if (line.isEmpty() || !Character.isDigit(line.charAt(0))) {
+                    continue;
+                }
                 data.add(Double.parseDouble(line));
             }
         }
