@@ -18,8 +18,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * Test.
+ */
 public class SimpleFittingTest {
     private static final LowlandModalityDetector detector = new LowlandModalityDetector(0.5, 0.01, false);
 
@@ -35,10 +40,10 @@ public class SimpleFittingTest {
         testSingleSample("distributionSample/lognorm_4278_001", PgDistributionType.LOGNORMAL, EXPECTED_PARAMS[0]);
     }
 
-//    @Test
-//    public void testGamma1003() throws IOException {
-//        testSingleSample("distributionSample/gamma_10_03", PgDistributionType.WEIBULL, EXPECTED_PARAMS[1]);
-//    }
+    //    @Test
+    //    public void testGamma1003() throws IOException {
+    //        testSingleSample("distributionSample/gamma_10_03", PgDistributionType.WEIBULL, EXPECTED_PARAMS[1]);
+    //    }
 
     @Test
     public void testLogNorm303() throws IOException {

@@ -13,14 +13,31 @@ public class PgGammaDistribution implements PgDistribution {
     private final double shape;
     private final double scale;
 
+    /**
+     * Default constructor.
+     */
     public PgGammaDistribution() {
         this(1.0, 1.0);
     }
 
+    /**
+     * Constructor to create Gamma distribution with specified shape parameter,
+     * scale parameter is set to 1.0 by default.
+     *
+     * @param shape shape parameter (must be positive)
+     * @throws IllegalArgumentException if shape parameter is less than or equal to 0
+     */
     public PgGammaDistribution(double shape) {
         this(shape, 1.0);
     }
 
+    /**
+     * Constructor to create Gamma distribution with specified shape and scale parameters.
+     *
+     * @param shape shape parameter (must be positive).
+     * @param scale scale parameter (must be positive).
+     * @throws IllegalArgumentException if either shape or scale parameters are less than or equal to 0.
+     */
     public PgGammaDistribution(double shape, double scale) {
         if (shape <= 0 || scale <= 0) {
             throw new IllegalArgumentException("Shape and scale parameters must be positive");
@@ -53,7 +70,8 @@ public class PgGammaDistribution implements PgDistribution {
     }
 
     /**
-     * Mean of Gamma distribution: E[X] = k * θ
+     * Mean of Gamma distribution.
+     * E[X] = k * θ
      */
     @Override
     public double mean() {

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Test
+ * Test.
  */
 public class StatAnalyzerTest {
 
@@ -27,13 +27,13 @@ public class StatAnalyzerTest {
     private static final double[][] EXPECTED_PARAMS = {
             {1.0, 1.7},  // weibull
             {8.88, 1.1}, // normal
-            {3.15, 0.07},  // lognormal
+            {3.15, 0.07} // lognormal
     };
 
     private static final PgDistributionType[] DISTRIBUTION_ORDER = {
-            PgDistributionType.WEIBULL,
-            PgDistributionType.NORMAL,
             PgDistributionType.LOGNORMAL,
+            PgDistributionType.NORMAL,
+            PgDistributionType.WEIBULL
     };
 
     @Test
