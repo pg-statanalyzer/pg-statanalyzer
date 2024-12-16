@@ -87,7 +87,8 @@ public class PgGammaDistribution implements PgDistribution {
     }
 
     /**
-     * Variance of Gamma distribution: Var[X] = k * θ^2
+     * Variance of Gamma distribution.
+     * Var[X] = k * θ^2
      */
     @Override
     public double variance() {
@@ -173,10 +174,8 @@ public class PgGammaDistribution implements PgDistribution {
     }
 
     private double gamma(double x) {
-        double[] p = {
-                676.5203681218851, -1259.1392167224028, 771.32342877765313,
-                -176.61502916214059, 12.507343278686905, -0.13857109526572012,
-                9.9843695780195716e-6, 1.5056327351493116e-7
+        double[] p = {676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059,
+                12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
         };
 
         double g = 7.0;
@@ -202,7 +201,9 @@ public class PgGammaDistribution implements PgDistribution {
             ap += 1;
             term *= x / ap;
             sum += term;
-            if (term < 1e-10) break;
+            if (term < 1e-10) {
+                break;
+            }
         }
 
         return sum * Math.exp(-x + a * Math.log(x) - Math.log(gamma(a)));

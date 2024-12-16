@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType.*;
 
 /**
  * Test.
@@ -30,11 +31,7 @@ public class StatAnalyzerTest {
             {3.15, 0.07} // lognormal
     };
 
-    private static final PgDistributionType[] DISTRIBUTION_ORDER = {
-            PgDistributionType.LOGNORMAL,
-            PgDistributionType.NORMAL,
-            PgDistributionType.WEIBULL
-    };
+    private static final PgDistributionType[] DISTRIBUTION_ORDER = {WEIBULL, NORMAL, LOGNORMAL};
 
     @Test
     public void testStatAnalyzerWithGeneratedData() throws IOException, InterruptedException {

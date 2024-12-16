@@ -93,13 +93,13 @@ public class SimpleFittingTest {
 
         try {
             EstimatedParameters fittedDistribution = cramerVonMises.fit(modeData, distributionType);
-            double pValue = cramerVonMises.test(modeData, fittedDistribution.getDistribution());
+            double pvalue = cramerVonMises.test(modeData, fittedDistribution.getDistribution());
 
             System.out.println("Testing distribution: " + distributionType.name());
             System.out.println("Fitted params: " + Arrays.toString(fittedDistribution.getParams()));
-            System.out.println("pValue: " + pValue);
+            System.out.println("pValue: " + pvalue);
 
-            assertTrue(pValue > 0.05, "bad pValue");
+            assertTrue(pvalue > 0.05, "bad pValue");
 
             assertEquals(expectedParams[0], fittedDistribution.getParams()[0], 0.4, "Среднее не совпадает");
             assertEquals(expectedParams[1], fittedDistribution.getParams()[1], 0.4, "Стандартное отклонение не совпадает");
