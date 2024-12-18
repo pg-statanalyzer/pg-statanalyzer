@@ -177,7 +177,7 @@ public class StatAnalyzer {
                 try {
                     estimatedParameters = parameterEstimator.fit(parametersSample, distributionType);
                 } catch (Exception e) {
-                    return new FittedDistribution(distributionType, null, null, 0.0);
+                    return new FittedDistribution(distributionType, null, null, Double.NEGATIVE_INFINITY);
                 }
 
                 double pValue = distributionTest.test(testSample, estimatedParameters.getDistribution());

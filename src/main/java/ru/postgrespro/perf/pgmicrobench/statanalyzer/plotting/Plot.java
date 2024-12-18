@@ -7,6 +7,7 @@ import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
+import java.awt.*;
 import java.util.List;
 import java.util.function.Function;
 
@@ -66,6 +67,12 @@ public class Plot {
 
         XYChart chart = new XYChart(800, 600);
         chart.setTitle(title);
+
+        chart.getStyler().setLegendVisible(false);
+
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotGridLinesVisible(false);
 
         chart.addSeries("Histogram", histogram.getxAxisData(), histogram.getyAxisData())
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)
