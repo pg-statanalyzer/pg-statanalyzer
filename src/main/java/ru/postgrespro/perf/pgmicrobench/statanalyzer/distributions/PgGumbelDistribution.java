@@ -149,4 +149,9 @@ public class PgGumbelDistribution implements PgDistribution {
     private double z(double x) {
         return (x - location) / scale;
     }
+
+    @Override
+    public String toString() {
+        return "Gumbel(location=" + String.format("%.2f", location) + ", scale=" + String.format("%.2f", scale) + ")";
+    }
 }

@@ -90,4 +90,9 @@ public class PgLogNormalDistribution implements PgDistribution {
     public PgDistributionType getType() {
         return PgDistributionType.LOGNORMAL;
     }
+
+    @Override
+    public String toString() {
+        return "LogNormal(mean=" + String.format("%.2f", mean) + ", standardDeviation=" + String.format("%.2f", standardDeviation) + ")";
+    }
 }

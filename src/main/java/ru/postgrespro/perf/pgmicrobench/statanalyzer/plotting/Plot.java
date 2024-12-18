@@ -50,17 +50,17 @@ public class Plot {
         double delta = (histogram.getMax() - histogram.getMin()) / bins;
         double cur = histogram.getMin();
 
-        double[] xFunction = new double[bins];
-        double[] yFunction = new double[bins];
+        double[] xFunction = new double[2 * bins];
+        double[] yFunction = new double[2 * bins];
 
         for (int i = 0; i < xFunction.length; i++) {
             xFunction[i] = cur;
             yFunction[i] = pdf.apply(cur);
-            cur += delta;
+            cur += delta / 2.;
         }
 
         List<Double> yHistogram = histogram.getyAxisData();
-        for (int i = 0; i < yFunction.length; i++) {
+        for (int i = 0; i < yFunction.length / 2; i++) {
             yHistogram.set(i, yHistogram.get(i) / delta / sample.size());
         }
 
