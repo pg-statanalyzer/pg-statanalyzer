@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -30,8 +31,8 @@ import java.util.stream.IntStream;
 public class StatAnalyzer {
     private static final PgDistributionType[] supportedDistributions = PgDistributionType.values();
     private LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
-    private IDistributionTest distributionTest = new CramerVonMises();
-    private IParameterEstimator parameterEstimator = new CramerVonMises();
+    private IDistributionTest distributionTest = new Multicriteria();
+    private IParameterEstimator parameterEstimator = new Multicriteria();
 
     /**
      * Constructs a StatAnalyzer with the specified parameter estimator
@@ -79,13 +80,16 @@ public class StatAnalyzer {
 
         ModalityData modalityData = findModes(sample);
 
-        List<ModeReport> modeReports = new ArrayList<>(modalityData.getModes().size());
+        List<CompletableFuture<ModeReport>> futures = new ArrayList<>(modalityData.getModes().size());
         for (RangedMode mode : modalityData.getModes()) {
-            Sample modeSample = findModeValues(mode, sample);
-
-            ModeReport modeReport = getModeReport(mode, modeSample);
-            modeReports.add(modeReport);
+            futures.add(CompletableFuture.supplyAsync(() -> {
+                Sample modeSample = findModeValues(mode, sample);
+                return getModeReport(mode, modeSample);
+            }));
         }
+        List<ModeReport> modeReports = futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
 
         Function<Double, Double> summaryPdf = findSummaryPdf(modeReports, sample.size());
 
@@ -164,28 +168,31 @@ public class StatAnalyzer {
      * distributions and their p-values
      */
     public List<FittedDistribution> fitDistribution(Sample parametersSample, Sample testSample) {
-        List<FittedDistribution> fittedDistributions = new ArrayList<>(supportedDistributions.length);
+
+        List<CompletableFuture<FittedDistribution>> futures = new ArrayList<>(supportedDistributions.length);
 
         for (PgDistributionType distributionType : supportedDistributions) {
-            EstimatedParameters estimatedParameters;
-            try {
-                estimatedParameters = parameterEstimator.fit(parametersSample, distributionType);
-            } catch (Exception e) {
-                fittedDistributions.add(new FittedDistribution(distributionType, null, null, 0.0));
-                continue;
-            }
+            futures.add(CompletableFuture.supplyAsync(() -> {
+                EstimatedParameters estimatedParameters;
+                try {
+                    estimatedParameters = parameterEstimator.fit(parametersSample, distributionType);
+                } catch (Exception e) {
+                    return new FittedDistribution(distributionType, null, null, Double.NEGATIVE_INFINITY);
+                }
 
-            double pValue = distributionTest.test(testSample, estimatedParameters.getDistribution());
+                double pValue = distributionTest.test(testSample, estimatedParameters.getDistribution());
 
-            fittedDistributions.add(new FittedDistribution(
-                    distributionType,
-                    estimatedParameters.params,
-                    estimatedParameters.getDistribution(),
-                    pValue));
+                return new FittedDistribution(
+                        distributionType,
+                        estimatedParameters.params,
+                        estimatedParameters.getDistribution(),
+                        pValue);
+            }));
         }
-
-        fittedDistributions.sort(Comparator.comparingDouble(FittedDistribution::getPValue).reversed());
-        return fittedDistributions;
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .sorted(Comparator.comparingDouble(FittedDistribution::getPValue).reversed())
+                .collect(Collectors.toList());
     }
 
     /**

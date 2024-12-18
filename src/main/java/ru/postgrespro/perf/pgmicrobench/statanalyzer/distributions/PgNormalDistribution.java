@@ -96,4 +96,8 @@ public class PgNormalDistribution implements PgDistribution {
         return PgDistributionType.NORMAL;
     }
 
+    @Override
+    public String toString() {
+        return "Normal(mean=" + String.format("%.2f", mean) + ", standardDeviation=" + String.format("%.2f", standardDeviation) + ")";
+    }
 }

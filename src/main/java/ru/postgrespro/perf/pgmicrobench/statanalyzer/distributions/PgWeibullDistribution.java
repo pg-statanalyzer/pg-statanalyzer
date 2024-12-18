@@ -98,4 +98,10 @@ public class PgWeibullDistribution implements PgDistribution {
     public PgDistributionType getType() {
         return PgDistributionType.WEIBULL;
     }
+
+    @Override
+    public String toString() {
+        return "Weibull(shape=" + String.format("%.2f", shape) + ", scale=" + String.format("%.2f", scale) + ")";
+
+    }
 }

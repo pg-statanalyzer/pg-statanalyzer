@@ -7,6 +7,7 @@ import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
+import java.awt.*;
 import java.util.List;
 import java.util.function.Function;
 
@@ -50,22 +51,28 @@ public class Plot {
         double delta = (histogram.getMax() - histogram.getMin()) / bins;
         double cur = histogram.getMin();
 
-        double[] xFunction = new double[bins];
-        double[] yFunction = new double[bins];
+        double[] xFunction = new double[2 * bins];
+        double[] yFunction = new double[2 * bins];
 
         for (int i = 0; i < xFunction.length; i++) {
             xFunction[i] = cur;
             yFunction[i] = pdf.apply(cur);
-            cur += delta;
+            cur += delta / 2.;
         }
 
         List<Double> yHistogram = histogram.getyAxisData();
-        for (int i = 0; i < yFunction.length; i++) {
+        for (int i = 0; i < yFunction.length / 2; i++) {
             yHistogram.set(i, yHistogram.get(i) / delta / sample.size());
         }
 
         XYChart chart = new XYChart(800, 600);
         chart.setTitle(title);
+
+        chart.getStyler().setLegendVisible(false);
+
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotGridLinesVisible(false);
 
         chart.addSeries("Histogram", histogram.getxAxisData(), histogram.getyAxisData())
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)
