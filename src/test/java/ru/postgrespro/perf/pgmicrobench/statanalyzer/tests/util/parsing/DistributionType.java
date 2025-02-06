@@ -1,4 +1,4 @@
-package util.parsing;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.util.parsing;
 
 import org.apache.commons.math3.distribution.GammaDistribution;
 import org.apache.commons.math3.distribution.LogNormalDistribution;

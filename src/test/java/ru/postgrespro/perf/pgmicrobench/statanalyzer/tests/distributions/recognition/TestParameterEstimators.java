@@ -1,4 +1,4 @@
-package distributions.recognition;
+package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.distributions.recognition;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
