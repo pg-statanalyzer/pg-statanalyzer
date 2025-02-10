@@ -5,12 +5,53 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+
+/**
+ * Implementation of the ED-PELT (Empirical Distribution Pruned Exact Linear Time) change point detection algorithm.
+ * Based on "Haynes, K., Fearnhead, P., & Eckley, I. A. (2017). A Computationally Efficient Nonparametric Approach for
+ * Changepoint Detection."
+ */
+
 public class EdPeltChangePointDetector {
 
+    /**
+     * Detects change points in a given dataset using the ED-PELT algorithm.
+     *
+     * @param data The input time series data.
+     * @return A list of detected change point indexes.
+     */
+    public static List<Integer> getChangePointIndexes(List<Double> data) {
+        return getChangePointIndexes(data, 1);
+    }
+
+    /**
+     * Detects change points with a specified minimum segment length.
+     *
+     * @param data The input time series data.
+     * @param minDistance Minimum allowed distance between change points.
+     * @return A list of detected change point indexes.
+     */
+    public static List<Integer> getChangePointIndexes(List<Double> data, int minDistance) {
+        return getChangePointIndexes(data.stream().mapToDouble(Double::doubleValue).toArray(), minDistance);
+    }
+
+    /**
+     * Detects change points in a given dataset using the ED-PELT algorithm.
+     *
+     * @param data The input time series data.
+     * @return A list of detected change point indexes.
+     */
     public static List<Integer> getChangePointIndexes(double[] data) {
         return getChangePointIndexes(data, 1);
     }
 
+    /**
+     * Detects change points with a specified minimum segment length.
+     *
+     * @param data The input time series data.
+     * @param minDistance Minimum allowed distance between change points.
+     * @return A list of detected change point indexes.
+     */
     public static List<Integer> getChangePointIndexes(double[] data, int minDistance) {
         int n = data.length;
 
