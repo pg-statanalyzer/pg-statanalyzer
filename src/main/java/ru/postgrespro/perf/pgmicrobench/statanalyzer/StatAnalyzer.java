@@ -64,8 +64,109 @@ public class StatAnalyzer {
 
 
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
+        Function<Double, Double> summaryPdf = analysisResult.getPdf();
+
+        List<Double> filteredData = statAnalyzer.filterValuesBelowPdf(new Sample(dataList, true), summaryPdf);
+
+        List<Double> smoothedData = statAnalyzer.smoothWithMovingAverage(filteredData, 5);
+        Sample smoothedSample = new Sample(smoothedData, true);
+
+        ModalityData modalityData = statAnalyzer.applyNewLowland(smoothedSample);
+
+        List<ModeReport> modeReports = new ArrayList<>();
+        for (RangedMode mode : modalityData.getModes()) {
+            Sample modeSample = statAnalyzer.findModeValues(mode, smoothedSample);
+            ModeReport modeReport = statAnalyzer.getModeReport(mode, modeSample);
+            modeReports.add(modeReport);
+        }
+
+        // summaryPdf = normalizePdf(summaryPdf, dataList.size());
+
+        Function<Double, Double> combinedPdf = statAnalyzer.combinePdfWithScaling(summaryPdf, modeReports, dataList.size());
+
+        // combinedPdf = normalizePdf(combinedPdf, smoothedData.size());
+
+        //Plot.plot(new Sample(filteredData), summaryPdf, "Filtered Summary pdf");
+
+        //Plot.plot(new Sample(smoothedData), summaryPdf, "Smoothed Summary pdf");
 
         Plot.plot(new Sample(dataList), analysisResult.getPdf(), "Summary pdf");
+        Plot.plot(new Sample(dataList), combinedPdf, "Combined pdf +");
+    }
+
+    public ModalityData applyNewLowland(Sample sample) {
+        LowlandModalityDetector newModeDetector = new LowlandModalityDetector(0.9, 0.01, false);
+
+        return newModeDetector.detectModes(sample);
+    }
+
+    public Function<Double, Double> combinePdfWithScaling(Function<Double, Double> originalPdf, List<ModeReport> modeReports, long sampleSize) {
+        Function<Double, Double> lowlandPdf = (x) -> {
+            double result = 0;
+
+            for (ModeReport modeReport : modeReports) {
+                //double weight = modeReport.size / (double) sampleSize;
+
+                double individualScalingFactor = calculateScalingFactor(modeReport.size);
+
+                result += individualScalingFactor * modeReport.bestDistribution.getDistribution().pdf(x);
+            }
+            return result;
+        };
+
+        return (x) -> originalPdf.apply(x) + lowlandPdf.apply(x);
+    }
+
+    private double calculateScalingFactor(long modeSize) {
+        double minSize = 1.0;
+        double maxSize = 10000.0;
+
+        double normalizedSize = Math.max(minSize, Math.min(modeSize, maxSize));
+
+        double scalingFactor = 0.03 + (normalizedSize - minSize) * (0.3 - 0.01) / (maxSize - minSize);
+
+        return scalingFactor;
+    }
+
+    private static Function<Double, Double> normalizePdf(Function<Double, Double> pdf, int sampleSize) {
+        double integral = integratePdf(pdf, sampleSize);
+        return x -> pdf.apply(x) / integral;
+    }
+
+    private static double integratePdf(Function<Double, Double> pdf, int sampleSize) {
+        double stepSize = 0.01;
+        double sum = 0.0;
+        for (double x = 0; x <= 1000; x += stepSize) {
+            sum += pdf.apply(x) * stepSize;
+        }
+        return sum;
+    }
+
+    public List<Double> filterValuesBelowPdf(Sample sample, Function<Double, Double> summaryPdf) {
+        return sample.getValues().stream()
+                .filter(value -> {
+                    double pdfValue = summaryPdf.apply(value);
+
+                    return value >= pdfValue;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Double> smoothWithMovingAverage(List<Double> data, int windowSize) {
+        List<Double> smoothedData = new ArrayList<>(data.size());
+
+        for (int i = 0; i < data.size(); i++) {
+            int start = Math.max(0, i - windowSize / 2);
+            int end = Math.min(data.size() - 1, i + windowSize / 2);
+
+            double average = data.subList(start, end + 1).stream()
+                    .mapToDouble(Double::doubleValue)
+                    .average()
+                    .orElse(0.0);
+            smoothedData.add(average);
+        }
+
+        return smoothedData;
     }
 
     /**
