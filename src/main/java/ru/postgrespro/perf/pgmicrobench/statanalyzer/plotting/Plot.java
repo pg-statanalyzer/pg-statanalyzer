@@ -8,7 +8,10 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 
 /**
@@ -35,6 +38,57 @@ public class Plot {
         chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
 
         new SwingWrapper<>(chart).displayChart();
+    }
+
+    public static List<Double> filterBinsAbovePdf(Sample sample, Function<Double, Double> pdf) {
+
+        int bins = (int) Math.sqrt(sample.size()) + 1;
+        Histogram histogram = new Histogram(sample.getValues(), bins);
+
+        List<Double> filteredData = new ArrayList<>();
+
+        Random random = new Random();
+        int totalDataCount = sample.getValues().size();
+
+        for (int i = 0; i < histogram.getxAxisData().size(); i++) {
+            double binCenter = histogram.getxAxisData().get(i);
+            double binHeight = histogram.getyAxisData().get(i);
+            double binWidth = (i + 1 < histogram.getxAxisData().size()) ?
+                    histogram.getxAxisData().get(i + 1) - binCenter : 0;
+
+            double normalizedBinHeight = binHeight / (totalDataCount * binWidth);
+            double pdfValue = pdf.apply(binCenter);
+
+//            System.out.println("Bin Center: " + binCenter);
+//            System.out.println("Bin Height: " + binHeight);
+//            System.out.println("PDF: " + pdfValue);
+
+            double leftBound = histogram.getxAxisData().get(i);
+            double rightBound = (i + 1 < histogram.getxAxisData().size())
+                    ? histogram.getxAxisData().get(i + 1)
+                    : leftBound + (leftBound - histogram.getxAxisData().get(i - 1));
+
+            List<Double> binValues = new ArrayList<>();
+            for (Double value : sample.getValues()) {
+                if (value >= leftBound && value < rightBound) {
+                    binValues.add(value);
+                }
+            }
+
+//            double ratio = pdfValue / normalizedBinHeight;
+
+            if (normalizedBinHeight >= pdfValue) {
+                filteredData.addAll(binValues);
+            } else {
+                if (binValues.size() > 2) {
+                    Collections.shuffle(binValues, random);
+                    filteredData.addAll(binValues.subList(0, 2));
+                } else {
+                    filteredData.addAll(binValues);
+                }
+            }
+        }
+        return filteredData;
     }
 
     /**

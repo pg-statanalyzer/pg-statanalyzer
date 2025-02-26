@@ -66,10 +66,10 @@ public class StatAnalyzer {
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
         Function<Double, Double> summaryPdf = analysisResult.getPdf();
 
-        List<Double> filteredData = statAnalyzer.filterValuesBelowPdf(new Sample(dataList, true), summaryPdf);
+        List<Double> filteredData = Plot.filterBinsAbovePdf(new Sample(dataList, true), summaryPdf);
 
-        List<Double> smoothedData = statAnalyzer.smoothWithMovingAverage(filteredData, 5);
-        Sample smoothedSample = new Sample(smoothedData, true);
+//        List<Double> smoothedData = statAnalyzer.smoothWithMovingAverage(filteredData, 5);
+        Sample smoothedSample = new Sample(filteredData, true);
 
         ModalityData modalityData = statAnalyzer.applyNewLowland(smoothedSample);
 
@@ -123,7 +123,7 @@ public class StatAnalyzer {
 
         double normalizedSize = Math.max(minSize, Math.min(modeSize, maxSize));
 
-        double scalingFactor = 0.03 + (normalizedSize - minSize) * (0.3 - 0.01) / (maxSize - minSize);
+        double scalingFactor = (normalizedSize - minSize) * (0.3 - 0.01) / (maxSize - minSize);
 
         return scalingFactor;
     }
@@ -140,16 +140,6 @@ public class StatAnalyzer {
             sum += pdf.apply(x) * stepSize;
         }
         return sum;
-    }
-
-    public List<Double> filterValuesBelowPdf(Sample sample, Function<Double, Double> summaryPdf) {
-        return sample.getValues().stream()
-                .filter(value -> {
-                    double pdfValue = summaryPdf.apply(value);
-
-                    return value >= pdfValue;
-                })
-                .collect(Collectors.toList());
     }
 
     public List<Double> smoothWithMovingAverage(List<Double> data, int windowSize) {
