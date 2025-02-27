@@ -13,6 +13,7 @@ import java.util.List;
  */
 
 public class EdPeltChangePointDetector {
+    private static int[][] partialSums;
 
     /**
      * Detects change points in a given dataset using the ED-PELT algorithm.
@@ -66,12 +67,12 @@ public class EdPeltChangePointDetector {
 
         int k = Math.min(n, (int) Math.ceil(4 * Math.log(n)));
 
-        int[][] partialSums = getPartialSums(data, k);
+        partialSums = getPartialSums(data, k);
 
         double[] bestCost = new double[n + 1];
         bestCost[0] = -penalty;
         for (int currentTau = minDistance; currentTau < 2 * minDistance; currentTau++) {
-            bestCost[currentTau] = getSegmentCost(partialSums, 0, currentTau, k, n);
+            bestCost[currentTau] = getSegmentCost(0, currentTau, k, n);
         }
 
         int[] previousChangePointIndex = new int[n + 1];
@@ -84,7 +85,8 @@ public class EdPeltChangePointDetector {
             costForPreviousTau.clear();
 
             for (int previousTau : previousTaus) {
-                costForPreviousTau.add(bestCost[previousTau] + getSegmentCost(partialSums, previousTau, currentTau, k, n) + penalty);
+                double segmentCost = getSegmentCost(previousTau, currentTau, k, n);
+                costForPreviousTau.add(bestCost[previousTau] + segmentCost + penalty);
             }
 
             int bestPreviousTauIndex = whichMin(costForPreviousTau);
@@ -137,7 +139,7 @@ public class EdPeltChangePointDetector {
         return partialSums;
     }
 
-    private static double getSegmentCost(int[][] partialSums, int tau1, int tau2, int k, int n) {
+    private static double getSegmentCost(int tau1, int tau2, int k, int n) {
         double sum = 0;
         for (int i = 0; i < k; i++) {
             // actualSum is (count(data[j] < t) * 2 + count(data[j] == t) * 1) for j=tau1..tau2-1
