@@ -75,6 +75,14 @@ public class StatAnalyzer {
         return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
     }
 
+    /**
+     * Creates a composite distribution from a list of mode reports.
+     *
+     * @param modeReports list of mode reports obtained from the sample analysis
+     * @param sampleSize  the size of the original sample
+     * @return a PgCompositeDistribution composed of individual distributions and their
+     *         corresponding weights computed based on the sample proportions
+     */
     private static PgCompositeDistribution getCompositeDistribution(List<ModeReport> modeReports, int sampleSize) {
         List<PgDistribution> distributions = new ArrayList<>(modeReports.size());
         List<Double> weights = new ArrayList<>(modeReports.size());
@@ -86,6 +94,12 @@ public class StatAnalyzer {
         return new PgCompositeDistribution(distributions, weights);
     }
 
+    /**
+     * Generates mode reports for each detected mode in parallel.
+     *
+     * @param modalityData the modality data containing detected modes
+     * @return a list of ModeReport objects for each ranged mode
+     */
     private List<ModeReport> getModeReports(ModalityData modalityData) {
         List<CompletableFuture<ModeReport>> futures = new ArrayList<>(modalityData.getModes().size());
         for (RangedMode mode : modalityData.getModes()) {
