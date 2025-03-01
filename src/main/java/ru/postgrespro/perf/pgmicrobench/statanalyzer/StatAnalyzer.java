@@ -34,8 +34,8 @@ public class StatAnalyzer {
     }
 
     private LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
-    private IDistributionTest distributionTest = new Multicriteria();
-    private IParameterEstimator parameterEstimator = new Multicriteria();
+    private IDistributionTest distributionTest = new CramerVonMises();
+    private IParameterEstimator parameterEstimator = new CramerVonMises();
     private IParameterEstimator finalParameterEstimator = new CramerVonMises();
     private boolean optimizeFinalSolution = true;
 
