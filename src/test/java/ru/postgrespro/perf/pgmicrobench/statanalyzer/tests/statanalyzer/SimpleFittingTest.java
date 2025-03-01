@@ -15,8 +15,7 @@ import java.util.List;
 public class SimpleFittingTest {
     private static final LowlandModalityDetector detector = new LowlandModalityDetector(0.5, 0.01, false);
 
-    private static final double[][] EXPECTED_PARAMS = {
-            {4.278, 0.01}, // lognorm_4278_001
+    private static final double[][] EXPECTED_PARAMS = {{4.278, 0.01}, // lognorm_4278_001
             {10.0, 0.3},   // gamma_10_03
             {3.0, 0.3},    // lognorm_3_0.3
             {1.3, 0.7},    // lognorm_13_07

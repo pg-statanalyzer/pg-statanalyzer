@@ -21,6 +21,11 @@ public class PgCompositeDistribution implements PgDistribution {
     private final int size;
     private final int paramNumber;
 
+    /** Constructor.
+     *
+     * @param distributions
+     * @param weights
+     */
     public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights) {
         if (distributions.isEmpty() || distributions.size() != weights.size()) {
             throw new IllegalArgumentException();
