@@ -39,8 +39,6 @@ public class StatAnalyzerTest {
         for (PgSimpleDistribution d : expected) {
             dataList.addAll(d.generate(3333, new Random(1)).getValues());
         }
-        Sample sample = new Sample(dataList);
-        Plot.plot(sample);
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
