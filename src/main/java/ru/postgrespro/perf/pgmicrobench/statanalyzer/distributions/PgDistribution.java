@@ -1,8 +1,8 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -30,4 +30,12 @@ public interface PgDistribution {
     Sample generate(int size, Random random);
 
     PgDistributionType getType();
+
+    int getParamNumber();
+
+    PgDistribution newDistribution(double[] params);
+
+    double[] getParamArray();
+
+    Pair<double[]> bounds();
 }

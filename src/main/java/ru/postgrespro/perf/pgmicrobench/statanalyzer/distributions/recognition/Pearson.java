@@ -11,8 +11,10 @@ import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
 
 /**
  * The {@code Pearson} class provides implementation of Pearson's algorithm for fitting distributions
@@ -102,7 +104,6 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
      * @param distributionType the type of distribution to fit
      * @return a EstimatedParameters object with fitted parameters, sample, and p-value
      */
-    @Override
     public EstimatedParameters fit(Sample sample, PgDistributionType distributionType) {
         Bounds bounds = boundsOfBins(sample);
         int actualBins = bounds.counts.length;
@@ -145,7 +146,7 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
         double statistic = result.getValue();
         double pValue = pearsonTest(statistic, actualBins, distributionType.getParameterNumber());
 
-        return new EstimatedParameters(solution, distributionType.createDistribution(solution), pValue);
+        return new EstimatedParameters(distributionType.createDistribution(solution), pValue);
     }
 
     /**
@@ -176,6 +177,16 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
         double statistic = statistic(observed, expected, sample.size());
 
         return pearsonTest(statistic, actualBins, distribution.getType().getParameterNumber());
+    }
+
+    @Override
+    public EstimatedParameters fit(Sample sample, PgSimpleDistribution type) {
+        throw new RuntimeException("Pearson is sucking");
+    }
+
+    @Override
+    public EstimatedParameters fit(Sample sample, PgCompositeDistribution type) {
+        throw new RuntimeException("Pearson is sucking");
     }
 
     @Data

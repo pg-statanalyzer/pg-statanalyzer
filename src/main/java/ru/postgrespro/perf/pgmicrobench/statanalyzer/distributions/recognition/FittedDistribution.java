@@ -10,8 +10,6 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributio
  */
 @Data
 public class FittedDistribution {
-    final PgDistributionType type;
-    final double[] parameters;
     final PgDistribution distribution;
     final double pValue;
 }

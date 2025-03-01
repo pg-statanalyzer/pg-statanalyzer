@@ -8,7 +8,6 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributio
  */
 @Data
 public class EstimatedParameters {
-    public final double[] params;
     private final PgDistribution distribution;
     private final double pValue;
 }

@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.special.Gamma;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import static java.lang.Math.pow;
 /**
  * The PgWeibullDistribution class implements weibull distribution.
  */
-public class PgWeibullDistribution implements PgDistribution {
+public class PgWeibullDistribution implements PgSimpleDistribution {
     private final double shape;
     private final double scale;
 
@@ -79,7 +80,7 @@ public class PgWeibullDistribution implements PgDistribution {
                 - 4 * skewness() * pow(stnDev, 3) * mu
                 - 6 * pow(mu, 2) * pow(stnDev, 2)
                 - pow(mu, 4)
-                ) / pow(stnDev, 4);
+        ) / pow(stnDev, 4);
     }
 
 
@@ -97,6 +98,27 @@ public class PgWeibullDistribution implements PgDistribution {
     @Override
     public PgDistributionType getType() {
         return PgDistributionType.WEIBULL;
+    }
+
+    @Override
+    public int getParamNumber() {
+        return 2;
+    }
+
+    @Override
+    public PgDistribution newDistribution(double[] params) {
+        return new PgWeibullDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public double[] getParamArray() {
+        return new double[]{shape, scale};
+    }
+
+    @Override
+    public Pair<double[]> bounds() {
+        return new Pair<>(new double[]{1e-6, 1e-6},
+                new double[]{Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY});
     }
 
     @Override

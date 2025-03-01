@@ -1,5 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Random;
 /**
  * PgGammaDistribution represents Gamma distribution with shape (k) and scale (theta) parameters.
  */
-public class PgGammaDistribution implements PgDistribution {
+public class PgGammaDistribution implements PgSimpleDistribution{
     private final double shape;
     private final double scale;
 
@@ -133,6 +134,26 @@ public class PgGammaDistribution implements PgDistribution {
     @Override
     public PgDistributionType getType() {
         return null;
+    }
+
+    @Override
+    public int getParamNumber() {
+        return 2;
+    }
+
+    @Override
+    public PgDistribution newDistribution(double[] params) {
+        return new PgGammaDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public double[] getParamArray() {
+        return new double[] {shape, scale};
+    }
+
+    @Override
+    public Pair<double[]> bounds() {
+        throw new RuntimeException("Not implemented");
     }
 
     /**

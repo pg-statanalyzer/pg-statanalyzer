@@ -1,25 +1,21 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.*;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.optimizer.PgOptimizer;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * This class provides methods to perform the Kolmogorov-Smirnov test for goodness of fit
  * and to fit a distribution to a given dataset using the Kolmogorov-Smirnov statistic.
  */
-public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator {
+public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator, IStatisticEvaluator {
     private static final KolmogorovSmirnovTest KS_TEST = new KolmogorovSmirnovTest();
 
     /**
@@ -29,7 +25,8 @@ public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator
      * @param distribution the theoretical distribution to compare against
      * @return the Kolmogorov-Smirnov statistic
      */
-    public static double ksStatistic(Sample sample, PgDistribution distribution) {
+    @Override
+    public double statistic(Sample sample, PgDistribution distribution) {
         double nd = sample.size();
         List<Double> sortedValues = sample.getSortedValues();
         double d = 0.0;
@@ -54,7 +51,7 @@ public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator
      */
     @Override
     public double test(Sample sample, PgDistribution distribution) {
-        return test(ksStatistic(sample, distribution), sample.size());
+        return test(statistic(sample, distribution), sample.size());
     }
 
     /**
@@ -71,36 +68,27 @@ public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator
     /**
      * Fits a distribution to the observed data by minimizing the Kolmogorov-Smirnov statistic.
      *
-     * @param sample           the observed data
-     * @param distributionType the type of distribution to fit
+     * @param sample       the observed data
+     * @param distribution the type of distribution to fit
      * @return a EstimatedParameters object with fitted parameters, sample, and p-value
      */
     @Override
-    public EstimatedParameters fit(Sample sample, PgDistributionType distributionType) {
-        MultivariateFunction evaluationFunction = point -> {
-            PgDistribution distribution;
-            try {
-                distribution = distributionType.createDistribution(point);
-            } catch (Exception e) {
-                return Double.POSITIVE_INFINITY;
-            }
+    public EstimatedParameters fit(Sample sample, PgSimpleDistribution distribution) {
+        double[] solution = PgOptimizer.optimize(sample, distribution, new KolmogorovSmirnov());
 
-            return ksStatistic(sample, distribution);
-        };
+        PgDistribution optimizedDist = distribution.newDistribution(solution);
+        double pValue = test(sample, optimizedDist);
 
-        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
-        PointValuePair result = optimizer.optimize(
-                new MaxEval(10000),
-                new ObjectiveFunction(evaluationFunction),
-                GoalType.MINIMIZE,
-                new InitialGuess(distributionType.getStartPoint()),
-                new NelderMeadSimplex(distributionType.getParameterNumber())
-        );
+        return new EstimatedParameters(optimizedDist, pValue);
+    }
 
-        double[] solution = result.getPoint();
-        double statistic = result.getValue();
-        double pValue = test(statistic, sample.size());
+    @Override
+    public EstimatedParameters fit(Sample sample, PgCompositeDistribution distribution) {
+        double[] solution = PgOptimizer.optimize(sample, distribution, new KolmogorovSmirnov());
 
-        return new EstimatedParameters(solution, distributionType.createDistribution(solution), pValue);
+        PgCompositeDistribution optimizedDist = distribution.newDistribution(solution);
+        double pValue = test(sample, optimizedDist);
+
+        return new EstimatedParameters(optimizedDist, pValue);
     }
 }
