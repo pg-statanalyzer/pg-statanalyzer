@@ -11,6 +11,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * PgCompositeDistribution.
+ */
 public class PgCompositeDistribution implements PgDistribution {
     private final List<PgDistribution> distributions;
     private final List<Double> weights;
@@ -23,7 +26,9 @@ public class PgCompositeDistribution implements PgDistribution {
             throw new IllegalArgumentException();
         }
         for (double w : weights) {
-            if (w < 0) throw new IllegalArgumentException("Negative weight");
+            if (w < 0) {
+                throw new IllegalArgumentException("Negative weight");
+            }
         }
 
         double sumWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
@@ -174,6 +179,6 @@ public class PgCompositeDistribution implements PgDistribution {
         List<String> list = IntStream.range(0, size)
                 .mapToObj(i -> String.format("%.2f", weights.get(i)) + " * " + distributions.get(i))
                 .collect(Collectors.toList());
-        return "CompositeDistribution("+ String.join(" + ", list) + ")";
+        return "CompositeDistribution(" + String.join(" + ", list) + ")";
     }
 }

@@ -10,7 +10,7 @@ import java.util.Random;
 /**
  * PgGammaDistribution represents Gamma distribution with shape (k) and scale (theta) parameters.
  */
-public class PgGammaDistribution implements PgSimpleDistribution{
+public class PgGammaDistribution implements PgSimpleDistribution {
     private final double shape;
     private final double scale;
 
@@ -148,7 +148,7 @@ public class PgGammaDistribution implements PgSimpleDistribution{
 
     @Override
     public double[] getParamArray() {
-        return new double[] {shape, scale};
+        return new double[]{shape, scale};
     }
 
     @Override
