@@ -80,7 +80,7 @@ public class PgWeibullDistribution implements PgSimpleDistribution {
                 - 4 * skewness() * pow(stnDev, 3) * mu
                 - 6 * pow(mu, 2) * pow(stnDev, 2)
                 - pow(mu, 4)
-        ) / pow(stnDev, 4);
+            ) / pow(stnDev, 4);
     }
 
 

@@ -1,6 +1,10 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
-public class Pair<A>{
+/**
+ * Class pair.
+ * @param <A>
+ */
+public class Pair<A> {
     public final A first;
     public final A second;
 

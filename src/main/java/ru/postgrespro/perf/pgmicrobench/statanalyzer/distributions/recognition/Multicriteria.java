@@ -12,7 +12,9 @@ import java.util.List;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-
+/**
+ * Multicriteria.
+ */
 public class Multicriteria implements IDistributionTest, IParameterEstimator, IStatisticEvaluator {
 
     /**

@@ -54,11 +54,11 @@ public class StatAnalyzerTest {
             ModeReport modeReport = analysisResult.getModeReports().get(i);
             FittedDistribution bestDistribution = modeReport.getBestDistribution();
 
-            assertEquals(DISTRIBUTION_ORDER[i], bestDistribution.getType(),
+            assertEquals(DISTRIBUTION_ORDER[i], bestDistribution.getDistribution().getType(),
                     "Not correct distribution " + (i + 1));
 
             double[] expectedParams = EXPECTED_PARAMS[i];
-            double[] actualParams = bestDistribution.getParameters();
+            double[] actualParams = bestDistribution.getDistribution().getParamArray();
 
             assertNotNull(actualParams, "Params should not be null");
 
