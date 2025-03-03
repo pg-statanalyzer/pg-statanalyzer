@@ -4,14 +4,10 @@ import org.apache.commons.math3.special.Gamma;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.optimizer.PgOptimizer;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static org.apache.commons.math3.special.Gamma.logGamma;
 
@@ -20,11 +16,6 @@ import static org.apache.commons.math3.special.Gamma.logGamma;
  * and to fit a distribution to a given dataset using the Cramer–Von Mises statistic.
  */
 public class CramerVonMises implements IDistributionTest, IParameterEstimator, IStatisticEvaluator {
-    static List<PgSimpleDistribution> supportedDistributions = new ArrayList<>();
-    static {
-        supportedDistributions.add(new PgNormalDistribution(1, 1));
-    }
-
     /**
      * Calculates Cramer–Von Mises statistic for given data and distribution.
      *

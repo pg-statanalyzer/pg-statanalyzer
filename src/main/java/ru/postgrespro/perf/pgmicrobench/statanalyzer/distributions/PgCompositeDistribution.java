@@ -23,8 +23,8 @@ public class PgCompositeDistribution implements PgDistribution {
 
     /** Constructor.
      *
-     * @param distributions
-     * @param weights
+     * @param distributions distributions.
+     * @param weights weights.
      */
     public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights) {
         if (distributions.isEmpty() || distributions.size() != weights.size()) {
