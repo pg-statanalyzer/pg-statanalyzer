@@ -50,6 +50,11 @@ public class Plot {
         Random random = new Random();
         int totalDataCount = sample.getValues().size();
 
+        List<Double> lastBinValues = new ArrayList<>();
+        boolean inGap = false;
+        double lastValueBeforeGap = Double.NaN;
+        double nextValueAfterGap;
+
         for (int i = 0; i < histogram.getxAxisData().size(); i++) {
             double binCenter = histogram.getxAxisData().get(i);
             double binHeight = histogram.getyAxisData().get(i);
@@ -75,20 +80,41 @@ public class Plot {
                 }
             }
 
-//            double ratio = pdfValue / normalizedBinHeight;
-
             if (normalizedBinHeight >= pdfValue) {
-                filteredData.addAll(binValues);
-            } else {
-                if (binValues.size() > 2) {
-                    Collections.shuffle(binValues, random);
-                    filteredData.addAll(binValues.subList(0, 2));
-                } else {
+                double ratio = pdfValue / normalizedBinHeight;
+
+                if (ratio < 0.45) {
                     filteredData.addAll(binValues);
+                    lastBinValues = new ArrayList<>(binValues);
+                    inGap = false;
+                } else {
+                    if (!inGap) {
+                        inGap = true;
+                        lastValueBeforeGap = lastBinValues.isEmpty() ? Double.NaN : lastBinValues.get(lastBinValues.size() - 1);
+                    }
+                }
+            } else {
+                if (inGap) {
+                    nextValueAfterGap = binValues.isEmpty() ? Double.NaN : binValues.get(0);
+                    if (!Double.isNaN(lastValueBeforeGap) && !Double.isNaN(nextValueAfterGap)) {
+                        filteredData.addAll(generateSmoothTransition(lastValueBeforeGap, nextValueAfterGap, 100));
+                    }
+                    inGap = false;
                 }
             }
         }
         return filteredData;
+    }
+
+    private static List<Double> generateSmoothTransition(double start, double end, int steps) {
+        List<Double> transition = new ArrayList<>();
+        for (int i = 0; i < steps; i++) {
+            double t = (double) i / (steps - 1);
+            double value = start * (1 - t) + end * t;
+            value += Math.sin(t * Math.PI) * (end - start) * 0.1;
+            transition.add(value);
+        }
+        return transition;
     }
 
     /**

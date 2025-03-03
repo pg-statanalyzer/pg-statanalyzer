@@ -101,31 +101,20 @@ public class StatAnalyzer {
     }
 
     public Function<Double, Double> combinePdfWithScaling(Function<Double, Double> originalPdf, List<ModeReport> modeReports, long sampleSize) {
+        double totalModeSize = modeReports.stream().mapToLong(mode -> mode.size).sum();
+        double totalSize = sampleSize + totalModeSize;
+
         Function<Double, Double> lowlandPdf = (x) -> {
             double result = 0;
 
             for (ModeReport modeReport : modeReports) {
-                //double weight = modeReport.size / (double) sampleSize;
-
-                double individualScalingFactor = calculateScalingFactor(modeReport.size);
-
-                result += individualScalingFactor * modeReport.bestDistribution.getDistribution().pdf(x);
+                double weight = (double) modeReport.size / totalSize;
+                result += weight * modeReport.bestDistribution.getDistribution().pdf(x);
             }
             return result;
         };
 
-        return (x) -> originalPdf.apply(x) + lowlandPdf.apply(x);
-    }
-
-    private double calculateScalingFactor(long modeSize) {
-        double minSize = 1.0;
-        double maxSize = 10000.0;
-
-        double normalizedSize = Math.max(minSize, Math.min(modeSize, maxSize));
-
-        double scalingFactor = (normalizedSize - minSize) * (0.3 - 0.01) / (maxSize - minSize);
-
-        return scalingFactor;
+        return (x) -> (sampleSize / totalSize) * originalPdf.apply(x) + lowlandPdf.apply(x);
     }
 
     private static Function<Double, Double> normalizePdf(Function<Double, Double> pdf, int sampleSize) {
