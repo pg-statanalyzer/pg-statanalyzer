@@ -84,11 +84,13 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator, IS
      * @return the combined deviation in skewness and kurtosis.
      */
     private static double deviationInSkewAndKurt(Sample sample, PgDistribution pgDistribution) {
+        PgSimpleDistribution pgSimpleDistribution = (PgSimpleDistribution) pgDistribution;
+
         double kurt2 = sample.getKurtosis();
         double skew2 = sample.getSkewness();
 
-        double kurt1 = pgDistribution.kurtosis();
-        double skew1 = pgDistribution.skewness();
+        double kurt1 = pgSimpleDistribution.kurtosis();
+        double skew1 = pgSimpleDistribution.skewness();
 
         return sqrt(pow((skew1 - skew2), 2) + pow((kurt1 - kurt2), 2));
     }

@@ -13,6 +13,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,8 +37,9 @@ public class StatAnalyzer {
     private LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
     private IDistributionTest distributionTest = new CramerVonMises();
     private IParameterEstimator parameterEstimator = new CramerVonMises();
-    private IParameterEstimator finalParameterEstimator = new CramerVonMises();
-    private boolean optimizeFinalSolution = true;
+    private IParameterEstimator finalParameterEstimator = new KolmogorovSmirnov();
+    private boolean optimizeFinalSolution = false;
+    private boolean useJittering = false;
 
     /**
      * Constructs a StatAnalyzer with the specified parameter estimator
@@ -59,6 +61,11 @@ public class StatAnalyzer {
      * @return an AnalysisResult containing the results of the analysis
      */
     public AnalysisResult analyze(List<Double> values) {
+        if (useJittering) {
+            Jittering jit = new Jittering();
+            values = jit.jitter(values, new Random(42));
+        }
+
         Sample sample = new Sample(values, true);
 
         ModalityData modalityData = findModes(sample);

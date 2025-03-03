@@ -54,36 +54,6 @@ public class PgCompositeDistribution implements PgDistribution {
     }
 
     @Override
-    public double mean() {
-        return weightedResult(PgDistribution::mean);
-    }
-
-    @Override
-    public double variance() {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public double median() {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public double skewness() {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public double kurtosis() {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public double standardDeviation() {
-        throw new RuntimeException();
-    }
-
-    @Override
     public Sample generate(int size, Random random) {
         ArrayList<Double> values = new ArrayList<>(size);
 

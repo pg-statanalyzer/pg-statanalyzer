@@ -14,19 +14,13 @@ import java.util.Scanner;
  */
 public class Main {
     public static void main(String[] args) {
-        String file = "distributionSample/twoMode.csv";
+        String file = "distributionSample/postgres-16.8";
 
-        int skip = 0;
         List<Double> dataList = new ArrayList<>(300000);
         try (Scanner scanner = new Scanner(new File(file))) {
-            scanner.nextLine();
-            scanner.nextLine();
             while (scanner.hasNextDouble()) {
-                double value = scanner.nextDouble(); // division to simplify the search for parameters
-                if (skip++ % 10 == 0) {
-
-                    dataList.add(value);
-                }
+                double value = scanner.nextDouble();
+                dataList.add(value);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -35,6 +29,7 @@ public class Main {
         Sample sample = new Sample(dataList);
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
+        statAnalyzer.setUseJittering(true);
 
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
 
