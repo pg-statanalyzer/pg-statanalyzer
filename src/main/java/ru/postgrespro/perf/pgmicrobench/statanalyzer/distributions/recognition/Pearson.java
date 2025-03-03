@@ -149,12 +149,6 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
         return new EstimatedParameters(distributionType.createDistribution(solution), pValue);
     }
 
-    /**
-     * Performs the Pearson goodness-of-fit test on the given data against a specified distribution.
-     *
-     * @param distribution the theoretical distribution to compare against
-     * @return the p-value of the Pearson test
-     */
     @Override
     public double test(Sample sample, PgDistribution distribution) {
         Bounds bounds = boundsOfBins(sample);
@@ -181,12 +175,12 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
 
     @Override
     public EstimatedParameters fit(Sample sample, PgSimpleDistribution type) {
-        throw new RuntimeException("Pearson is sucking");
+        throw new RuntimeException("Pearson is not implemented");
     }
 
     @Override
     public EstimatedParameters fit(Sample sample, PgCompositeDistribution type) {
-        throw new RuntimeException("Pearson is sucking");
+        throw new RuntimeException("Pearson is implemented");
     }
 
     @Data

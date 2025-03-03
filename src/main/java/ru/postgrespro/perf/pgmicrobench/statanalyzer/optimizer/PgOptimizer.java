@@ -16,12 +16,22 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributio
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.IStatisticEvaluator;
 
+/**
+ * Optimizer.
+ */
 public class PgOptimizer {
     private static final MaxEval MAX_EVAL = new MaxEval(10000);
     private static final CMAESOptimizer.PopulationSize POPULATION_SIZE = new CMAESOptimizer.PopulationSize(100);
     private static final double WEIGHT_STEP = 0.1;
 
-
+    /**
+     * Optimise composite distribution.
+     *
+     * @param sample sample.
+     * @param distribution distribution.
+     * @param statisticEvaluator statisticEvaluator.
+     * @return parameters.
+     */
     public static double[] optimize(Sample sample, PgCompositeDistribution distribution, IStatisticEvaluator statisticEvaluator) {
         final CMAESOptimizer optimizer = new CMAESOptimizer(
                 10000,
@@ -66,6 +76,14 @@ public class PgOptimizer {
         return result.getPoint();
     }
 
+    /**
+     * Optimise simple distribution.
+     *
+     * @param sample sample.
+     * @param distribution distribution.
+     * @param statisticEvaluator statisticEvaluator.
+     * @return parameters.
+     */
     public static double[] optimize(Sample sample, PgSimpleDistribution distribution, IStatisticEvaluator statisticEvaluator) {
         final CMAESOptimizer optimizer = new CMAESOptimizer(
                 10000,

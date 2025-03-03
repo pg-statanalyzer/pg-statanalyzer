@@ -65,9 +65,9 @@ public class Plot {
         for (int i = 0; i < yFunction.length / 2; i++) {
             yHistogram.set(i, yHistogram.get(i) / delta / sample.size());
         }
-        List<Double> xHistogram = histogram.getxAxisData();
+        List<Double> histogramX = histogram.getxAxisData();
         for (int i = 0; i < yFunction.length / 2; i++) {
-            xHistogram.set(i, xHistogram.get(i) - delta);
+            histogramX.set(i, histogramX.get(i) - delta);
         }
 
         XYChart chart = new XYChart(800, 600);
