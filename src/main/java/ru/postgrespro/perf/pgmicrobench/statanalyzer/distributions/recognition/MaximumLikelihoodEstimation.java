@@ -10,13 +10,22 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.optimizer.PgOptimizer;
  * Class for estimating distribution parameters using the Maximum Likelihood Estimation (MLE) method.
  */
 public class MaximumLikelihoodEstimation implements IParameterEstimator {
-    private static final IStatisticEvaluator statisticEvaluatorMLE = (sample, distribution) ->
-            sample.getValues().stream().mapToDouble((x) -> -Math.log(distribution.pdf(x))).sum();
+    private static final IDistributionTest statisticEvaluatorMLE = new IDistributionTest() {
+        @Override
+        public double statistic(Sample sample, PgDistribution distribution) {
+            return sample.getValues().stream().mapToDouble((x) -> -Math.log(distribution.pdf(x))).sum();
+        }
+
+        @Override
+        public double test(Sample sample, PgDistribution distribution) {
+            return 0;
+        }
+    };
 
     /**
      * Estimates the parameters of a given distribution using the maximum likelihood estimation method.
      *
-     * @param sample           an array of observed data for which the distribution parameters need to be estimated
+     * @param sample       an array of observed data for which the distribution parameters need to be estimated
      * @param distribution the type of distribution to be fitted to the data
      * @return a EstimatedParameters object containing the estimated parameters and the corresponding distribution
      */

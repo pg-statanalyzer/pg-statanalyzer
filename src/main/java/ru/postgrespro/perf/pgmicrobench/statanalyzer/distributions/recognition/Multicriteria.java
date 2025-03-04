@@ -15,7 +15,7 @@ import static java.lang.Math.sqrt;
 /**
  * Multicriteria.
  */
-public class Multicriteria implements IDistributionTest, IParameterEstimator, IStatisticEvaluator {
+public class Multicriteria implements IDistributionTest, IParameterEstimator {
 
     /**
      * Computes the average deviation between the CDF of the dataset and the distribution.

@@ -15,7 +15,7 @@ import static org.apache.commons.math3.special.Gamma.logGamma;
  * This class provides methods to perform the Cramer–Von Mises test for goodness of fit
  * and to fit a distribution to a given dataset using the Cramer–Von Mises statistic.
  */
-public class CramerVonMises implements IDistributionTest, IParameterEstimator, IStatisticEvaluator {
+public class CramerVonMises implements IDistributionTest, IParameterEstimator {
     /**
      * Calculates Cramer–Von Mises statistic for given data and distribution.
      *

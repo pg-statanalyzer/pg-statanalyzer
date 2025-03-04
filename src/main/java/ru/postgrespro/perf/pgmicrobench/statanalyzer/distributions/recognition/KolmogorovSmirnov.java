@@ -15,7 +15,7 @@ import java.util.Random;
  * This class provides methods to perform the Kolmogorov-Smirnov test for goodness of fit
  * and to fit a distribution to a given dataset using the Kolmogorov-Smirnov statistic.
  */
-public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator, IStatisticEvaluator {
+public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator {
     private static final KolmogorovSmirnovTest KS_TEST = new KolmogorovSmirnovTest();
 
     /**

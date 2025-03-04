@@ -150,6 +150,11 @@ public class Pearson implements IDistributionTest, IParameterEstimator {
     }
 
     @Override
+    public double statistic(Sample sample, PgDistribution distribution) {
+        throw new RuntimeException("Pearson is not implemented");
+    }
+
+    @Override
     public double test(Sample sample, PgDistribution distribution) {
         Bounds bounds = boundsOfBins(sample);
         int actualBins = bounds.counts.length;

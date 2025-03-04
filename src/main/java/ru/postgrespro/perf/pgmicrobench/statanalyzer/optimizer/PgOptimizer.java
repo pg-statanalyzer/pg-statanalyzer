@@ -14,7 +14,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.IStatisticEvaluator;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.IDistributionTest;
 
 /**
  * Optimizer.
@@ -32,7 +32,7 @@ public class PgOptimizer {
      * @param statisticEvaluator statisticEvaluator.
      * @return parameters.
      */
-    public static double[] optimize(Sample sample, PgCompositeDistribution distribution, IStatisticEvaluator statisticEvaluator) {
+    public static double[] optimize(Sample sample, PgCompositeDistribution distribution, IDistributionTest statisticEvaluator) {
         final CMAESOptimizer optimizer = new CMAESOptimizer(
                 10000,
                 1e-4,
@@ -84,7 +84,7 @@ public class PgOptimizer {
      * @param statisticEvaluator statisticEvaluator.
      * @return parameters.
      */
-    public static double[] optimize(Sample sample, PgSimpleDistribution distribution, IStatisticEvaluator statisticEvaluator) {
+    public static double[] optimize(Sample sample, PgSimpleDistribution distribution, IDistributionTest statisticEvaluator) {
         final CMAESOptimizer optimizer = new CMAESOptimizer(
                 10000,
                 1e-4,
