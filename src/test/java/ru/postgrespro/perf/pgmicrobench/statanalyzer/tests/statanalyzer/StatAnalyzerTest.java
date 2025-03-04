@@ -1,12 +1,16 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.statanalyzer;
 
+import org.junit.jupiter.api.Test;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.AnalysisResult;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.ModeReport;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.StatAnalyzer;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgLogNormalDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgWeibullDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
-
-import org.junit.jupiter.api.Test;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,58 +18,51 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType.*;
 
 /**
  * Test.
  */
 public class StatAnalyzerTest {
-
-    private static final String TEST_FILE = "sampleGenerator/multi_for_test.txt";
-    private static final double[][] EXPECTED_PARAMS = {
-            {1.0, 1.7},  // weibull
-            {8.88, 1.1}, // normal
-            {3.15, 0.07} // lognormal
-    };
-
-    private static final PgDistributionType[] DISTRIBUTION_ORDER = {WEIBULL, NORMAL, LOGNORMAL};
-
     @Test
-    public void testStatAnalyzerWithGeneratedData() throws IOException, InterruptedException {
-        //generateTestData();
+    public void testStatAnalyzerWithGeneratedData() {
+        List<PgSimpleDistribution> expected = new ArrayList<>();
+        expected.add(new PgLogNormalDistribution(1., 0.5));
+        expected.add(new PgGumbelDistribution(15.15, 3));
+        expected.add(new PgWeibullDistribution(12, 45));
 
-        List<Double> dataList = readSampleFromFile(TEST_FILE);
+        List<Double> dataList = new ArrayList<>(10000);
 
-        //Sample sample = new Sample(dataList, true);
-        //Plot.plot(sample);
+        for (PgSimpleDistribution d : expected) {
+            dataList.addAll(d.generate(3333, new Random(1)).getValues());
+        }
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
-        //Plot.plot(new Sample(dataList), analysisResult.getPdf(), "Summary pdf");
-        Thread.sleep(2000);
+        System.out.println(analysisResult.getCompositeDistribution());
 
-        int expectedModes = EXPECTED_PARAMS.length;
+        int expectedModes = expected.size();
         assertEquals(expectedModes, analysisResult.getModeReports().size(), "Number of modes not as expected");
 
         for (int i = 0; i < expectedModes; i++) {
             ModeReport modeReport = analysisResult.getModeReports().get(i);
             FittedDistribution bestDistribution = modeReport.getBestDistribution();
 
-            assertEquals(DISTRIBUTION_ORDER[i], bestDistribution.getType(),
+            assertEquals(expected.get(i).getType(), bestDistribution.getDistribution().getType(),
                     "Not correct distribution " + (i + 1));
 
-            double[] expectedParams = EXPECTED_PARAMS[i];
-            double[] actualParams = bestDistribution.getParameters();
+            double[] expectedParams = expected.get(i).getParamArray();
+            double[] actualParams = bestDistribution.getDistribution().getParamArray();
 
             assertNotNull(actualParams, "Params should not be null");
 
-            assertEquals(expectedParams[0], actualParams[0], 0.2,
-                    "First param not correct " + DISTRIBUTION_ORDER[i]);
-            assertEquals(expectedParams[1], actualParams[1], 0.2,
-                    "Second param not correct " + DISTRIBUTION_ORDER[i]);
+            assertEquals(expectedParams[0], actualParams[0], expectedParams[0] * 0.1,
+                    "First param not correct " + expected.get(i).getType());
+            assertEquals(expectedParams[1], actualParams[1], expectedParams[0] * 0.1,
+                    "Second param not correct " + expected.get(i).getType());
         }
 
         System.out.println("Result: ");

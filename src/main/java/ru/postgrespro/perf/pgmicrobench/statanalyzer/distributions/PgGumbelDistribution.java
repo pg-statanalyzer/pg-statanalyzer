@@ -1,5 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.Random;
  * distribution of maximum (or minimum) of number of samples of various distributions.
  */
 
-public class PgGumbelDistribution implements PgDistribution {
+public class PgGumbelDistribution implements PgSimpleDistribution {
     private static final double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
     private final double location;
     private final double scale;
@@ -40,9 +41,9 @@ public class PgGumbelDistribution implements PgDistribution {
      * Generation.
      */
     public static Sample generate(Random random,
-                                        double location,
-                                        double scale,
-                                        int count) {
+                                  double location,
+                                  double scale,
+                                  int count) {
         PgGumbelDistribution distribution = new PgGumbelDistribution(location, scale);
         return distribution.generate(count, random);
     }
@@ -115,6 +116,27 @@ public class PgGumbelDistribution implements PgDistribution {
     @Override
     public PgDistributionType getType() {
         return PgDistributionType.GUMBEL;
+    }
+
+    @Override
+    public int getParamNumber() {
+        return 2;
+    }
+
+    @Override
+    public PgDistribution newDistribution(double[] params) {
+        return new PgGumbelDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public double[] getParamArray() {
+        return new double[]{location, scale};
+    }
+
+    @Override
+    public Pair<double[]> bounds() {
+        return new Pair<>(new double[]{Double.NEGATIVE_INFINITY, 1e-6},
+                new double[]{Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY});
     }
 
     /**

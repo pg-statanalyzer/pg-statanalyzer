@@ -4,21 +4,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.math3.util.Pair;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.*;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.*;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -29,10 +25,21 @@ import java.util.stream.IntStream;
 @Setter
 @NoArgsConstructor
 public class StatAnalyzer {
-    private static final PgDistributionType[] supportedDistributions = PgDistributionType.values();
+    public static final List<PgSimpleDistribution> supportedDistributions = new ArrayList<>();
+
+    static {
+//        supportedDistributions.add(new PgNormalDistribution(1, 1));
+        supportedDistributions.add(new PgLogNormalDistribution(1, 0.5));
+        supportedDistributions.add(new PgGumbelDistribution(1, 1));
+        supportedDistributions.add(new PgWeibullDistribution(1, 1));
+    }
+
     private LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
-    private IDistributionTest distributionTest = new Multicriteria();
-    private IParameterEstimator parameterEstimator = new Multicriteria();
+    private IDistributionTest distributionTest = new CramerVonMises();
+    private IParameterEstimator parameterEstimator = new CramerVonMises();
+    private IParameterEstimator finalParameterEstimator = new KolmogorovSmirnov();
+    private boolean optimizeFinalSolution = false;
+    private boolean useJittering = false;
 
     /**
      * Constructs a StatAnalyzer with the specified parameter estimator
@@ -46,54 +53,68 @@ public class StatAnalyzer {
         this.distributionTest = distributionTest;
     }
 
-    public static void main(String[] args) {
-        String file = "distributionSample/SELECT.csv";
-
-        List<Double> dataList = new ArrayList<>(10000);
-        try (Scanner scanner = new Scanner(new File(file))) {
-            while (scanner.hasNextDouble()) {
-                double value = scanner.nextDouble() / 100000.0; // division to simplify the search for parameters
-                dataList.add(value);
-
-            }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        StatAnalyzer statAnalyzer = new StatAnalyzer();
-
-
-        AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
-
-        Plot.plot(new Sample(dataList), analysisResult.getPdf(), "Summary pdf");
-    }
-
     /**
-     * Analyzes the given list of latencies to detect modes and fit
+     * Analyzes the given list of values to detect modes and fit
      * distributions.
      *
-     * @param latencies a list of latency values to analyze
+     * @param values a list of latency values to analyze
      * @return an AnalysisResult containing the results of the analysis
      */
-    public AnalysisResult analyze(List<Double> latencies) {
-        Sample sample = new Sample(latencies, true);
+    public AnalysisResult analyze(List<Double> values) {
+        if (useJittering) {
+            Jittering jit = new Jittering();
+            values = jit.jitter(values, new Random(42));
+        }
+
+        Sample sample = new Sample(values, true);
 
         ModalityData modalityData = findModes(sample);
 
+        List<ModeReport> modeReports = getModeReports(modalityData);
+
+        PgCompositeDistribution compositeDistribution = getCompositeDistribution(modeReports, sample.size());
+
+        if (optimizeFinalSolution) {
+            EstimatedParameters estimatedParameters = finalParameterEstimator.fit(sample, compositeDistribution);
+            compositeDistribution = (PgCompositeDistribution) estimatedParameters.getDistribution();
+        }
+
+        return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
+    }
+
+    /**
+     * Creates a composite distribution from a list of mode reports.
+     *
+     * @param modeReports list of mode reports obtained from the sample analysis
+     * @param sampleSize  the size of the original sample
+     * @return a PgCompositeDistribution composed of individual distributions and their
+     * corresponding weights computed based on the sample proportions
+     */
+    private static PgCompositeDistribution getCompositeDistribution(List<ModeReport> modeReports, int sampleSize) {
+        List<PgDistribution> distributions = new ArrayList<>(modeReports.size());
+        List<Double> weights = new ArrayList<>(modeReports.size());
+        for (ModeReport modeReport : modeReports) {
+            weights.add(modeReport.size / (double) sampleSize);
+            distributions.add(modeReport.bestDistribution.getDistribution());
+        }
+
+        return new PgCompositeDistribution(distributions, weights);
+    }
+
+    /**
+     * Generates mode reports for each detected mode in parallel.
+     *
+     * @param modalityData the modality data containing detected modes
+     * @return a list of ModeReport objects for each ranged mode
+     */
+    private List<ModeReport> getModeReports(ModalityData modalityData) {
         List<CompletableFuture<ModeReport>> futures = new ArrayList<>(modalityData.getModes().size());
         for (RangedMode mode : modalityData.getModes()) {
-            futures.add(CompletableFuture.supplyAsync(() -> {
-                Sample modeSample = findModeValues(mode, sample);
-                return getModeReport(mode, modeSample);
-            }));
+            futures.add(CompletableFuture.supplyAsync(() -> getModeReport(mode)));
         }
-        List<ModeReport> modeReports = futures.stream()
+        return futures.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
-
-        Function<Double, Double> summaryPdf = findSummaryPdf(modeReports, sample.size());
-
-        return new AnalysisResult(modalityData.getModes().size(), modeReports, summaryPdf);
     }
 
     /**
@@ -104,21 +125,6 @@ public class StatAnalyzer {
      */
     public ModalityData findModes(Sample sample) {
         return modeDetector.detectModes(sample);
-    }
-
-    /**
-     * Extracts the values from the sample that fall within the specified
-     * mode range.
-     *
-     * @param mode   the mode range to filter values
-     * @param sample the sample from which to extract mode values
-     * @return a Sample containing the values within the mode range
-     */
-    public Sample findModeValues(RangedMode mode, Sample sample) {
-        return new Sample(sample.getValues().stream()
-                .filter(value -> value >= mode.getLeft() && value <= mode.getRight())
-                .collect(Collectors.toList()));
-
     }
 
     /**
@@ -144,19 +150,18 @@ public class StatAnalyzer {
      * Generates a report for the specified mode based on the fitted
      * distributions.
      *
-     * @param mode       the mode for which to generate the report
-     * @param modeSample the sample corresponding to the mode
+     * @param mode the mode for which to generate the report
      * @return a ModeReport containing the results for the mode
      */
-    public ModeReport getModeReport(RangedMode mode, Sample modeSample) {
-        Pair<Sample, Sample> paramsTest = splitParamsTest(modeSample);
+    public ModeReport getModeReport(RangedMode mode) {
+        Pair<Sample, Sample> paramsTest = splitParamsTest(mode.getSample());
         Sample paramsSample = paramsTest.getFirst();
         Sample testSample = paramsTest.getSecond();
 
         List<FittedDistribution> fittedDistributions = fitDistribution(paramsSample, testSample);
         FittedDistribution bestDistribution = fittedDistributions.get(0);
 
-        return new ModeReport(modeSample.size(), mode.getLocation(), mode.getLeft(), mode.getRight(), bestDistribution, fittedDistributions);
+        return new ModeReport(mode.getSample().size(), mode.getLocation(), mode.getLeft(), mode.getRight(), bestDistribution, fittedDistributions);
     }
 
     /**
@@ -168,23 +173,21 @@ public class StatAnalyzer {
      * distributions and their p-values
      */
     public List<FittedDistribution> fitDistribution(Sample parametersSample, Sample testSample) {
+        List<CompletableFuture<FittedDistribution>> futures = new ArrayList<>(supportedDistributions.size());
 
-        List<CompletableFuture<FittedDistribution>> futures = new ArrayList<>(supportedDistributions.length);
-
-        for (PgDistributionType distributionType : supportedDistributions) {
+        for (PgSimpleDistribution simpleDistribution : supportedDistributions) {
             futures.add(CompletableFuture.supplyAsync(() -> {
                 EstimatedParameters estimatedParameters;
                 try {
-                    estimatedParameters = parameterEstimator.fit(parametersSample, distributionType);
+                    estimatedParameters = parameterEstimator.fit(parametersSample, simpleDistribution);
                 } catch (Exception e) {
-                    return new FittedDistribution(distributionType, null, null, Double.NEGATIVE_INFINITY);
+                    System.out.println("WARNING: cant find parmeters for " + simpleDistribution);
+                    return new FittedDistribution(null, Double.NEGATIVE_INFINITY);
                 }
 
                 double pValue = distributionTest.test(testSample, estimatedParameters.getDistribution());
 
                 return new FittedDistribution(
-                        distributionType,
-                        estimatedParameters.params,
                         estimatedParameters.getDistribution(),
                         pValue);
             }));
@@ -193,30 +196,5 @@ public class StatAnalyzer {
                 .map(CompletableFuture::join)
                 .sorted(Comparator.comparingDouble(FittedDistribution::getPValue).reversed())
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Calculates a summary probability density function (PDF) based on
-     * the fitted distributions from the provided mode reports.
-     *
-     * @param modeReports a list of ModeReport objects, each containing
-     *                    information about a detected mode and its
-     *                    corresponding fitted distribution
-     * @param sampleSize  the total size of the sample used for analysis,
-     *                    which is used to normalize the weights of the
-     *                    distributions
-     * @return a Function that takes a double value (x) and returns the
-     * calculated summary PDF at that point
-     */
-    public Function<Double, Double> findSummaryPdf(List<ModeReport> modeReports, long sampleSize) {
-        return (x) -> {
-            double result = 0;
-            for (ModeReport modeReport : modeReports) {
-                double weight = modeReport.size / (double) sampleSize;
-
-                result += weight * modeReport.bestDistribution.getDistribution().pdf(x);
-            }
-            return result;
-        };
     }
 }

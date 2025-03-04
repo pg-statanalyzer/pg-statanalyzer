@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.special.Erf;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.Random;
 /**
  * The PgNormalDistribution class implements normal distribution.
  */
-public class PgNormalDistribution implements PgDistribution {
+public class PgNormalDistribution implements PgSimpleDistribution {
     private final double mean;
     private final double standardDeviation;
 
@@ -94,6 +95,27 @@ public class PgNormalDistribution implements PgDistribution {
     @Override
     public PgDistributionType getType() {
         return PgDistributionType.NORMAL;
+    }
+
+    @Override
+    public int getParamNumber() {
+        return 2;
+    }
+
+    @Override
+    public PgNormalDistribution newDistribution(double[] params) {
+        return new PgNormalDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public double[] getParamArray() {
+        return new double[]{mean, standardDeviation};
+    }
+
+    @Override
+    public Pair<double[]> bounds() {
+        return new Pair<>(new double[]{Double.NEGATIVE_INFINITY, 1e-6},
+                new double[]{Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY});
     }
 
     @Override

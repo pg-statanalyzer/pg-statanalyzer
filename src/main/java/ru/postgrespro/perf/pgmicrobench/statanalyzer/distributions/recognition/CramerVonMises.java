@@ -1,17 +1,11 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.special.Gamma;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.optimizer.PgOptimizer;
 
 import java.util.List;
 
@@ -22,7 +16,6 @@ import static org.apache.commons.math3.special.Gamma.logGamma;
  * and to fit a distribution to a given dataset using the Cramer–Von Mises statistic.
  */
 public class CramerVonMises implements IDistributionTest, IParameterEstimator {
-
     /**
      * Calculates Cramer–Von Mises statistic for given data and distribution.
      *
@@ -30,7 +23,7 @@ public class CramerVonMises implements IDistributionTest, IParameterEstimator {
      * @param distribution distribution to compare data against
      * @return value of Cramer–Von Mises statistic
      */
-    public static double cvmStatistic(Sample sample, PgDistribution distribution) {
+    public double statistic(Sample sample, PgDistribution distribution) {
         int n = sample.size();
         List<Double> sortedValues = sample.getSortedValues();
 
@@ -153,44 +146,34 @@ public class CramerVonMises implements IDistributionTest, IParameterEstimator {
      */
     @Override
     public double test(Sample sample, PgDistribution distribution) {
-        double statistic = cvmStatistic(sample, distribution);
+        double statistic = statistic(sample, distribution);
         return computePValue(statistic);
     }
 
     /**
      * Fits distribution to data by minimizing Cramer–Von Mises statistic.
      *
-     * @param sample           sample data
-     * @param distributionType type of distribution to fit to data
+     * @param sample       sample data
+     * @param distribution type of distribution to fit to data
      * @return EstimatedParameters object containing fitted parameters, distribution and p-value
      */
     @Override
-    public EstimatedParameters fit(Sample sample, PgDistributionType distributionType) {
-        MultivariateFunction evaluationFunction = point -> {
-            PgDistribution distribution;
-            try {
-                distribution = distributionType.createDistribution(point);
-            } catch (Exception e) {
-                return Double.POSITIVE_INFINITY;
-            }
+    public EstimatedParameters fit(Sample sample, PgSimpleDistribution distribution) {
+        double[] solution = PgOptimizer.optimize(sample, distribution, new CramerVonMises());
 
-            return cvmStatistic(sample, distribution);
-        };
+        PgDistribution optimizedDist = distribution.newDistribution(solution);
+        double pValue = test(sample, optimizedDist);
 
-        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
-        PointValuePair result = optimizer.optimize(
-                new MaxEval(10000),
-                new ObjectiveFunction(evaluationFunction),
-                GoalType.MINIMIZE,
-                new InitialGuess(distributionType.getStartPoint()),
-                new NelderMeadSimplex(distributionType.getParameterNumber())
-        );
+        return new EstimatedParameters(optimizedDist, pValue);
+    }
 
-        double[] fittedParams = result.getPoint();
-        double statistic = result.getValue();
-        double pValue = computePValue(statistic);
+    @Override
+    public EstimatedParameters fit(Sample sample, PgCompositeDistribution distribution) {
+        double[] solution = PgOptimizer.optimize(sample, distribution, new CramerVonMises());
 
-        PgDistribution fittedDistribution = distributionType.createDistribution(fittedParams);
-        return new EstimatedParameters(fittedParams, fittedDistribution, pValue);
+        PgCompositeDistribution optimizedDist = distribution.newDistribution(solution);
+        double pValue = test(sample, optimizedDist);
+
+        return new EstimatedParameters(optimizedDist, pValue);
     }
 }

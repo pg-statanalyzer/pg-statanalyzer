@@ -1,5 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.Random;
  * Represents uniform distribution, which generates random numbers uniformly
  * distributed between specified minimum and maximum value.
  */
-public class PgUniformDistribution implements PgDistribution {
+public class PgUniformDistribution implements PgSimpleDistribution {
     private final double min;
     private final double max;
 
@@ -107,5 +108,26 @@ public class PgUniformDistribution implements PgDistribution {
     @Override
     public PgDistributionType getType() {
         return null;
+    }
+
+    @Override
+    public int getParamNumber() {
+        return 2;
+    }
+
+    @Override
+    public PgDistribution newDistribution(double[] params) {
+        return new PgUniformDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public double[] getParamArray() {
+        return new double[]{min, max};
+    }
+
+    @Override
+    public Pair<double[]> bounds() {
+        return new Pair<>(new double[]{Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY},
+                new double[]{Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY});
     }
 }

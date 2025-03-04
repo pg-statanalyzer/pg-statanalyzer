@@ -8,6 +8,7 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -63,6 +64,10 @@ public class Plot {
         List<Double> yHistogram = histogram.getyAxisData();
         for (int i = 0; i < yFunction.length / 2; i++) {
             yHistogram.set(i, yHistogram.get(i) / delta / sample.size());
+        }
+        List<Double> histogramX = histogram.getxAxisData();
+        for (int i = 0; i < yFunction.length / 2; i++) {
+            histogramX.set(i, histogramX.get(i) - delta);
         }
 
         XYChart chart = new XYChart(800, 600);
