@@ -88,4 +88,20 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
 
         return new DensityHistogram(bins);
     }
+
+    public static List<Double> computePdf(List<Double> xValues, DensityHistogram histogram) {
+        List<Double> yValues = new ArrayList<>();
+
+        for (double x : xValues) {
+            double y = 0.0;
+            for (DensityHistogramBin bin : histogram.getBins()) {
+                if (x >= bin.getLower() && x < bin.getUpper()) {
+                    y = bin.getHeight();
+                    break;
+                }
+            }
+            yValues.add(y);
+        }
+        return yValues;
+    }
 }
