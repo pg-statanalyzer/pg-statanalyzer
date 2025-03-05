@@ -83,6 +83,15 @@ public class StatAnalyzer {
         return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
     }
 
+    /**
+     * Combines original PDF with weighted sum of PDFs
+     * from detected modes, scaling them based on their respective sizes
+     *
+     * @param originalPdf original PDF function representing initial density estimation
+     * @param modeReports list of detected modes, each containing its own estimated distribution
+     * @param sampleSize  number of samples in original dataset
+     * @return new function representing combined PDF
+     */
     public Function<Double, Double> combinePdfWithScaling(Function<Double, Double> originalPdf, List<ModeReport> modeReports, long sampleSize) {
         double totalModeSize = modeReports.stream().mapToLong(mode -> mode.size).sum();
         double totalSize = sampleSize + totalModeSize;

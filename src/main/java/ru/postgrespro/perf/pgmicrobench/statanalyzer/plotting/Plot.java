@@ -94,6 +94,14 @@ public class Plot {
         new SwingWrapper<>(chart).displayChart();
     }
 
+    /**
+     * Filters bins from histogram where estimated density is significantly higher than provided PDF
+     * This function smooths transitions across detected gaps to maintain data continuity
+     *
+     * @param sample input sample containing values to be processed
+     * @param pdf    PDF used for comparison
+     * @return filtered list of values that respect estimated PDF constraints
+     */
     public static List<Double> filterBinsAbovePdf(Sample sample, Function<Double, Double> pdf) {
 
         int bins = (int) Math.sqrt(sample.size()) + 1;
@@ -159,6 +167,15 @@ public class Plot {
         return filteredData;
     }
 
+    /**
+     * Generates smooth transition between two values using linear interpolation with slight sinusoidal adjustment
+     * This helps in filling gaps in data while maintaining natural-looking distribution
+     *
+     * @param start starting value of transition
+     * @param end   ending value of transition
+     * @param steps number of interpolation steps
+     * @return list of interpolated values forming smooth transition
+     */
     private static List<Double> generateSmoothTransition(double start, double end, int steps) {
         List<Double> transition = new ArrayList<>();
         for (int i = 0; i < steps; i++) {
