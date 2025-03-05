@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import lombok.Data;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 
 import java.util.List;
 import java.util.function.Function;
@@ -14,5 +15,5 @@ import java.util.function.Function;
 public class AnalysisResult {
     final int modeNumber;
     final List<ModeReport> modeReports;
-    final Function<Double, Double> pdf;
+    final PgCompositeDistribution compositeDistribution;
 }

@@ -32,9 +32,9 @@ public class ModeReport {
                         "Mode size: %d\n", size))
                 .append("Best Distribution:\n")
                 .append(String.format(Locale.US,
-                        "  Type: %s\n", bestDistribution.getType()))
+                        "  Type: %s\n", bestDistribution.getDistribution().getType()))
                 .append(String.format(Locale.US,
-                        "  Parameters: %s\n", Arrays.toString(bestDistribution.getParameters())))
+                        "  Parameters: %s\n", Arrays.toString(bestDistribution.getDistribution().getParamArray())))
                 .append(String.format(Locale.US,
                         "  p-value: %s\n", bestDistribution.getPValue()));
 
@@ -53,9 +53,9 @@ public class ModeReport {
                         "Mode size: %d\n", size))
                 .append("Best Distribution:\n")
                 .append(String.format(Locale.US,
-                        "  Type: %s\n", bestDistribution.getType()))
+                        "  Type: %s\n", bestDistribution.getDistribution().getType()))
                 .append(String.format(Locale.US,
-                        "  Parameters: %s\n", Arrays.toString(bestDistribution.getParameters())))
+                        "  Parameters: %s\n", Arrays.toString(bestDistribution.getDistribution().getParamArray())))
                 .append(String.format(Locale.US,
                         "  p-value: %s\n", bestDistribution.getPValue()));
 
@@ -65,9 +65,9 @@ public class ModeReport {
             sb.append(String.format(Locale.US,
                             "  #%d\n", i + 1))
                     .append(String.format(Locale.US,
-                            "    Type: %s\n", dist.getType()))
+                            "  Type: %s\n", bestDistribution.getDistribution().getType()))
                     .append(String.format(Locale.US,
-                            "    Parameters: %s\n", Arrays.toString(dist.getParameters())))
+                            "  Parameters: %s\n", Arrays.toString(bestDistribution.getDistribution().getParamArray())))
                     .append(String.format(Locale.US,
                             "    p-value: %s\n", dist.getPValue()));
         }

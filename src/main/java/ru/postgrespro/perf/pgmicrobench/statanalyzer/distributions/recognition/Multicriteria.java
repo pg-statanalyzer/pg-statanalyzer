@@ -1,16 +1,10 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistributionType;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.optimizer.PgOptimizer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +12,9 @@ import java.util.List;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-
+/**
+ * Multicriteria.
+ */
 public class Multicriteria implements IDistributionTest, IParameterEstimator {
 
     /**
@@ -88,11 +84,13 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
      * @return the combined deviation in skewness and kurtosis.
      */
     private static double deviationInSkewAndKurt(Sample sample, PgDistribution pgDistribution) {
+        PgSimpleDistribution pgSimpleDistribution = (PgSimpleDistribution) pgDistribution;
+
         double kurt2 = sample.getKurtosis();
         double skew2 = sample.getSkewness();
 
-        double kurt1 = pgDistribution.kurtosis();
-        double skew1 = pgDistribution.skewness();
+        double kurt1 = pgSimpleDistribution.kurtosis();
+        double skew1 = pgSimpleDistribution.skewness();
 
         return sqrt(pow((skew1 - skew2), 2) + pow((kurt1 - kurt2), 2));
     }
@@ -117,45 +115,38 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
      * @param distribution the distribution to compare against.
      * @return a combined multicriteria statistic.
      */
+    @Override
     public double statistic(Sample sample, PgDistribution distribution) {
         return avgDeviationInCdf(sample, distribution)
                 * avgDeviationInPdf(sample, distribution)
-                * CramerVonMises.cvmStatistic(sample, distribution)
+                * new CramerVonMises().statistic(sample, distribution)
                 * deviationInSkewAndKurt(sample, distribution);
     }
 
     /**
      * Fits a statistical distribution to the given data using a multicriteria optimization approach.
      *
-     * @param sample the input dataset to fit the distribution to.
-     * @param type   the type of the distribution to fit
+     * @param sample       the input dataset to fit the distribution to.
+     * @param distribution the type of the distribution to fit
      * @return a {@link FittedDistribution} object with fitted parameters, sample, and p-value
      */
     @Override
-    public EstimatedParameters fit(Sample sample, PgDistributionType type) {
-        MultivariateFunction evaluationFunction = point -> {
-            PgDistribution distribution;
-            try {
-                distribution = type.createDistribution(point);
-            } catch (Exception e) {
-                return Double.POSITIVE_INFINITY;
-            }
+    public EstimatedParameters fit(Sample sample, PgSimpleDistribution distribution) {
+        double[] solution = PgOptimizer.optimize(sample, distribution, new Multicriteria());
 
-            return statistic(sample, distribution);
-        };
+        PgDistribution optimizedDist = distribution.newDistribution(solution);
+        double pValue = 1 - statistic(sample, optimizedDist);
 
-        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
-        PointValuePair result = optimizer.optimize(
-                new MaxEval(10000),
-                new ObjectiveFunction(evaluationFunction),
-                GoalType.MINIMIZE,
-                new InitialGuess(type.getStartPoint()),
-                new NelderMeadSimplex(type.getParameterNumber())
-        );
+        return new EstimatedParameters(optimizedDist, pValue);
+    }
 
-        double[] solution = result.getPoint();
-        double pValue = 1 - result.getValue();
+    @Override
+    public EstimatedParameters fit(Sample sample, PgCompositeDistribution distribution) {
+        double[] solution = PgOptimizer.optimize(sample, distribution, new Multicriteria());
 
-        return new EstimatedParameters(solution, type.createDistribution(solution), pValue);
+        PgCompositeDistribution optimizedDist = distribution.newDistribution(solution);
+        double pValue = 1 - statistic(sample, optimizedDist);
+
+        return new EstimatedParameters(optimizedDist, pValue);
     }
 }
