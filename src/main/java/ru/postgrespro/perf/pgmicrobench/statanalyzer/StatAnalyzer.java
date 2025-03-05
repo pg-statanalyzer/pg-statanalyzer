@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -80,6 +81,32 @@ public class StatAnalyzer {
         }
 
         return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
+    }
+
+    /**
+     * Combines original PDF with weighted sum of PDFs
+     * from detected modes, scaling them based on their respective sizes
+     *
+     * @param originalPdf original PDF function representing initial density estimation
+     * @param modeReports list of detected modes, each containing its own estimated distribution
+     * @param sampleSize  number of samples in original dataset
+     * @return new function representing combined PDF
+     */
+    public Function<Double, Double> combinePdfWithScaling(Function<Double, Double> originalPdf, List<ModeReport> modeReports, long sampleSize) {
+        double totalModeSize = modeReports.stream().mapToLong(mode -> mode.size).sum();
+        double totalSize = sampleSize + totalModeSize;
+
+        Function<Double, Double> lowlandPdf = (x) -> {
+            double result = 0;
+
+            for (ModeReport modeReport : modeReports) {
+                double weight = (double) modeReport.size / totalSize;
+                result += weight * modeReport.bestDistribution.getDistribution().pdf(x);
+            }
+            return result;
+        };
+
+        return (x) -> (sampleSize / totalSize) * originalPdf.apply(x) + lowlandPdf.apply(x);
     }
 
     /**

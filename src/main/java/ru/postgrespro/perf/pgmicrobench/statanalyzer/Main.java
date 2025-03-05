@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Function;
 
 /**
  * Main class.
@@ -35,8 +36,19 @@ public class Main {
 
         PgCompositeDistribution compositeDistribution = analysisResult.compositeDistribution;
 
-        Plot.plot(sample, compositeDistribution::pdf, "Analyze result");
-
         System.out.println(compositeDistribution);
+
+        List<Double> filteredData = Plot.filterBinsAbovePdf(new Sample(dataList, true), compositeDistribution::pdf);
+
+        AnalysisResult analysisAdditionResult = statAnalyzer.analyze(filteredData);
+
+        PgCompositeDistribution compositeAdditionDistribution = analysisAdditionResult.compositeDistribution;
+
+        System.out.println(compositeAdditionDistribution);
+
+        Function<Double, Double> combinedPdf = statAnalyzer.combinePdfWithScaling(compositeDistribution::pdf, analysisAdditionResult.modeReports, dataList.size());
+
+        Plot.plot(sample, combinedPdf, "Analyze result");
+
     }
 }
