@@ -88,25 +88,28 @@ public class StatAnalyzer {
      * from detected modes, scaling them based on their respective sizes
      *
      * @param originalPdf original PDF function representing initial density estimation
-     * @param modeReports list of detected modes, each containing its own estimated distribution
      * @param sampleSize  number of samples in original dataset
      * @return new function representing combined PDF
      */
-    public Function<Double, Double> combinePdfWithScaling(Function<Double, Double> originalPdf, List<ModeReport> modeReports, long sampleSize) {
-        double totalModeSize = modeReports.stream().mapToLong(mode -> mode.size).sum();
+    public Function<Double, Double> combinePdfWithScaling(
+            Function<Double, Double> originalPdf,
+            Function<Double, Double> lowlandPdf,
+            long totalModeSize,
+            long sampleSize) {
+
         double totalSize = sampleSize + totalModeSize;
 
-        Function<Double, Double> lowlandPdf = (x) -> {
-            double result = 0;
+        double weightOriginalPdf = sampleSize / totalSize;
+        double weightLowlandPdf = totalModeSize / totalSize;
 
-            for (ModeReport modeReport : modeReports) {
-                double weight = (double) modeReport.size / totalSize;
-                result += weight * modeReport.bestDistribution.getDistribution().pdf(x);
-            }
-            return result;
-        };
 
-        return (x) -> (sampleSize / totalSize) * originalPdf.apply(x) + lowlandPdf.apply(x);
+//        System.out.println("Sample Size: " + sampleSize);
+//        System.out.println("Total Mode Size: " + totalModeSize);
+//        System.out.println("Total Size (Sample + Modes): " + totalSize);
+//        System.out.println("Weight for Original PDF: " + weightOriginalPdf);
+//        System.out.println("Weight for Lowland PDF: " + weightLowlandPdf);
+
+        return (x) -> weightLowlandPdf * originalPdf.apply(x) + weightOriginalPdf * lowlandPdf.apply(x);
     }
 
     /**

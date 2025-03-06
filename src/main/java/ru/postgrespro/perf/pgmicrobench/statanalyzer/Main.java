@@ -46,7 +46,10 @@ public class Main {
 
         System.out.println(compositeAdditionDistribution);
 
-        Function<Double, Double> combinedPdf = statAnalyzer.combinePdfWithScaling(compositeDistribution::pdf, analysisAdditionResult.modeReports, dataList.size());
+        Function<Double, Double> combinedPdf = statAnalyzer.combinePdfWithScaling(compositeDistribution::pdf,
+                compositeAdditionDistribution::pdf,
+                dataList.size(),
+                filteredData.size());
 
         Plot.plot(sample, combinedPdf, "Analyze result");
 
