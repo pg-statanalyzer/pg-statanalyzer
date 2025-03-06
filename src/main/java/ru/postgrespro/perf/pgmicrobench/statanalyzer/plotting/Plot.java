@@ -125,10 +125,6 @@ public class Plot {
             double normalizedBinHeight = binHeight / (totalDataCount * binWidth);
             double pdfValue = pdf.apply(binCenter);
 
-//            System.out.println("Bin Center: " + binCenter);
-//            System.out.println("Bin Height: " + binHeight);
-//            System.out.println("PDF: " + pdfValue);
-
             double leftBound = histogram.getxAxisData().get(i);
             double rightBound = (i + 1 < histogram.getxAxisData().size())
                     ? histogram.getxAxisData().get(i + 1)

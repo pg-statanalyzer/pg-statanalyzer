@@ -87,9 +87,11 @@ public class StatAnalyzer {
      * Combines original PDF with weighted sum of PDFs
      * from detected modes, scaling them based on their respective sizes
      *
-     * @param originalPdf original PDF function representing initial density estimation
-     * @param sampleSize  number of samples in original dataset
-     * @return new function representing combined PDF
+     * @param originalPdf   original PDF to be combined
+     * @param lowlandPdf    lowland PDF to be combined
+     * @param totalModeSize total size of modes, which is used to calculate weight of lowland PDF
+     * @param sampleSize    size of original sample, which is used to calculate weight of original PDF
+     * @return new function that represents combined PDF with scaled contributions
      */
     public Function<Double, Double> combinePdfWithScaling(
             Function<Double, Double> originalPdf,
@@ -101,13 +103,6 @@ public class StatAnalyzer {
 
         double weightOriginalPdf = sampleSize / totalSize;
         double weightLowlandPdf = totalModeSize / totalSize;
-
-
-//        System.out.println("Sample Size: " + sampleSize);
-//        System.out.println("Total Mode Size: " + totalModeSize);
-//        System.out.println("Total Size (Sample + Modes): " + totalSize);
-//        System.out.println("Weight for Original PDF: " + weightOriginalPdf);
-//        System.out.println("Weight for Lowland PDF: " + weightLowlandPdf);
 
         return (x) -> weightLowlandPdf * originalPdf.apply(x) + weightOriginalPdf * lowlandPdf.apply(x);
     }
