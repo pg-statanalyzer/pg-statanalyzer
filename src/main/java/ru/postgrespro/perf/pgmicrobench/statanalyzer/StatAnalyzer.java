@@ -102,9 +102,8 @@ public class StatAnalyzer {
         double totalSize = sampleSize + totalModeSize;
 
         double weightOriginalPdf = sampleSize / totalSize;
-        double weightLowlandPdf = totalModeSize / totalSize;
-
-        return (x) -> weightLowlandPdf * originalPdf.apply(x) + weightOriginalPdf * lowlandPdf.apply(x);
+       
+        return (x) -> originalPdf.apply(x) + weightOriginalPdf * lowlandPdf.apply(x);
     }
 
     /**
