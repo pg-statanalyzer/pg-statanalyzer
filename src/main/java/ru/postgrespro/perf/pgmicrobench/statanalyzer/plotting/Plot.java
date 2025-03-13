@@ -93,6 +93,11 @@ public class Plot {
         new SwingWrapper<>(chart).displayChart();
     }
 
+    /**
+     * Plots QRDE-HD for given sample
+     *
+     * @param sample sample data used to construct histogram
+     */
     public static void plotQuantileHistogram(Sample sample) {
         int binCount = (int) Math.sqrt(sample.size()) + 1;
         QuantileRespectfulDensityHistogramBuilder builder = QuantileRespectfulDensityHistogramBuilder.getInstance();
