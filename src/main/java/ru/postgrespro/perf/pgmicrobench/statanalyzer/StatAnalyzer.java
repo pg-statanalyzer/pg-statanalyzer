@@ -181,7 +181,7 @@ public class StatAnalyzer {
                 try {
                     estimatedParameters = parameterEstimator.fit(parametersSample, simpleDistribution);
                 } catch (Exception e) {
-                    System.out.println("WARNING: cant find parmeters for " + simpleDistribution);
+                    System.out.println("WARNING: cant find parameters for " + simpleDistribution);
                     return new FittedDistribution(null, Double.NEGATIVE_INFINITY);
                 }
 
