@@ -6,6 +6,9 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -89,6 +92,48 @@ public class Plot {
                 .setLineWidth(2.0f);
 
         chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
+        chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
+
+        new SwingWrapper<>(chart).displayChart();
+    }
+
+    /**
+     * Plots QRDE-HD for given sample
+     *
+     * @param sample sample data used to construct histogram
+     */
+    public static void plotQuantileHistogram(Sample sample) {
+        int binCount = (int) Math.sqrt(sample.size()) + 1;
+        QuantileRespectfulDensityHistogramBuilder builder = QuantileRespectfulDensityHistogramBuilder.getInstance();
+        DensityHistogram densityHistogram = builder.build(sample, binCount);
+
+        List<Double> xData = new ArrayList<>();
+        List<Double> yData = new ArrayList<>();
+
+        for (DensityHistogramBin bin : densityHistogram.getBins()) {
+            double left = bin.getLower();
+            double right = bin.getUpper();
+            double value = bin.getHeight();
+
+            xData.add(left);
+            yData.add(value);
+            xData.add(right);
+            yData.add(value);
+        }
+
+        XYChart chart = new XYChart(800, 600);
+        chart.setTitle("QRDE");
+
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotGridLinesVisible(false);
+
+        chart.addSeries("Quantile Histogram", xData, yData)
+                .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Step)
+                .setMarker(SeriesMarkers.NONE)
+                .setLineWidth(2.0f);
+
         chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
 
         new SwingWrapper<>(chart).displayChart();
