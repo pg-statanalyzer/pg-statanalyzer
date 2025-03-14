@@ -9,7 +9,6 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.*
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;

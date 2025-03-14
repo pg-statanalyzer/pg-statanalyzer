@@ -1,12 +1,9 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.*;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.CramerVonMises;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
+import org.apache.commons.math3.special.Gamma;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -30,27 +27,54 @@ public class PgFrechetDistribution implements PgSimpleDistribution {
 
     @Override
     public double mean() {
-        return 0;
+        if (shape <= 1) {
+            throw new IllegalStateException("shape <= 1");
+        }
+        return scale * Gamma.gamma(1 - 1.0 / shape);
     }
 
     @Override
     public double variance() {
-        return 0;
+        if (shape <= 2) {
+            throw new IllegalStateException("shape <= 2");
+        }
+        double m = Gamma.gamma(1 - 1.0 / shape);
+        double m2 = Gamma.gamma(1 - 2.0 / shape);
+        return scale * scale * (m2 - m * m);
     }
 
     @Override
     public double median() {
-        return 0;
+        return scale / Math.pow(Math.log(2), 1.0 / shape);
     }
 
     @Override
     public double skewness() {
-        return 0;
+        if (shape <= 3) {
+            throw new IllegalStateException("shape <= 3");
+        }
+        double m = Gamma.gamma(1 - 1.0 / shape);
+        double m2 = Gamma.gamma(1 - 2.0 / shape);
+        double m3 = Gamma.gamma(1 - 3.0 / shape);
+        double variance = scale * scale * (m2 - m * m);
+        double sigma = Math.sqrt(variance);
+        double thirdCentralMoment = scale * scale * scale * (m3 - 3 * m * m2 + 2 * m * m * m);
+        return thirdCentralMoment / (sigma * sigma * sigma);
     }
 
     @Override
     public double kurtosis() {
-        return 0;
+        if (shape <= 4) {
+            throw new IllegalStateException("shape <= 4");
+        }
+        double m = Gamma.gamma(1 - 1.0 / shape);
+        double m2 = Gamma.gamma(1 - 2.0 / shape);
+        double m3 = Gamma.gamma(1 - 3.0 / shape);
+        double m4 = Gamma.gamma(1 - 4.0 / shape);
+        double variance = scale * scale * (m2 - m * m);
+        double fourthCentralMoment = scale * scale * scale * scale * (m4 - 4 * m * m3 + 6 * m * m * m2 - 3 * m * m * m * m);
+        double kurtosis = fourthCentralMoment / (variance * variance);
+        return kurtosis - 3;
     }
 
     @Override
@@ -110,28 +134,5 @@ public class PgFrechetDistribution implements PgSimpleDistribution {
     @Override
     public String toString() {
         return String.format("Frechet(shape=%.3g, scale=%.3g)", shape, scale);
-    }
-
-    public static void main(String[] args) {
-        List<Double> data = new ArrayList<>();
-        PgSimpleDistribution f = new PgFrechetDistribution(10, 100);
-
-        Sample sample = f.generate(20000, new Random(12));
-
-
-        AnalysisResult analysisResult = new StatAnalyzer().analyze(sample.getValues());
-        PgCompositeDistribution compositeDistribution = analysisResult.getCompositeDistribution();
-
-        PgCompositeDistribution n = (PgCompositeDistribution) (new CramerVonMises().fit(sample, compositeDistribution).getDistribution());
-
-        for (ModeReport mr : analysisResult.getModeReports()) {
-            for (FittedDistribution fd : mr.getFittedDistributions()) {
-                Plot.plot(sample, fd.getDistribution()::pdf, fd.getDistribution().toString(), true);
-            }
-        }
-
-        Plot.plot(sample, n::pdf, "", true);
-        System.out.println(n);
-        System.out.println(new CramerVonMises().test(sample, n));
     }
 }
