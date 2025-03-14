@@ -32,7 +32,7 @@ public class Jittering {
      * (mean=0, stddev=0.5).
      */
     public Jittering() {
-        this.distribution = new PgNormalDistribution(0, 0.5);
+        this.distribution = new PgNormalDistribution(0, 0.33);
     }
 
     /**

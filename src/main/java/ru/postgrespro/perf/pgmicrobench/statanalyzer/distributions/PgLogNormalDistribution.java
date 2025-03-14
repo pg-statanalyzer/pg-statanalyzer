@@ -115,6 +115,6 @@ public class PgLogNormalDistribution implements PgSimpleDistribution {
 
     @Override
     public String toString() {
-        return "LogNormal(mean=" + String.format("%.2f", mean) + ", standardDeviation=" + String.format("%.2f", standardDeviation) + ")";
+        return String.format("LogNormal(mean=%.3g, standardDeviation=%.3g)", mean, standardDeviation);
     }
 }
