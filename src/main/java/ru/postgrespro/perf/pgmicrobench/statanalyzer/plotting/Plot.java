@@ -100,7 +100,7 @@ public class Plot {
     }
 
     /**
-     * Filters bins from histogram where estimated density is significantly higher than provided PDF
+     * Filters bins from histogram where estimated density is significantly higher than provided PDF.
      * This function smooths transitions across detected gaps to maintain data continuity
      *
      * @param sample input sample containing values to be processed
@@ -169,7 +169,7 @@ public class Plot {
     }
 
     /**
-     * Generates smooth transition between two values using linear interpolation with slight sinusoidal adjustment
+     * Generates smooth transition between two values using linear interpolation with slight sinusoidal adjustment.
      * This helps in filling gaps in data while maintaining natural-looking distribution
      *
      * @param start starting value of transition
@@ -187,10 +187,16 @@ public class Plot {
         }
         return transition;
     }
+
+    /**
+     * Plots QRDE-HD for given sample.
+     *
+     * @param sample sample data used to construct histogram
+     */
     public static void plotQuantileHistogram(Sample sample) {
         int binCount = (int) Math.sqrt(sample.size()) + 1;
         QuantileRespectfulDensityHistogramBuilder builder = QuantileRespectfulDensityHistogramBuilder.getInstance();
-        DensityHistogram densityHistogram = builder.build(sample, binCount * 7);
+        DensityHistogram densityHistogram = builder.build(sample, binCount);
 
         List<Double> xData = new ArrayList<>();
         List<Double> yData = new ArrayList<>();
