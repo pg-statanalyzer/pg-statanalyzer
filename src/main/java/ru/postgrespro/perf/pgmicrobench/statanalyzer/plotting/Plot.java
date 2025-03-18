@@ -6,6 +6,9 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 
 import java.awt.*;
 import java.util.ArrayList;
