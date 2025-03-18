@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -80,6 +81,29 @@ public class StatAnalyzer {
         }
 
         return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
+    }
+
+    /**
+     * Combines original PDF with weighted sum of PDFs
+     * from detected modes, scaling them based on their respective sizes
+     *
+     * @param originalPdf   original PDF to be combined
+     * @param lowlandPdf    lowland PDF to be combined
+     * @param totalModeSize total size of modes, which is used to calculate weight of lowland PDF
+     * @param sampleSize    size of original sample, which is used to calculate weight of original PDF
+     * @return new function that represents combined PDF with scaled contributions
+     */
+    public Function<Double, Double> combinePdfWithScaling(
+            Function<Double, Double> originalPdf,
+            Function<Double, Double> lowlandPdf,
+            long totalModeSize,
+            long sampleSize) {
+
+        double totalSize = sampleSize + totalModeSize;
+
+        double weightOriginalPdf = sampleSize / totalSize;
+       
+        return (x) -> originalPdf.apply(x) + weightOriginalPdf * lowlandPdf.apply(x);
     }
 
     /**
