@@ -65,9 +65,9 @@ public class ModeReport {
             sb.append(String.format(Locale.US,
                             "  #%d\n", i + 1))
                     .append(String.format(Locale.US,
-                            "  Type: %s\n", bestDistribution.getDistribution().getType()))
+                            "  Type: %s\n", dist.getDistribution().getType()))
                     .append(String.format(Locale.US,
-                            "  Parameters: %s\n", Arrays.toString(bestDistribution.getDistribution().getParamArray())))
+                            "  Parameters: %s\n", Arrays.toString(dist.getDistribution().getParamArray())))
                     .append(String.format(Locale.US,
                             "    p-value: %s\n", dist.getPValue()));
         }

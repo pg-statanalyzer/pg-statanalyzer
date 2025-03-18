@@ -89,6 +89,18 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
         return new DensityHistogram(bins);
     }
 
+    /**
+     * Computes PDF values for given list of x-values
+     * using provided {@link DensityHistogram}
+     *
+     * <p>Method iterates over each x-value and determines which histogram bin it falls into.
+     * Corresponding bin height is assigned as PDF value. If x-value does not fall
+     * within any bin range, its PDF value is set to zero
+     *
+     * @param xValues list of x-values for which PDF should be computed
+     * @param histogram density histogram containing bins with height values
+     * @return list of y-values representing computed PDF values for given x-values
+     */
     public static List<Double> computePdf(List<Double> xValues, DensityHistogram histogram) {
         List<Double> yValues = new ArrayList<>();
 
