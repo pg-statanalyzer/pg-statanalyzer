@@ -38,8 +38,7 @@ public class Main {
 
         System.out.println(compositeDistribution);
 
-        List<Double> filteredData = Plot.filterBinsAbovePdf(new Sample(dataList, true), compositeDistribution::pdf);
-
+        List<Double> filteredData = RecursiveLowlandModalityDetector.filterBinsAbovePdf(new Sample(dataList, true), compositeDistribution::pdf);
         AnalysisResult analysisAdditionResult = statAnalyzer.analyze(filteredData);
 
         PgCompositeDistribution compositeAdditionDistribution = analysisAdditionResult.compositeDistribution;
