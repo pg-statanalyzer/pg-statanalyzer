@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RecursiveLowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.io.File;

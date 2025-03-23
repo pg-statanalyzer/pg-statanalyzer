@@ -7,6 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+
+/**
+ * RecursiveLowlandModalityDetector is utility class for detecting and processing multimodal distributions
+ * in histogram data using recursive approach. It includes methods for filtering bins that exceed given PDF
+ * and ensuring smooth transitions across detected gaps.
+ */
+
 public class RecursiveLowlandModalityDetector {
     /**
      * Filters bins from histogram where estimated density is significantly higher than provided PDF.
