@@ -127,6 +127,13 @@ public class Sample implements Iterable<Double> {
         }
     }
 
+    /**
+     * Computes quantile value for given probability.
+     *
+     * @param quantile desired quantile
+     * @return value at specified quantile
+     * @throws IllegalArgumentException if quantile is outside range [0, 1]
+     */
     public double getQuantile(double quantile) {
         if (quantile < 0.0 || quantile > 1.0) {
             throw new IllegalArgumentException("Quantile must be between 0 and 1");
@@ -135,6 +142,7 @@ public class Sample implements Iterable<Double> {
         int index = (int) Math.floor(quantile * (sortedValues.size() - 1));
         return sortedValues.get(index);
     }
+
     /**
      * Parses {@code Sample} from string representation.
      *

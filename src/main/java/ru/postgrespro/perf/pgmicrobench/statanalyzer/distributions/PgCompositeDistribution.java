@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
  * PgCompositeDistribution.
  */
 public class PgCompositeDistribution implements PgDistribution {
+
     @Getter
     private final List<PgDistribution> distributions;
     @Getter
@@ -23,15 +24,22 @@ public class PgCompositeDistribution implements PgDistribution {
     private final int size;
     private final int paramNumber;
 
+    public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights) {
+        this(distributions, weights, true);
+    }
+
     /**
      * Constructor.
      *
-     * @param distributions distributions.
-     * @param weights       weights.
+     * @param distributions    list of individual distributions that make up composite distribution
+     * @param weights          list of weights corresponding to each distribution
+     * @param normalizeWeights flag indicating whether to normalize weights
+     *                         if {@code true}, weights will be normalized. If {@code false}, they will be used as provided
+     * @throws IllegalArgumentException if lists are empty, have different sizes or contain negative weights
      */
-    public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights) {
+    public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights, boolean normalizeWeights) {
         if (distributions.isEmpty() || distributions.size() != weights.size()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Distributions and weights must have the same non-zero size");
         }
         for (double w : weights) {
             if (w < 0) {
@@ -39,8 +47,13 @@ public class PgCompositeDistribution implements PgDistribution {
             }
         }
 
-        double sumWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
-        this.weights = weights.stream().map((x) -> x / sumWeight).collect(Collectors.toList());
+        if (normalizeWeights) {
+            double sumWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
+            this.weights = weights.stream().map((x) -> x / sumWeight).collect(Collectors.toList());
+        } else {
+            this.weights = new ArrayList<>(weights);
+        }
+
         this.distributions = new ArrayList<>(distributions);
         this.size = distributions.size();
         this.paramNumber = this.distributions.stream().mapToInt(PgDistribution::getParamNumber).sum() + size;

@@ -39,5 +39,6 @@ public class Main {
         PgCompositeDistribution compositeDistribution = analysisResult.compositeDistribution;
 
         System.out.println(compositeDistribution);
+        Plot.plot(sample, compositeDistribution::pdf, "Final");
     }
 }

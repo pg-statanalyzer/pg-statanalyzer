@@ -16,7 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -135,15 +134,12 @@ public class StatAnalyzer {
             long sampleSize) {
 
         double totalSize = sampleSize + totalModeSize;
-        double weightOriginal = sampleSize / totalSize;
         double weightLowland = totalModeSize / totalSize;
 
         List<PgDistribution> combinedDistributions = new ArrayList<>(originalDistribution.getDistributions());
         List<Double> combinedWeights = new ArrayList<>(originalDistribution.getWeights());
 
         combinedDistributions.addAll(lowlandDistribution.getDistributions());
-        for (double weight : lowlandDistribution.getWeights()) {
-            combinedWeights.add(weight * weightLowland);
         }
 
         return new PgCompositeDistribution(combinedDistributions, combinedWeights);
