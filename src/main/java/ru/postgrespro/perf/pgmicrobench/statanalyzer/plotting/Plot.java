@@ -11,6 +11,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHi
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
