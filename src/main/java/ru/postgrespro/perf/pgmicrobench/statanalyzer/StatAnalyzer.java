@@ -120,8 +120,7 @@ public class StatAnalyzer {
     }
 
     /**
-     * Combines original PDF with weighted sum of PDFs
-     * from detected modes, scaling them based on their respective sizes
+     * Combines original PDF with weighted sum of PDFs.
      *
      * @param totalModeSize total size of modes, which is used to calculate weight of lowland PDF
      * @param sampleSize    size of original sample, which is used to calculate weight of original PDF
@@ -139,10 +138,12 @@ public class StatAnalyzer {
         List<PgDistribution> combinedDistributions = new ArrayList<>(originalDistribution.getDistributions());
         List<Double> combinedWeights = new ArrayList<>(originalDistribution.getWeights());
 
-        combinedDistributions.addAll(lowlandDistribution.getDistributions());
+        for (int i = 0; i < lowlandDistribution.getDistributions().size(); i++) {
+            combinedDistributions.add(lowlandDistribution.getDistributions().get(i));
+            combinedWeights.add(lowlandDistribution.getWeights().get(i) * weightLowland);
         }
 
-        return new PgCompositeDistribution(combinedDistributions, combinedWeights);
+        return new PgCompositeDistribution(combinedDistributions, combinedWeights, false);
     }
 
     /**

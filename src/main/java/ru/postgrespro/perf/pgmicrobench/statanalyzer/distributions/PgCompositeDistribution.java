@@ -24,6 +24,9 @@ public class PgCompositeDistribution implements PgDistribution {
     private final int size;
     private final int paramNumber;
 
+    /**
+     * Constructor.
+     */
     public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights) {
         this(distributions, weights, true);
     }
