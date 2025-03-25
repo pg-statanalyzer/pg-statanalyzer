@@ -15,16 +15,19 @@ import java.util.stream.IntStream;
  * PgCompositeDistribution.
  */
 public class PgCompositeDistribution implements PgDistribution {
+    @Getter
     private final List<PgDistribution> distributions;
+    @Getter
     private final List<Double> weights;
     @Getter
     private final int size;
     private final int paramNumber;
 
-    /** Constructor.
+    /**
+     * Constructor.
      *
      * @param distributions distributions.
-     * @param weights weights.
+     * @param weights       weights.
      */
     public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights) {
         if (distributions.isEmpty() || distributions.size() != weights.size()) {

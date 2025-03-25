@@ -127,6 +127,14 @@ public class Sample implements Iterable<Double> {
         }
     }
 
+    public double getQuantile(double quantile) {
+        if (quantile < 0.0 || quantile > 1.0) {
+            throw new IllegalArgumentException("Quantile must be between 0 and 1");
+        }
+        List<Double> sortedValues = lazySortedValues.get();
+        int index = (int) Math.floor(quantile * (sortedValues.size() - 1));
+        return sortedValues.get(index);
+    }
     /**
      * Parses {@code Sample} from string representation.
      *

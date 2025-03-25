@@ -32,6 +32,7 @@ public class Main {
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
         statAnalyzer.setUseJittering(true);
+        statAnalyzer.setUseRecursive(true);
 
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
 

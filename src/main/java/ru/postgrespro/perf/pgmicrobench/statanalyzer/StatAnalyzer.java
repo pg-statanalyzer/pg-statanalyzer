@@ -9,6 +9,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.*
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RecursiveLowlandModalityDetector;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,6 +42,7 @@ public class StatAnalyzer {
     private IParameterEstimator finalParameterEstimator = new KolmogorovSmirnov();
     private boolean optimizeFinalSolution = false;
     private boolean useJittering = false;
+    private boolean useRecursive = false;
 
     /**
      * Constructs a StatAnalyzer with the specified parameter estimator
@@ -73,37 +75,78 @@ public class StatAnalyzer {
 
         List<ModeReport> modeReports = getModeReports(modalityData);
 
-        PgCompositeDistribution compositeDistribution = getCompositeDistribution(modeReports, sample.size());
+        PgCompositeDistribution compositeDistribution = getCompositeDistribution(modeReports, values.size());
 
         if (optimizeFinalSolution) {
             EstimatedParameters estimatedParameters = finalParameterEstimator.fit(sample, compositeDistribution);
             compositeDistribution = (PgCompositeDistribution) estimatedParameters.getDistribution();
         }
 
-        return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
+        if (!useRecursive) {
+            return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
+        }
+
+        List<Double> filteredSampleData = RecursiveLowlandModalityDetector.filterBinsAbovePdf(sample, compositeDistribution::pdf);
+
+        if (useJittering) {
+            Jittering jittering = new Jittering();
+            filteredSampleData = jittering.jitter(filteredSampleData, new Random(42));
+        }
+
+        Sample filteredSample = new Sample(filteredSampleData, true);
+
+        ModalityData newModalityData = findModes(filteredSample);
+
+        List<ModeReport> newModeReports = getModeReports(newModalityData);
+        modeReports.addAll(newModeReports);
+
+        PgCompositeDistribution newCompositeDistribution = getCompositeDistribution(newModeReports, filteredSampleData.size());
+
+        if (optimizeFinalSolution) {
+            EstimatedParameters optimizedParameters = finalParameterEstimator.fit(filteredSample, newCompositeDistribution);
+            newCompositeDistribution = (PgCompositeDistribution) optimizedParameters.getDistribution();
+        }
+
+        PgCompositeDistribution combinedDistribution = combinePdfWithScaling(
+                compositeDistribution, newCompositeDistribution,
+                filteredSampleData.size(), values.size()
+        );
+
+        AnalysisResult analysisResult = new AnalysisResult(
+                newModalityData.getModality() + modalityData.getModality(),
+                modeReports, combinedDistribution
+        );
+
+        return analysisResult;
     }
 
     /**
      * Combines original PDF with weighted sum of PDFs
      * from detected modes, scaling them based on their respective sizes
      *
-     * @param originalPdf   original PDF to be combined
-     * @param lowlandPdf    lowland PDF to be combined
      * @param totalModeSize total size of modes, which is used to calculate weight of lowland PDF
      * @param sampleSize    size of original sample, which is used to calculate weight of original PDF
      * @return new function that represents combined PDF with scaled contributions
      */
-    public Function<Double, Double> combinePdfWithScaling(
-            Function<Double, Double> originalPdf,
-            Function<Double, Double> lowlandPdf,
+    public PgCompositeDistribution combinePdfWithScaling(
+            PgCompositeDistribution originalDistribution,
+            PgCompositeDistribution lowlandDistribution,
             long totalModeSize,
             long sampleSize) {
 
         double totalSize = sampleSize + totalModeSize;
+        double weightOriginal = sampleSize / totalSize;
+        double weightLowland = totalModeSize / totalSize;
 
-        double weightOriginalPdf = sampleSize / totalSize;
-       
-        return (x) -> originalPdf.apply(x) + weightOriginalPdf * lowlandPdf.apply(x);
+        List<PgDistribution> combinedDistributions = new ArrayList<>(originalDistribution.getDistributions());
+        List<Double> combinedWeights = new ArrayList<>(originalDistribution.getWeights());
+
+        combinedDistributions.addAll(lowlandDistribution.getDistributions());
+        for (double weight : lowlandDistribution.getWeights()) {
+            combinedWeights.add(weight * weightLowland);
+        }
+
+        return new PgCompositeDistribution(combinedDistributions, combinedWeights);
     }
 
     /**
