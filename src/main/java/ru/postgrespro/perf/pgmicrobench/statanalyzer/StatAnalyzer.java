@@ -102,12 +102,20 @@ public class StatAnalyzer {
     private AnalysisResult recursiveModeDetection(Sample sample, PgCompositeDistribution initialDistribution,
                                                   ModalityData initialModalityData, List<ModeReport> modeReports,
                                                   int originalSampleSize) {
+        final double MODE_SIZE_THRESHOLD = 0.07;
+
         List<Double> filteredSampleData = RecursiveLowlandModalityDetector.filterBinsAbovePdf(sample, initialDistribution::pdf);
         Sample filteredSample = new Sample(filteredSampleData, true);
 
         ModalityData newModalityData = findModes(filteredSample);
+        List<ModeReport> newModeReports = getModeReports(filteredSample, newModalityData);
 
-        List<ModeReport> newModeReports = getModeReports(newModalityData);
+        newModeReports.removeIf(mode -> mode.getSize() < originalSampleSize * MODE_SIZE_THRESHOLD);
+
+        if (newModeReports.isEmpty()) {
+            return new AnalysisResult(initialModalityData.getModality(), modeReports, initialDistribution);
+        }
+
         modeReports.addAll(newModeReports);
 
         PgCompositeDistribution newCompositeDistribution = getCompositeDistribution(newModeReports, filteredSampleData.size());
@@ -123,7 +131,7 @@ public class StatAnalyzer {
         );
 
         return new AnalysisResult(
-                initialModalityData.getModality() + newModalityData.getModality(),
+                modeReports.size(),
                 modeReports, combinedDistribution
         );
     }
