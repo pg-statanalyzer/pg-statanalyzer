@@ -1,7 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RecursiveLowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.io.File;
@@ -9,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.function.Function;
 
 /**
  * Main class.
@@ -32,7 +30,7 @@ public class Main {
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
         statAnalyzer.setUseJittering(true);
-        statAnalyzer.setUseRecursive(true);
+        statAnalyzer.setRecursiveModeDetection(true);
 
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
 

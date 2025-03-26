@@ -41,7 +41,7 @@ public class StatAnalyzer {
     private IParameterEstimator finalParameterEstimator = new KolmogorovSmirnov();
     private boolean optimizeFinalSolution = false;
     private boolean useJittering = false;
-    private boolean useRecursive = false;
+    private boolean recursiveModeDetection = false;
 
     /**
      * Constructs a StatAnalyzer with the specified parameter estimator
@@ -81,17 +81,28 @@ public class StatAnalyzer {
             compositeDistribution = (PgCompositeDistribution) estimatedParameters.getDistribution();
         }
 
-        if (!useRecursive) {
+        if (!recursiveModeDetection) {
             return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
         }
 
-        List<Double> filteredSampleData = RecursiveLowlandModalityDetector.filterBinsAbovePdf(sample, compositeDistribution::pdf);
+        return recursiveModeDetection(sample, compositeDistribution, modalityData, modeReports, values.size());
+    }
 
-        if (useJittering) {
-            Jittering jittering = new Jittering();
-            filteredSampleData = jittering.jitter(filteredSampleData, new Random(42));
-        }
-
+    /**
+     * Performs recursive mode detection by filtering data points below PDF.
+     * Detecting additional modes and refining composite distribution
+     *
+     * @param sample              original sample containing data points
+     * @param initialDistribution initial composite distribution before recursive detection
+     * @param initialModalityData initial modality data detected before recursion
+     * @param modeReports         list to store mode reports found during analysis
+     * @param originalSampleSize  original size of sample before filtering
+     * @return {@code AnalysisResult} containing updated modality data, mode reports and refined composite distribution
+     */
+    private AnalysisResult recursiveModeDetection(Sample sample, PgCompositeDistribution initialDistribution,
+                                                  ModalityData initialModalityData, List<ModeReport> modeReports,
+                                                  int originalSampleSize) {
+        List<Double> filteredSampleData = RecursiveLowlandModalityDetector.filterBinsAbovePdf(sample, initialDistribution::pdf);
         Sample filteredSample = new Sample(filteredSampleData, true);
 
         ModalityData newModalityData = findModes(filteredSample);
@@ -107,16 +118,14 @@ public class StatAnalyzer {
         }
 
         PgCompositeDistribution combinedDistribution = combinePdfWithScaling(
-                compositeDistribution, newCompositeDistribution,
-                filteredSampleData.size(), values.size()
+                initialDistribution, newCompositeDistribution,
+                filteredSampleData.size(), originalSampleSize
         );
 
-        AnalysisResult analysisResult = new AnalysisResult(
-                newModalityData.getModality() + modalityData.getModality(),
+        return new AnalysisResult(
+                initialModalityData.getModality() + newModalityData.getModality(),
                 modeReports, combinedDistribution
         );
-
-        return analysisResult;
     }
 
     /**
