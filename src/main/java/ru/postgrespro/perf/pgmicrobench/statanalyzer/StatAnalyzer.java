@@ -10,10 +10,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModali
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,6 +22,7 @@ import java.util.stream.IntStream;
 @Setter
 @NoArgsConstructor
 public class StatAnalyzer {
+    private static final Double TEST_SIZE = 0.8;
     public static final List<PgSimpleDistribution> supportedDistributions = new ArrayList<>();
 
     static {
@@ -32,6 +30,7 @@ public class StatAnalyzer {
         supportedDistributions.add(new PgLogNormalDistribution(1, 0.5));
         supportedDistributions.add(new PgGumbelDistribution(1, 1));
         supportedDistributions.add(new PgWeibullDistribution(1, 1));
+        supportedDistributions.add(new PgFrechetDistribution(2, 1));
     }
 
     private LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
@@ -40,6 +39,7 @@ public class StatAnalyzer {
     private IParameterEstimator finalParameterEstimator = new KolmogorovSmirnov();
     private boolean optimizeFinalSolution = false;
     private boolean useJittering = false;
+    private Random random = new Random(42);
 
     /**
      * Constructs a StatAnalyzer with the specified parameter estimator
@@ -63,14 +63,14 @@ public class StatAnalyzer {
     public AnalysisResult analyze(List<Double> values) {
         if (useJittering) {
             Jittering jit = new Jittering();
-            values = jit.jitter(values, new Random(42));
+            values = jit.jitter(values, random);
         }
 
         Sample sample = new Sample(values, true);
 
         ModalityData modalityData = findModes(sample);
 
-        List<ModeReport> modeReports = getModeReports(modalityData);
+        List<ModeReport> modeReports = getModeReports(sample, modalityData);
 
         PgCompositeDistribution compositeDistribution = getCompositeDistribution(modeReports, sample.size());
 
@@ -107,10 +107,10 @@ public class StatAnalyzer {
      * @param modalityData the modality data containing detected modes
      * @return a list of ModeReport objects for each ranged mode
      */
-    private List<ModeReport> getModeReports(ModalityData modalityData) {
+    private List<ModeReport> getModeReports(Sample sample, ModalityData modalityData) {
         List<CompletableFuture<ModeReport>> futures = new ArrayList<>(modalityData.getModes().size());
         for (RangedMode mode : modalityData.getModes()) {
-            futures.add(CompletableFuture.supplyAsync(() -> getModeReport(mode)));
+            futures.add(CompletableFuture.supplyAsync(() -> getModeReport(sample, mode)));
         }
         return futures.stream()
                 .map(CompletableFuture::join)
@@ -134,13 +134,17 @@ public class StatAnalyzer {
      * @return a Pair containing the parameter sample and test sample
      */
     public Pair<Sample, Sample> splitParamsTest(Sample sample) {
+        List<Double> shuffled = new ArrayList<>(sample.getValues());
+        Collections.shuffle(shuffled, random);
+        int testSize = (int) (shuffled.size() * TEST_SIZE);
+
         Sample paramsSample = new Sample(
-                IntStream.iterate(0, n -> n + 2).limit((sample.size() + 1) / 2)
-                        .mapToObj(sample::get)
+                IntStream.range(0, testSize)
+                        .mapToObj(shuffled::get)
                         .collect(Collectors.toList()));
         Sample testSample = new Sample(
-                IntStream.iterate(1, n -> n + 2).limit(sample.size() / 2)
-                        .mapToObj(sample::get)
+                IntStream.range(testSize, shuffled.size())
+                        .mapToObj(shuffled::get)
                         .collect(Collectors.toList()));
 
         return new Pair<>(paramsSample, testSample);
@@ -153,15 +157,16 @@ public class StatAnalyzer {
      * @param mode the mode for which to generate the report
      * @return a ModeReport containing the results for the mode
      */
-    public ModeReport getModeReport(RangedMode mode) {
-        Pair<Sample, Sample> paramsTest = splitParamsTest(mode.getSample());
+    public ModeReport getModeReport(Sample sample, RangedMode mode) {
+        Sample modeSample = findModeValues(sample, mode);
+        Pair<Sample, Sample> paramsTest = splitParamsTest(modeSample);
         Sample paramsSample = paramsTest.getFirst();
         Sample testSample = paramsTest.getSecond();
 
         List<FittedDistribution> fittedDistributions = fitDistribution(paramsSample, testSample);
         FittedDistribution bestDistribution = fittedDistributions.get(0);
 
-        return new ModeReport(mode.getSample().size(), mode.getLocation(), mode.getLeft(), mode.getRight(), bestDistribution, fittedDistributions);
+        return new ModeReport(modeSample.size(), mode.getLocation(), mode.getLeft(), mode.getRight(), bestDistribution, fittedDistributions);
     }
 
     /**
@@ -196,5 +201,11 @@ public class StatAnalyzer {
                 .map(CompletableFuture::join)
                 .sorted(Comparator.comparingDouble(FittedDistribution::getPValue).reversed())
                 .collect(Collectors.toList());
+    }
+
+    private static Sample findModeValues(Sample sample, RangedMode mode) {
+        return new Sample(sample.getValues().stream()
+                .filter((x) -> x >= mode.getLeft() && x <= mode.getRight())
+                .collect(Collectors.toList()));
     }
 }

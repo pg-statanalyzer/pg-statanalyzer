@@ -14,6 +14,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * The Plot class provides methods to create and display histograms and density functions
@@ -31,6 +32,11 @@ public class Plot {
         Histogram histogram = new Histogram(sample.getValues(), bins);
 
         XYChart chart = new XYChart(800, 600);
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotGridLinesVisible(false);
+
         chart.addSeries("Гистограмма", histogram.getxAxisData(), histogram.getyAxisData())
                 .setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.StepArea)
                 .setMarker(SeriesMarkers.NONE);
@@ -39,6 +45,18 @@ public class Plot {
         chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
 
         new SwingWrapper<>(chart).displayChart();
+    }
+
+
+    public static void plot(Sample sample, Function<Double, Double> pdf, String title, boolean del) {
+        if (del) {
+            List<Double> newList = sample.getSortedValues().stream()
+                    .limit((int) (sample.size() * 0.99))
+                    .collect(Collectors.toList());
+            plot(new Sample(newList), pdf, title);
+        } else {
+            plot(sample, pdf, title);
+        }
     }
 
     /**
@@ -89,7 +107,7 @@ public class Plot {
         chart.addSeries("Function", xFunction, yFunction)
                 .setMarker(SeriesMarkers.NONE)
                 .setLineColor(java.awt.Color.RED)
-                .setLineWidth(2.0f);
+                .setLineWidth(3.0f);
 
         chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
         chart.getStyler().setxAxisTickLabelsFormattingFunction(value -> String.format("%.2f", value));
