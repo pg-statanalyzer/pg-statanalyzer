@@ -23,24 +23,13 @@ public class PgCompositeDistribution implements PgDistribution {
     @Getter
     private final int size;
     private final int paramNumber;
-
-    /**
-     * Constructor.
+    
+    /** Constructor.
+     *
+     * @param distributions distributions.
+     * @param weights weights.
      */
     public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights) {
-        this(distributions, weights, true);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param distributions    list of individual distributions that make up composite distribution
-     * @param weights          list of weights corresponding to each distribution
-     * @param normalizeWeights flag indicating whether to normalize weights
-     *                         if {@code true}, weights will be normalized. If {@code false}, they will be used as provided
-     * @throws IllegalArgumentException if lists are empty, have different sizes or contain negative weights
-     */
-    public PgCompositeDistribution(List<PgDistribution> distributions, List<Double> weights, boolean normalizeWeights) {
         if (distributions.isEmpty() || distributions.size() != weights.size()) {
             throw new IllegalArgumentException("Distributions and weights must have the same non-zero size");
         }
@@ -50,13 +39,8 @@ public class PgCompositeDistribution implements PgDistribution {
             }
         }
 
-        if (normalizeWeights) {
-            double sumWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
-            this.weights = weights.stream().map((x) -> x / sumWeight).collect(Collectors.toList());
-        } else {
-            this.weights = new ArrayList<>(weights);
-        }
-
+        double sumWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
+        this.weights = weights.stream().map((x) -> x / sumWeight).collect(Collectors.toList());
         this.distributions = new ArrayList<>(distributions);
         this.size = distributions.size();
         this.paramNumber = this.distributions.stream().mapToInt(PgDistribution::getParamNumber).sum() + size;

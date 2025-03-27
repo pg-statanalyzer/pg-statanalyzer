@@ -130,6 +130,9 @@ public class StatAnalyzer {
                 filteredSampleData.size(), originalSampleSize
         );
 
+        EstimatedParameters optimizedParameters = finalParameterEstimator.fit(sample, combinedDistribution);
+        combinedDistribution = (PgCompositeDistribution) optimizedParameters.getDistribution();
+
         return new AnalysisResult(
                 modeReports.size(),
                 modeReports, combinedDistribution
@@ -150,17 +153,23 @@ public class StatAnalyzer {
             long sampleSize) {
 
         double totalSize = sampleSize + totalModeSize;
+        double weightOriginal = sampleSize / totalSize;
         double weightLowland = totalModeSize / totalSize;
 
-        List<PgDistribution> combinedDistributions = new ArrayList<>(originalDistribution.getDistributions());
-        List<Double> combinedWeights = new ArrayList<>(originalDistribution.getWeights());
+        List<PgDistribution> combinedDistributions = new ArrayList<>();
+        List<Double> combinedWeights = new ArrayList<>();
 
-        for (int i = 0; i < lowlandDistribution.getDistributions().size(); i++) {
-            combinedDistributions.add(lowlandDistribution.getDistributions().get(i));
-            combinedWeights.add(lowlandDistribution.getWeights().get(i) * weightLowland);
+        combinedDistributions.addAll(originalDistribution.getDistributions());
+        for (double weight : originalDistribution.getWeights()) {
+            combinedWeights.add(weight * weightOriginal);
         }
 
-        return new PgCompositeDistribution(combinedDistributions, combinedWeights, false);
+        combinedDistributions.addAll(lowlandDistribution.getDistributions());
+        for (double weight : lowlandDistribution.getWeights()) {
+            combinedWeights.add(weight * weightLowland);
+        }
+
+        return new PgCompositeDistribution(combinedDistributions, combinedWeights);
     }
 
     /**
