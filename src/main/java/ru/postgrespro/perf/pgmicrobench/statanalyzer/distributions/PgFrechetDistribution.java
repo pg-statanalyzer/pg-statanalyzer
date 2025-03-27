@@ -107,7 +107,7 @@ public class PgFrechetDistribution implements PgSimpleDistribution {
 
     @Override
     public PgDistributionType getType() {
-        return null;
+        return PgDistributionType.FRECHET;
     }
 
     @Override

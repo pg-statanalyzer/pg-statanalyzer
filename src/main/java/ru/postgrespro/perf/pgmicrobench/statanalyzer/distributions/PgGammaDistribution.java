@@ -133,7 +133,7 @@ public class PgGammaDistribution implements PgSimpleDistribution {
 
     @Override
     public PgDistributionType getType() {
-        return null;
+        return PgDistributionType.GAMMA;
     }
 
     @Override
