@@ -31,13 +31,13 @@ public class Main {
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
         statAnalyzer.setUseJittering(true);
+        statAnalyzer.setRecursiveModeDetection(true);
 
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
 
         PgCompositeDistribution compositeDistribution = analysisResult.compositeDistribution;
 
-        Plot.plot(sample, compositeDistribution::pdf, "Analyze result");
-
         System.out.println(compositeDistribution);
+        Plot.plot(sample, compositeDistribution::pdf, "Final");
     }
 }

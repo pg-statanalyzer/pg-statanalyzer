@@ -12,6 +12,8 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileR
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -116,7 +118,7 @@ public class Plot {
     }
 
     /**
-     * Plots QRDE-HD for given sample
+     * Plots QRDE-HD for given sample.
      *
      * @param sample sample data used to construct histogram
      */
