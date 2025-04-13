@@ -32,6 +32,13 @@ public class Sample implements Iterable<Double> {
     private final Lazy<List<Double>> lazySortedWeights;
     private final Lazy<DescriptiveStatistics> lazyDescriptiveStatistics;
 
+    private final Lazy<Double> lazyMean;
+    private final Lazy<Double> lazyVariance;
+    private final Lazy<Double> lazyStdDev;
+    private final Lazy<Double> lazyMedian;
+    private final Lazy<Double> lazySkewness;
+    private final Lazy<Double> lazyKurtosis;
+
 
     /**
      * Constructs a {@code Sample} with specified array of values, without taking into account weights.
@@ -104,6 +111,13 @@ public class Sample implements Iterable<Double> {
             }
             return new DescriptiveStatistics(arrayValues);
         });
+
+        this.lazyMean = new Lazy<>(() -> this.lazyDescriptiveStatistics.get().getMean());
+        this.lazyVariance = new Lazy<>(() -> this.lazyDescriptiveStatistics.get().getVariance());
+        this.lazyStdDev = new Lazy<>(() -> this.lazyDescriptiveStatistics.get().getStandardDeviation());
+        this.lazyMedian = new Lazy<>(() -> this.lazyDescriptiveStatistics.get().getPercentile(50));
+        this.lazyKurtosis = new Lazy<>(() -> this.lazyDescriptiveStatistics.get().getKurtosis());
+        this.lazySkewness = new Lazy<>(() -> this.lazyDescriptiveStatistics.get().getSkewness());
     }
 
     /**
@@ -253,11 +267,27 @@ public class Sample implements Iterable<Double> {
     }
 
     public double getSkewness() {
-        return lazyDescriptiveStatistics.get().getSkewness();
+        return lazySkewness.get();
     }
 
     public double getKurtosis() {
-        return lazyDescriptiveStatistics.get().getKurtosis();
+        return lazyKurtosis.get();
+    }
+
+    public double getMean() {
+        return lazyMean.get();
+    }
+
+    public double getStd() {
+        return lazyStdDev.get();
+    }
+
+    public double getVariance() {
+        return lazyVariance.get();
+    }
+
+    public double getMedian() {
+        return lazyMedian.get();
     }
 
     /**

@@ -15,6 +15,9 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDi
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.IDistributionTest;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.startpoint.LinearRegression;
+
+import static org.apache.commons.math3.util.FastMath.log;
 
 /**
  * Optimizer.
@@ -99,7 +102,7 @@ public class PgOptimizer {
             return statisticEvaluator.statistic(sample, d);
         };
 
-        double[] startParam = distribution.getParamArray();
+        double[] startParam = getStartingPoint(sample, distribution);
         double[] sigma = new double[distribution.getParamNumber()];
         for (int i = 0; i < sigma.length; i++) {
             sigma[i] = 1;
@@ -117,5 +120,22 @@ public class PgOptimizer {
         );
 
         return result.getPoint();
+    }
+
+    private static double[] getStartingPoint(Sample sample, PgSimpleDistribution distribution) {
+        String resourcesFolder = "linearRegressionCoefs/";
+        String distName = distribution.getType().name().toLowerCase();
+
+        LinearRegression shapeModel = new LinearRegression(resourcesFolder + distName + "_param1_regression_params.json");
+        LinearRegression scaleModel = new LinearRegression(resourcesFolder + distName + "_param2_regression_params.json");
+
+        double logmean = log(sample.getMean());
+        double logmedian = log(sample.getMedian());
+        double logvariance = log(sample.getVariance());
+
+        double shapeStartingPoint = shapeModel.predict(new double[]{logmean, logmedian, logvariance});
+        double scaleStartingPoint = scaleModel.predict(new double[]{logmean, logmedian, logvariance});
+
+        return new double[]{shapeStartingPoint, scaleStartingPoint};
     }
 }
