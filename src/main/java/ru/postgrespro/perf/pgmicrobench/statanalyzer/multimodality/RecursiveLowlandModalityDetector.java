@@ -1,11 +1,13 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
+import org.apache.commons.math3.util.Pair;
 import org.knowm.xchart.Histogram;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 /**
@@ -29,78 +31,159 @@ public class RecursiveLowlandModalityDetector {
         Histogram histogram = new Histogram(sample.getValues(), bins);
 
         List<Double> filteredData = new ArrayList<>();
+        int totalDataCount = sample.size();
 
-        int totalDataCount = sample.getValues().size();
+        List<Double> prevBinValues = null;
+        List<Double> gapStart = null;
 
-        List<Double> lastBinValues = new ArrayList<>();
-        boolean inGap = false;
-        double lastValueBeforeGap = Double.NaN;
-        double nextValueAfterGap;
+        List<Pair<List<Double>, List<Double>>> bridgePairs = new ArrayList<>();
 
-        for (int i = 0; i < histogram.getxAxisData().size(); i++) {
-            double binCenter = histogram.getxAxisData().get(i);
-            double binHeight = histogram.getyAxisData().get(i);
-            double binWidth = (i + 1 < histogram.getxAxisData().size()) ?
-                    histogram.getxAxisData().get(i + 1) - binCenter : 0;
+        List<Double> values = sample.getValues();
 
-            double normalizedBinHeight = binHeight / (totalDataCount * binWidth);
+        List<Double> xAxis = histogram.getxAxisData();
+        List<Double> yAxis = histogram.getyAxisData();
+
+        for (int i = 0; i < xAxis.size(); i++) {
+            double binCenter = xAxis.get(i);
+            double binHeight = yAxis.get(i);
+
+            double binWidth = getBinWidth(xAxis, i);
+            double normalizedHeight = binHeight / (totalDataCount * binWidth);
             double pdfValue = pdf.apply(binCenter);
 
-            double leftBound = histogram.getxAxisData().get(i);
-            double rightBound = (i + 1 < histogram.getxAxisData().size())
-                    ? histogram.getxAxisData().get(i + 1)
-                    : leftBound + (leftBound - histogram.getxAxisData().get(i - 1));
+            double leftBound = xAxis.get(i);
+            double rightBound = (i + 1 < xAxis.size()) ? xAxis.get(i + 1) : leftBound + binWidth;
 
-            List<Double> binValues = new ArrayList<>();
-            for (Double value : sample.getValues()) {
-                if (value >= leftBound && value < rightBound) {
-                    binValues.add(value);
-                }
-            }
+            List<Double> binValues = getBinValuesInRange(values, leftBound, rightBound);
 
-            if (normalizedBinHeight >= pdfValue) {
-                double ratio = pdfValue / normalizedBinHeight;
+            if (normalizedHeight >= pdfValue) {
+                double ratio = pdfValue / normalizedHeight;
 
                 if (ratio < 0.45) {
+                    if (gapStart != null && prevBinValues != null && !binValues.isEmpty()) {
+                        bridgePairs.add(new Pair<>(prevBinValues, binValues));
+                    }
                     filteredData.addAll(binValues);
-                    lastBinValues = new ArrayList<>(binValues);
-                    inGap = false;
-                } else {
-                    if (!inGap) {
-                        inGap = true;
-                        lastValueBeforeGap = lastBinValues.isEmpty() ? Double.NaN : lastBinValues.get(lastBinValues.size() - 1);
-                    }
+                    gapStart = null;
+                    prevBinValues = binValues;
+                } else if (gapStart == null && !binValues.isEmpty()) {
+                    gapStart = binValues;
                 }
-            } else {
-                if (inGap) {
-                    nextValueAfterGap = binValues.isEmpty() ? Double.NaN : binValues.get(0);
-                    if (!Double.isNaN(lastValueBeforeGap) && !Double.isNaN(nextValueAfterGap)) {
-                        filteredData.addAll(generateSmoothTransition(lastValueBeforeGap, nextValueAfterGap, 100));
-                    }
-                    inGap = false;
-                }
+            } else if (gapStart == null && !binValues.isEmpty()) {
+                gapStart = binValues;
             }
         }
+
+        for (int i = 0; i < bridgePairs.size() - 1; i++) {
+            List<Double> left = bridgePairs.get(i).getKey();
+            List<Double> right = bridgePairs.get(i).getValue();
+
+            double leftTail = getTailValue(left, true);
+            double rightTail = getTailValue(right, false);
+
+            double prevStd = estimateStdDev(left);
+            double nextStd = estimateStdDev(right);
+            double avgStd = prevStd + nextStd + 1e-6;
+            double distance = Math.abs(rightTail - leftTail);
+
+            int steps = (int) Math.max(50, Math.min(500, distance / avgStd * 40));
+
+            filteredData.addAll(generateSmoothTransition(leftTail, rightTail, prevStd, nextStd, steps));
+        }
+
         return filteredData;
     }
 
     /**
-     * Generates smooth transition between two values using linear interpolation with slight sinusoidal adjustment.
-     * This helps in filling gaps in data while maintaining natural-looking distribution
+     * Calculates width of histogram bin based on its index and x-axis bin centers.
      *
-     * @param start starting value of transition
-     * @param end   ending value of transition
-     * @param steps number of interpolation steps
-     * @return list of interpolated values forming smooth transition
+     * @param xAxis list of bin center values
+     * @param i     index of current bin
+     * @return estimated width of bin at index {@code i}
      */
-    private static List<Double> generateSmoothTransition(double start, double end, int steps) {
+    private static double getBinWidth(List<Double> xAxis, int i) {
+        if (i + 1 < xAxis.size()) {
+            return xAxis.get(i + 1) - xAxis.get(i);
+        } else if (i > 0) {
+            return xAxis.get(i) - xAxis.get(i - 1);
+        } else {
+            return 1.0;
+        }
+    }
+
+    /**
+     * Filters values within specified range [left, right).
+     *
+     * @param values list of values to filter
+     * @param left   inclusive lower bound of range
+     * @param right  exclusive upper bound of range
+     * @return list of values in range [left, right)
+     */
+    private static List<Double> getBinValuesInRange(List<Double> values, double left, double right) {
+        return values.stream()
+                .filter(v -> v >= left && v < right)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves tail value of list, either from beginning or end.
+     * Returns the first element if {@code fromEnd} is {@code false}, or the last element
+     * if {@code fromEnd} is {@code true}
+     *
+     * @param values  list of values
+     * @param fromEnd {@code true} to get the last value, {@code false} for the first
+     * @return selected edge value, or 0.0 if list is null or empty
+     */
+    private static double getTailValue(List<Double> values, boolean fromEnd) {
+        if (values == null || values.isEmpty()) return 0.0;
+        return fromEnd ? values.get(values.size() - 1) : values.get(0);
+    }
+
+    /**
+     * Estimates standard deviation of list of numeric values.
+     * Uses standard deviation formula:
+     * sqrt(mean((x - mean)^2))
+     *
+     * @param values list of numeric values
+     * @return estimated standard deviation, or 1.0 if input is invalid
+     */
+    private static double estimateStdDev(List<Double> values) {
+        if (values == null || values.size() < 2) return 1.0;
+        double mean = values.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        double variance = values.stream().mapToDouble(v -> Math.pow(v - mean, 2)).average().orElse(0.0);
+        return Math.sqrt(variance);
+    }
+
+    /**
+     * Generates smooth transition between two values using Hermite interpolation (smooth S-curve)
+     * and slight parabolic sag in the middle.
+     * This method is used to bridge gaps between modes in distribution, simulating
+     * smooth structure. Interpolation adds slight dip in the center of transition
+     * based on average of two standard deviations
+     *
+     * @param start   starting value of transition
+     * @param end     ending value of transition
+     * @param prevStd estimated standard deviation of the previous mode
+     * @param nextStd estimated standard deviation of the next mode
+     * @param steps   number of interpolation steps to generate
+     * @return list of interpolated values forming smooth transition from start to end
+     */
+    private static List<Double> generateSmoothTransition(
+            double start, double end, double prevStd, double nextStd, int steps) {
+
         List<Double> transition = new ArrayList<>();
+        double range = end - start;
+        double avgStd = (prevStd + nextStd + 1e-6);
+        double sagFactor = 0.15 * avgStd;
+
         for (int i = 0; i < steps; i++) {
             double t = (double) i / (steps - 1);
-            double value = start * (1 - t) + end * t;
-            value += Math.sin(t * Math.PI) * (end - start) * 0.1;
-            transition.add(value);
+            double smoothT = t * t * (3 - 2 * t);
+            double interpolated = start + smoothT * range;
+            interpolated += -sagFactor * Math.pow(t - 0.5, 2);
+            transition.add(interpolated);
         }
+
         return transition;
     }
 }
