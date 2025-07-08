@@ -15,13 +15,14 @@ import java.util.Scanner;
  */
 public class Main {
     public static void main(String[] args) {
-        String file = "distributionSample/postgres-17.3";
+        String file = "distributionSample/twoMode.csv";
 
-        List<Double> dataList = new ArrayList<>(300000);
+        double scale = 1.0;
+        List<Double> dataList = new ArrayList<>(30000);
         try (Scanner scanner = new Scanner(new File(file))) {
-            while (scanner.hasNextDouble()) {
+            while (scanner.hasNextDouble() && dataList.size() < 30000) {
                 double value = scanner.nextDouble();
-                dataList.add(value);
+                dataList.add(value * scale);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
