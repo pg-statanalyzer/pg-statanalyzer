@@ -2,7 +2,8 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import lombok.NonNull;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.HarrellDavisQuantileEstimator;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.IQuantileEstimator;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.exceptions.WeightedSampleNotSupportedException;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 
 /**
@@ -50,12 +52,9 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
      * @throws IllegalArgumentException            if sample is {@code null} or {@code binCount} is less than or equal to 1.
      * @throws WeightedSampleNotSupportedException if sample is weighted and estimator doesn't support weighted samples.
      */
-    public DensityHistogram build(Sample sample,
+    public DensityHistogram build(@NonNull Sample sample,
                                   int binCount,
                                   IQuantileEstimator quantileEstimator) {
-        if (sample == null) {
-            throw new IllegalArgumentException("Sample cannot be null");
-        }
         if (binCount <= 1) {
             throw new IllegalArgumentException("binCount must be greater than 1");
         }

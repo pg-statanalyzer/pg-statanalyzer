@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
@@ -89,7 +89,7 @@ class LowlandModalityDetectorTests {
      * Generates two sets of values from Gumbel distributions and applies weights.
      * Compares modality detection results between simple and weighted samples.
      */
-    @DisplayName("Weighted ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample Test")
+    @DisplayName("Weighted ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample Test")
     @Test
     public void weightedSampleTest() {
         Random random = new Random(42);

@@ -4,7 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.math3.distribution.BetaDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +62,7 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
         return true;
     }
 
-    private Moments getMoment(Sample sample, double probability, boolean calcSecondMoment) {
+    private Moments getMoment(WeightedSample sample, double probability, boolean calcSecondMoment) {
         int n = sample.size();
         double a = (n + 1) * probability;
         double b = (n + 1) * (1 - probability);

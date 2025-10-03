@@ -4,7 +4,7 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.loader.Loader;

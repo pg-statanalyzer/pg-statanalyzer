@@ -2,7 +2,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.special.Erf;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 import java.util.ArrayList;
 import java.util.List;

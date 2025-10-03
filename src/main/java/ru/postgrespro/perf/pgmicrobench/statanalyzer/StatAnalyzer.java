@@ -10,6 +10,8 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModali
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RecursiveLowlandModalityDetector;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -23,8 +25,8 @@ import java.util.stream.IntStream;
 @Setter
 @NoArgsConstructor
 public class StatAnalyzer {
-    private static final Double TEST_SIZE = 0.8;
     public static final List<PgSimpleDistribution> supportedDistributions = new ArrayList<>();
+    private static final Double TEST_SIZE = 0.8;
 
     static {
 //        supportedDistributions.add(new PgNormalDistribution(1, 1));
@@ -68,7 +70,7 @@ public class StatAnalyzer {
             values = jit.jitter(values, random);
         }
 
-        Sample sample = new Sample(values, true);
+        WeightedSample sample = WeightedSample.evenWeightedSample(values);
 
         ModalityData modalityData = findModes(sample);
 

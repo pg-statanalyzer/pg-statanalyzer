@@ -1,16 +1,13 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.statanalyzer;
 
-import org.junit.jupiter.api.Test;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.AnalysisResult;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.ModeReport;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.StatAnalyzer;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgLogNormalDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgWeibullDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.FittedDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
