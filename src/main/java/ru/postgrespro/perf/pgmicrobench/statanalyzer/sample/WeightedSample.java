@@ -1,5 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.sample;
 
+import lombok.Getter;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
 
 import java.util.Collections;
@@ -7,6 +8,9 @@ import java.util.List;
 
 public class WeightedSample extends Sample {
     private final List<Double> weights;
+
+    @Getter(lazy = true)
+    private final List<Double> sortedWeights = weights.stream().sorted().toList();
 
     public WeightedSample(List<Double> values, List<Double> weights) {
         super(values);
@@ -45,8 +49,5 @@ public class WeightedSample extends Sample {
             }
         }
         return totalWeightForBin;
-    }
-
-    public List<Double> getSortedWeights() {
     }
 }

@@ -11,6 +11,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistr
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityReferenceDataSet;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityTestData;
 
@@ -65,7 +66,7 @@ class LowlandModalityDetectorTests {
         int expectedModality = modalityTestData.getExpectedModality();
 
         ModalityData modalityData = detector.detectModes(
-                new Sample(modalityTestData.getValues(), true),
+                WeightedSample.evenWeightedSample(modalityTestData.getValues()),
                 QuantileRespectfulDensityHistogramBuilder.getInstance()
         );
 
@@ -108,9 +109,9 @@ class LowlandModalityDetectorTests {
                 .mapToDouble(i -> Math.exp(-0.1 * i))
                 .boxed()
                 .collect(Collectors.toList());
-        Sample sample = new Sample(values, weights);
+        WeightedSample sample = new WeightedSample(values, weights);
 
-        ModalityData simpleModalityData = detector.detectModes(new Sample(values, true));
+        ModalityData simpleModalityData = detector.detectModes(WeightedSample.evenWeightedSample(values));
         System.out.println("SimpleModalityData.Modes:");
         System.out.println(simpleModalityData);
         System.out.println();

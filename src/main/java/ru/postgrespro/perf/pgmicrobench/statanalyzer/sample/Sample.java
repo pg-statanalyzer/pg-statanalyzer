@@ -3,7 +3,6 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.sample;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -20,12 +19,12 @@ import java.util.List;
 public class Sample implements Iterable<Double> {
     protected final List<Double> values;
 
-    @Getter(lazy = true)
-    private final List<Double> sortedValues = values.stream().sorted().toList();
-
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(
             values.stream().mapToDouble(Double::doubleValue).toArray());
+
+    @Getter(lazy = true)
+    private final List<Double> sortedValues = values.stream().sorted().toList();
 
     public Sample(List<Double> values) {
         if (values.isEmpty()) {

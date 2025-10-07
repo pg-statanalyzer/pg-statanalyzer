@@ -7,6 +7,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.HarrellDavisQuantileEstimator;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators.IQuantileEstimator;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.exceptions.WeightedSampleNotSupportedException;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sequences.ArithmeticProgressionSequence;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
      * @throws IllegalArgumentException if sample is {@code null} or {@code binCount} is less than or equal to 1.
      */
     @Override
-    public DensityHistogram build(Sample sample, int binCount) {
+    public DensityHistogram build(WeightedSample sample, int binCount) {
         return build(sample, binCount, null);
     }
 
@@ -52,7 +53,7 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
      * @throws IllegalArgumentException            if sample is {@code null} or {@code binCount} is less than or equal to 1.
      * @throws WeightedSampleNotSupportedException if sample is weighted and estimator doesn't support weighted samples.
      */
-    public DensityHistogram build(@NonNull Sample sample,
+    public DensityHistogram build(@NonNull WeightedSample sample,
                                   int binCount,
                                   IQuantileEstimator quantileEstimator) {
         if (binCount <= 1) {
@@ -62,7 +63,7 @@ public class QuantileRespectfulDensityHistogramBuilder implements IDensityHistog
         quantileEstimator = (quantileEstimator != null)
                 ? quantileEstimator : HarrellDavisQuantileEstimator.getInstance();
 
-        if (sample.isWeighted() && !quantileEstimator.supportsWeightedSamples()) {
+        if (!quantileEstimator.supportsWeightedSamples()) {
             throw new WeightedSampleNotSupportedException();
         }
 

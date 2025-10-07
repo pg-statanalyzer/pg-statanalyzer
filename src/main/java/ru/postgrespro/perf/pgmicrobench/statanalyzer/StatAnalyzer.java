@@ -107,7 +107,7 @@ public class StatAnalyzer {
         final double MODE_SIZE_THRESHOLD = 0.07;
 
         List<Double> filteredSampleData = RecursiveLowlandModalityDetector.filterBinsAbovePdf(sample, initialDistribution::pdf);
-        Sample filteredSample = new Sample(filteredSampleData, true);
+        WeightedSample filteredSample = WeightedSample.evenWeightedSample(filteredSampleData);
 
         ModalityData newModalityData = findModes(filteredSample);
         List<ModeReport> newModeReports = getModeReports(filteredSample, newModalityData);
@@ -215,7 +215,7 @@ public class StatAnalyzer {
      * @param sample the sample from which to detect modes
      * @return a ModalityData object containing the detected modes
      */
-    public ModalityData findModes(Sample sample) {
+    public ModalityData findModes(WeightedSample sample) {
         return modeDetector.detectModes(sample);
     }
 

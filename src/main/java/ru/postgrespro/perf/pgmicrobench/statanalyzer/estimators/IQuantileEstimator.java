@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public interface IQuantileEstimator {
      *                      indicating quantiles to estimate.
      * @return array of quantile estimates corresponding to input probabilities.
      */
-    double[] quantiles(Sample sample, List<Double> probabilities);
+    double[] quantiles(WeightedSample sample, List<Double> probabilities);
 
     /**
      * Indicates whether quantile estimator supports weighted samples.

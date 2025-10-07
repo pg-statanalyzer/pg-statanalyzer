@@ -44,7 +44,7 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
      * @return array of quantile estimates corresponding to input probabilities.
      */
     @Override
-    public double[] quantiles(Sample sample, List<Double> probabilities) {
+    public double[] quantiles(WeightedSample sample, List<Double> probabilities) {
         double[] result = new double[probabilities.size()];
         for (int i = 0; i < probabilities.size(); i++) {
             result[i] = getMoment(sample, probabilities.get(i), false).getC1();
@@ -78,9 +78,7 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
 
         for (int j = 0; j < n; j++) {
             double betaCdfLeft = betaCdfRight;
-            currentProbability += sample.isWeighted()
-                    ? sortedWeights.get(j) / sample.getTotalWeight()
-                    : 1.0 / n;
+            currentProbability += sortedWeights.get(j);
 
             betaCdfRight = betaDistribution.cumulativeProbability(currentProbability);
             double w = betaCdfRight - betaCdfLeft;
