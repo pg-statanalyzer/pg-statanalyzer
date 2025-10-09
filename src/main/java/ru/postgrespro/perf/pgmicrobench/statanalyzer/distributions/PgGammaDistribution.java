@@ -147,6 +147,11 @@ public class PgGammaDistribution implements PgSimpleDistribution {
     }
 
     @Override
+    public PgGammaDistribution newDistribution(Sample sample) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public double[] getParamArray() {
         return new double[]{shape, scale};
     }

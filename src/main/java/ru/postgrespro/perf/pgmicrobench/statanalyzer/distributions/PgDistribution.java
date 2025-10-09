@@ -21,6 +21,8 @@ public interface PgDistribution {
 
     PgDistribution newDistribution(double[] params);
 
+    PgDistribution newDistribution(Sample sample);
+
     double[] getParamArray();
 
     Pair<double[]> bounds();

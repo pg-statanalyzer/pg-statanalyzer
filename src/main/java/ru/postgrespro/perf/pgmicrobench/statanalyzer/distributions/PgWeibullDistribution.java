@@ -2,6 +2,8 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.special.Gamma;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.util.PgMath;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 import java.util.ArrayList;
@@ -62,7 +64,6 @@ public class PgWeibullDistribution implements PgSimpleDistribution {
         return scale * pow(Math.log(2), 1 / shape);
     }
 
-
     @Override
     public double skewness() {
         double mu = mean();
@@ -70,7 +71,6 @@ public class PgWeibullDistribution implements PgSimpleDistribution {
         return (Gamma.gamma(1 + 3 / shape) * pow(scale, 3) - 3 * mu * pow(stnDev, 2) - pow(mu, 3))
                 / pow(stnDev, 3);
     }
-
 
     @Override
     public double kurtosis() {
@@ -80,9 +80,8 @@ public class PgWeibullDistribution implements PgSimpleDistribution {
                 - 4 * skewness() * pow(stnDev, 3) * mu
                 - 6 * pow(mu, 2) * pow(stnDev, 2)
                 - pow(mu, 4)
-            ) / pow(stnDev, 4);
+        ) / pow(stnDev, 4);
     }
-
 
     @Override
     public Sample generate(int size, Random random) {
@@ -108,6 +107,19 @@ public class PgWeibullDistribution implements PgSimpleDistribution {
     @Override
     public PgDistribution newDistribution(double[] params) {
         return new PgWeibullDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public PgWeibullDistribution newDistribution(Sample sample) {
+        double meanSquare = sample.getMean() *  sample.getMean();
+
+        double invAlpha = PgMath.invSquareGammaDoubleGammaRatio(
+                meanSquare / (meanSquare + sample.getVariance()));
+
+        double alpha = 1 / invAlpha;
+        double beta = sample.getMean() / Gamma.gamma(1 + invAlpha);
+
+        return new PgWeibullDistribution(alpha, beta);
     }
 
     @Override

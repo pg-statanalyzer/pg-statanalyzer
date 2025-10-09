@@ -276,7 +276,8 @@ public class StatAnalyzer {
             futures.add(CompletableFuture.supplyAsync(() -> {
                 EstimatedParameters estimatedParameters;
                 try {
-                    estimatedParameters = parameterEstimator.fit(parametersSample, simpleDistribution);
+                    estimatedParameters = parameterEstimator.fit(parametersSample,
+                            simpleDistribution.newDistribution(parametersSample));
                 } catch (Exception e) {
                     System.out.println("WARNING: cant find parameters for " + simpleDistribution);
                     return new FittedDistribution(null, Double.NEGATIVE_INFINITY);

@@ -103,6 +103,11 @@ public class PgCompositeDistribution implements PgDistribution {
     }
 
     @Override
+    public PgCompositeDistribution newDistribution(Sample sample) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public double[] getParamArray() {
         double[] paramArray = new double[paramNumber];
 

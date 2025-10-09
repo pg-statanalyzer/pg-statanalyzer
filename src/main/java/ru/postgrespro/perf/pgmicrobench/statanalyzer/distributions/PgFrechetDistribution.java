@@ -3,6 +3,8 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 import org.apache.commons.math3.special.Gamma;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.util.PgMath;
 
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -118,6 +120,19 @@ public class PgFrechetDistribution implements PgSimpleDistribution {
     @Override
     public PgDistribution newDistribution(double[] params) {
         return new PgFrechetDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public PgFrechetDistribution newDistribution(Sample sample) {
+        double meanSquare = sample.getMean() *  sample.getMean();
+
+        double invAlpha = PgMath.minusInvSquareGammaDoubleGammaRatio(
+                meanSquare / (meanSquare + sample.getVariance()));
+
+        double alpha = 1 / invAlpha;
+        double beta = sample.getMean() / Gamma.gamma(1 - invAlpha);
+
+        return new PgFrechetDistribution(alpha, beta);
     }
 
     @Override
