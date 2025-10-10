@@ -148,7 +148,7 @@ public class PgGammaDistribution implements PgSimpleDistribution {
 
     @Override
     public PgGammaDistribution newDistribution(Sample sample) {
-        throw new RuntimeException("Not implemented");
+        return new PgGammaDistribution(1.0, 1.0);
     }
 
     @Override

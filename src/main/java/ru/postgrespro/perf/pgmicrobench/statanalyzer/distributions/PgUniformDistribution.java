@@ -122,7 +122,7 @@ public class PgUniformDistribution implements PgSimpleDistribution {
 
     @Override
     public PgUniformDistribution newDistribution(Sample sample) {
-        throw new RuntimeException("Not implemented");
+        return new PgUniformDistribution(0.0, 1.0);
     }
 
     @Override
