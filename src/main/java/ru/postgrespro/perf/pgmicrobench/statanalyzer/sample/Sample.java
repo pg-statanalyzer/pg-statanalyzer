@@ -22,7 +22,20 @@ public class Sample implements Iterable<Double> {
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(
             values.stream().mapToDouble(Double::doubleValue).toArray());
-
+    @Getter(lazy = true)
+    private final double skewness = getDescriptiveStatistics().getSkewness();
+    @Getter(lazy = true)
+    private final double kurtosis = getDescriptiveStatistics().getKurtosis();
+    @Getter(lazy = true)
+    private final double mean = getDescriptiveStatistics().getMean();
+    @Getter(lazy = true)
+    private final double standardDeviation = getDescriptiveStatistics().getStandardDeviation();
+    @Getter(lazy = true)
+    private final double variance = getDescriptiveStatistics().getVariance();
+    @Getter(lazy = true)
+    private final double min = getDescriptiveStatistics().getMin();
+    @Getter(lazy = true)
+    private final double max = getDescriptiveStatistics().getMax();
     @Getter(lazy = true)
     private final List<Double> sortedValues = values.stream().sorted().toList();
 
@@ -60,34 +73,8 @@ public class Sample implements Iterable<Double> {
         return values.size();
     }
 
-    /**
-     * Returns minimum value in sample.
-     *
-     * @return minimum value.
-     */
-    public double getMin() {
-        return getDescriptiveStatistics().getMin();
-    }
-
-    /**
-     * Returns maximum value in sample.
-     *
-     * @return maximum value.
-     */
-    public double getMax() {
-        return getDescriptiveStatistics().getMax();
-    }
-
     @Override
     public Iterator<Double> iterator() {
         return values.iterator();
-    }
-
-    public double getSkewness() {
-        return getDescriptiveStatistics().getSkewness();
-    }
-
-    public double getKurtosis() {
-        return getDescriptiveStatistics().getKurtosis();
     }
 }

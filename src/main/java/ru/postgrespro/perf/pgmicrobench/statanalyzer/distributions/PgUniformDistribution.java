@@ -121,6 +121,11 @@ public class PgUniformDistribution implements PgSimpleDistribution {
     }
 
     @Override
+    public PgUniformDistribution newDistribution(Sample sample) {
+        return new PgUniformDistribution(0.0, 1.0);
+    }
+
+    @Override
     public double[] getParamArray() {
         return new double[]{min, max};
     }

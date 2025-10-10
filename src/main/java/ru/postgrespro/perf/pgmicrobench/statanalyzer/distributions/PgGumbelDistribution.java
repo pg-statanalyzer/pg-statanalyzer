@@ -1,5 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
+import org.apache.commons.math3.util.FastMath;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
@@ -126,6 +127,13 @@ public class PgGumbelDistribution implements PgSimpleDistribution {
     @Override
     public PgDistribution newDistribution(double[] params) {
         return new PgGumbelDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public PgGumbelDistribution newDistribution(Sample sample) {
+        double scale = FastMath.sqrt(sample.getVariance() * 6.0) / FastMath.PI;
+
+        return new PgGumbelDistribution(sample.getMean() - scale * EulerMascheroni, scale);
     }
 
     @Override

@@ -17,12 +17,11 @@ public class Main {
     public static void main(String[] args) {
         String file = "distributionSample/twoMode.csv";
 
-        double scale = 1.0;
         List<Double> dataList = new ArrayList<>(30000);
         try (Scanner scanner = new Scanner(new File(file))) {
             while (scanner.hasNextDouble() && dataList.size() < 30000) {
                 double value = scanner.nextDouble();
-                dataList.add(value * scale);
+                dataList.add(value);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -31,8 +30,8 @@ public class Main {
         Sample sample = new Sample(dataList);
 
         StatAnalyzer statAnalyzer = new StatAnalyzer();
-        statAnalyzer.setUseJittering(true);
-        statAnalyzer.setRecursiveModeDetection(true);
+        statAnalyzer.setUseJittering(false);
+        statAnalyzer.setRecursiveModeDetection(false);
 
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
 

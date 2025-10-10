@@ -108,6 +108,11 @@ public class PgNormalDistribution implements PgSimpleDistribution {
     }
 
     @Override
+    public PgNormalDistribution newDistribution(Sample sample) {
+        return new PgNormalDistribution(sample.getMean(), sample.getStandardDeviation());
+    }
+
+    @Override
     public double[] getParamArray() {
         return new double[]{mean, standardDeviation};
     }

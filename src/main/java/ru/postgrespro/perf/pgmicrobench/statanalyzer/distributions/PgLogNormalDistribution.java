@@ -1,6 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 
 import org.apache.commons.math3.special.Erf;
+import org.apache.commons.math3.util.FastMath;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
@@ -100,6 +101,16 @@ public class PgLogNormalDistribution implements PgSimpleDistribution {
     @Override
     public PgDistribution newDistribution(double[] params) {
         return new PgLogNormalDistribution(params[0], params[1]);
+    }
+
+    @Override
+    public PgLogNormalDistribution newDistribution(Sample sample) {
+        double meanSquare = sample.getMean() * sample.getMean();
+
+        double stdDevSquare = FastMath.log((sample.getVariance() + meanSquare) / meanSquare);
+        double mean = FastMath.log(sample.getMean()) - stdDevSquare / 2.0;
+
+        return new PgLogNormalDistribution(mean, FastMath.sqrt(stdDevSquare));
     }
 
     @Override
