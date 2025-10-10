@@ -2,9 +2,9 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.distributions;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 import java.util.Random;
 

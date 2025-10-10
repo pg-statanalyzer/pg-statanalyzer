@@ -3,7 +3,6 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions;
 import org.apache.commons.math3.special.Gamma;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.util.PgMath;
 
 import java.util.Random;
