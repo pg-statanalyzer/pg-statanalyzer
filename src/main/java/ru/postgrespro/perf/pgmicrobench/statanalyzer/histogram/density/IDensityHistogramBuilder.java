@@ -1,6 +1,6 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 
 
 /**
@@ -18,5 +18,5 @@ public interface IDensityHistogramBuilder {
      * @return {@code DensityHistogram} representing data distribution of sample.
      * @throws IllegalArgumentException if {@code binCount} is not positive integer.
      */
-    DensityHistogram build(Sample sample, int binCount);
+    DensityHistogram build(WeightedSample sample, int binCount);
 }

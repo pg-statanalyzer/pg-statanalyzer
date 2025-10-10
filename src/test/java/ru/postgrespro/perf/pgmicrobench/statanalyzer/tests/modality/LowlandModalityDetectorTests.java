@@ -6,11 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgGumbelDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityReferenceDataSet;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.modality.sets.ModalityTestData;
 
@@ -65,7 +66,7 @@ class LowlandModalityDetectorTests {
         int expectedModality = modalityTestData.getExpectedModality();
 
         ModalityData modalityData = detector.detectModes(
-                new Sample(modalityTestData.getValues(), true),
+                WeightedSample.evenWeightedSample(modalityTestData.getValues()),
                 QuantileRespectfulDensityHistogramBuilder.getInstance()
         );
 
@@ -89,7 +90,7 @@ class LowlandModalityDetectorTests {
      * Generates two sets of values from Gumbel distributions and applies weights.
      * Compares modality detection results between simple and weighted samples.
      */
-    @DisplayName("Weighted ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample Test")
+    @DisplayName("Weighted ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample Test")
     @Test
     public void weightedSampleTest() {
         Random random = new Random(42);
@@ -108,9 +109,9 @@ class LowlandModalityDetectorTests {
                 .mapToDouble(i -> Math.exp(-0.1 * i))
                 .boxed()
                 .collect(Collectors.toList());
-        Sample sample = new Sample(values, weights);
+        WeightedSample sample = new WeightedSample(values, weights);
 
-        ModalityData simpleModalityData = detector.detectModes(new Sample(values, true));
+        ModalityData simpleModalityData = detector.detectModes(WeightedSample.evenWeightedSample(values));
         System.out.println("SimpleModalityData.Modes:");
         System.out.println(simpleModalityData);
         System.out.println();

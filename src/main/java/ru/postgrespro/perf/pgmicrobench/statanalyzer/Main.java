@@ -1,8 +1,8 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.CramerVonMises;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,15 +1,11 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.*;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.optimizer.PgOptimizer;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting.Plot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 /**
  * This class provides methods to perform the Kolmogorov-Smirnov test for goodness of fit

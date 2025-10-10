@@ -2,6 +2,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 import java.util.List;
 import java.util.Random;

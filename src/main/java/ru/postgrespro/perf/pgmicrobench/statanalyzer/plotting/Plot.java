@@ -5,15 +5,14 @@ import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.markers.SeriesMarkers;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogram;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHistogramBin;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.QuantileRespectfulDensityHistogramBuilder;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -122,7 +121,7 @@ public class Plot {
      *
      * @param sample sample data used to construct histogram
      */
-    public static void plotQuantileHistogram(Sample sample) {
+    public static void plotQuantileHistogram(WeightedSample sample) {
         int binCount = (int) Math.sqrt(sample.size()) + 1;
         QuantileRespectfulDensityHistogramBuilder builder = QuantileRespectfulDensityHistogramBuilder.getInstance();
         DensityHistogram densityHistogram = builder.build(sample, binCount);

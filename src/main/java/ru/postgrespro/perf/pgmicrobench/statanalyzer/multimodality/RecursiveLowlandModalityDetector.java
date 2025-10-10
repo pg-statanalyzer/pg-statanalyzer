@@ -2,7 +2,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality;
 
 import org.apache.commons.math3.util.Pair;
 import org.knowm.xchart.Histogram;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -10,7 +10,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
 import org.apache.commons.math3.random.Well512a;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.Pair;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;

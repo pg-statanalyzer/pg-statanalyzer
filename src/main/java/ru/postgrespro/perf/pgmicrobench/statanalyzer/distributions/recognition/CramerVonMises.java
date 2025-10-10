@@ -1,7 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition;
 
 import org.apache.commons.math3.special.Gamma;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgCompositeDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgSimpleDistribution;

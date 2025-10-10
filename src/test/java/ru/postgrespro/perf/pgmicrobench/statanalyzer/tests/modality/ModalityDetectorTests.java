@@ -4,13 +4,14 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.loader.Loader;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.ModalityData;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.RangedMode;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.WeightedSample;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class ModalityDetectorTests {
                 15.0,
                 10000).getValues());
 
-        Sample sample = new Sample(values, true);
+        WeightedSample sample = WeightedSample.evenWeightedSample(values);
         ModalityData result = detector.detectModes(sample);
 
         int expectedModality = 2;
