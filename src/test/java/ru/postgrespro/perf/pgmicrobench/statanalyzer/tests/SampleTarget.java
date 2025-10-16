@@ -1,7 +1,7 @@
 package ru.postgrespro.perf.pgmicrobench.statanalyzer.tests;
 
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgDistribution;
+import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 public class SampleTarget<T extends PgDistribution> {
     public final T target;

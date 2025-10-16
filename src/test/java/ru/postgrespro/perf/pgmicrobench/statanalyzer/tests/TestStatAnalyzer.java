@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 /**
  * Test.
@@ -23,26 +25,28 @@ public class TestStatAnalyzer {
 
     @Test
     public void testGeneratedSimpleDistributions() {
-        for (long seed = 0; seed < 5; seed++) {
-            for (SampleTarget<PgSimpleDistribution> sampleTarget :
-                    StatAnalyzerTestUtils.getSimpleSampleTargets(1000, new Random(seed))) {
-                StatAnalyzer statAnalyzer = new StatAnalyzer();
-                statAnalyzer.setUseJittering(false);
+        CompletableFuture.allOf(IntStream.range(0, 10).mapToObj(seed ->
+                CompletableFuture.runAsync(() -> {
+                    for (SampleTarget<PgSimpleDistribution> sampleTarget :
+                            StatAnalyzerTestUtils.getSimpleSampleTargets(5000, new Random(seed))) {
+                        StatAnalyzer statAnalyzer = new StatAnalyzer();
+                        statAnalyzer.setUseJittering(false);
 
-                AnalysisResult analysisResult = statAnalyzer.analyze(sampleTarget.sample.getValues());
+                        AnalysisResult analysisResult = statAnalyzer.analyze(sampleTarget.sample.getValues());
 
-                Assertions.assertEquals(1, analysisResult.getModeReports().size(),
-                        "Number of modes not as expected");
+                        Assertions.assertEquals(1, analysisResult.getModeReports().size(),
+                                "Number of modes not as expected");
 
-                ModeReport modeReport = analysisResult.getModeReports().get(0);
-                FittedDistribution bestDistribution = modeReport.getBestDistribution();
+                        ModeReport modeReport = analysisResult.getModeReports().get(0);
+                        FittedDistribution bestDistribution = modeReport.getBestDistribution();
 
-                System.out.println("Expected: " + sampleTarget.target + " Real: " + bestDistribution.getDistribution());
-                Assertions.assertTrue(StatAnalyzerTestUtils.isDistributionsEqual(
-                        bestDistribution.getDistribution(),
-                        sampleTarget.target, 0.1)); // should improve algorithms to decrease ratio
-            }
-        }
+                        Assertions.assertTrue(StatAnalyzerTestUtils.isDistributionsEqual(
+                                        bestDistribution.getDistribution(),
+                                        sampleTarget.target, 0.10), // should improve algorithms to decrease ratio
+                                "Expected: " + sampleTarget.target + " Real: " + bestDistribution.getDistribution());
+                    }
+                })
+        ).toArray(CompletableFuture[]::new)).join();
     }
 
     private void generateTestData() {
