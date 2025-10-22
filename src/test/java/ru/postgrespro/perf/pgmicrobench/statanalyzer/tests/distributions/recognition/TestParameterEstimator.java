@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
+/**
+ * Test all parameter estimating algorithm.
+ */
 public class TestParameterEstimator {
 
     private static final List<PgSimpleDistribution> distributions = Stream.of(
@@ -40,15 +43,16 @@ public class TestParameterEstimator {
     ).toList();
 
     static Stream<Arguments> provideParameters() {
+        Random random = new Random(5431);
         return Stream.of(
                 new MaximumLikelihoodEstimation(),
                 new KolmogorovSmirnov(),
                 new CramerVonMises()
-//                new Multicriteria()
+                //new Multicriteria()
         ).map(estimator ->
                 distributions.stream().map(d -> Arguments.of(
                         estimator, d,
-                        d.generate(1000, new Random(5432))
+                        d.generate(2000, new Random(random.nextLong()))
                 )).toList()
         ).flatMap(List::stream);
 

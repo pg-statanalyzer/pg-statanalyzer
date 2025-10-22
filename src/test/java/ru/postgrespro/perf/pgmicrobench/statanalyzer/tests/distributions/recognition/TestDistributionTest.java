@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
+/**
+ * Test of DistributionTest algorithm.
+ */
 public class TestDistributionTest {
     private static final double TEST_THRESHOLD = 0.05;
 
@@ -68,7 +71,7 @@ public class TestDistributionTest {
                         .map(distribution -> Arguments.of(
                                 distributionTest,
                                 distribution,
-                                correctDistribution.generate(500, random),
+                                correctDistribution.generate(500, new Random(random.nextLong())),
                                 // тест должен отвергнуть гипотезу, если инстансы распределений не равны
                                 distribution != correctDistribution))
                 )
