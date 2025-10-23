@@ -21,7 +21,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.I
  */
 public class PgOptimizer {
     private static final MaxEval MAX_EVAL = new MaxEval(10000);
-    private static final CMAESOptimizer.PopulationSize POPULATION_SIZE = new CMAESOptimizer.PopulationSize(100);
+    private static final CMAESOptimizer.PopulationSize POPULATION_SIZE = new CMAESOptimizer.PopulationSize(25);
     private static final double WEIGHT_STEP = 0.1;
 
     /**

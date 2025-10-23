@@ -49,6 +49,9 @@ public class CramerVonMises implements IDistributionTest, IParameterEstimator {
         if (statistic <= 0) {
             throw new IllegalArgumentException("Statistic must be positive.");
         }
+        if (Double.isInfinite(statistic)) {
+            return 0.0;
+        }
         return 1.0 - computeA1Function(statistic);
     }
 
