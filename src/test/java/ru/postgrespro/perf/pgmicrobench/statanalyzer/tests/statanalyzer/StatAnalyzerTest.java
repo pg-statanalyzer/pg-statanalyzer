@@ -37,7 +37,7 @@ public class StatAnalyzerTest {
             dataList.addAll(d.generate(3333, new Random(1)).getValues());
         }
 
-        StatAnalyzer statAnalyzer = new StatAnalyzer();
+        StatAnalyzer statAnalyzer = StatAnalyzer.builder().build();
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
         System.out.println(analysisResult.getCompositeDistribution());
 

@@ -29,8 +29,9 @@ public class TestStatAnalyzer {
                 CompletableFuture.runAsync(() -> {
                     for (SampleTarget<PgSimpleDistribution> sampleTarget :
                             StatAnalyzerTestUtils.getSimpleSampleTargets(5000, new Random(seed))) {
-                        StatAnalyzer statAnalyzer = new StatAnalyzer();
-                        statAnalyzer.setUseJittering(false);
+                        StatAnalyzer statAnalyzer = StatAnalyzer.builder()
+                                .random(new Random(seed + 1))
+                                .build();
 
                         AnalysisResult analysisResult = statAnalyzer.analyze(sampleTarget.sample.getValues());
 

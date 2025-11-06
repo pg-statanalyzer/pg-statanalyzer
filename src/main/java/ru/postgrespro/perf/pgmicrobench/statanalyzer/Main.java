@@ -29,9 +29,7 @@ public class Main {
 
         Sample sample = new Sample(dataList);
 
-        StatAnalyzer statAnalyzer = new StatAnalyzer();
-        statAnalyzer.setUseJittering(false);
-        statAnalyzer.setRecursiveModeDetection(false);
+        StatAnalyzer statAnalyzer = StatAnalyzer.builder().build();
 
         AnalysisResult analysisResult = statAnalyzer.analyze(dataList);
 
