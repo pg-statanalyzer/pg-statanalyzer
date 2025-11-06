@@ -15,7 +15,7 @@ import java.util.Scanner;
  */
 public class Main {
     public static void main(String[] args) {
-        String file = "distributionSample/twoMode.csv";
+        String file = "distributionSample/SELECT.csv";
 
         List<Double> dataList = new ArrayList<>(30000);
         try (Scanner scanner = new Scanner(new File(file))) {
