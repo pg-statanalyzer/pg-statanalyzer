@@ -7,6 +7,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -37,7 +38,7 @@ public class Sample implements Iterable<Double> {
     @Getter(lazy = true)
     private final double max = getDescriptiveStatistics().getMax();
     @Getter(lazy = true)
-    private final List<Double> sortedValues = values.stream().sorted().toList();
+    private final List<Double> sortedValues = values.stream().sorted().collect(Collectors.toUnmodifiableList());
 
     public Sample(List<Double> values) {
         if (values.isEmpty()) {
