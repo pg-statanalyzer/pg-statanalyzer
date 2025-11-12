@@ -4,6 +4,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.*;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -72,6 +73,6 @@ public class StatAnalyzerTestUtils {
                         new PgFrechetDistribution(2, 2),
                         new PgWeibullDistribution(2, 2)
                 ).map(it -> new SampleTarget<>(it.generate(size, random), it))
-                .toList();
+                .collect(Collectors.toUnmodifiableList());
     }
 }

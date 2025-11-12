@@ -13,6 +13,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -43,7 +44,7 @@ public class TestDistributionTest {
             new PgGumbelDistribution(10, 0.5),
             new PgGumbelDistribution(13, 5),
             new PgGumbelDistribution(20, 2)
-    ).toList();
+    ).collect(Collectors.toUnmodifiableList());
 
     static Stream<Arguments> generateArgumentsForDontRejectCorrect() {
         Random random = new Random(5432);
@@ -55,7 +56,7 @@ public class TestDistributionTest {
                 DISTRIBUTIONS.stream().map(d -> Arguments.of(
                         distributionTest, d,
                         d.generate(500, new Random(random.nextLong()))
-                )).toList()
+                )).collect(Collectors.toUnmodifiableList())
         ).flatMap(List::stream);
     }
 

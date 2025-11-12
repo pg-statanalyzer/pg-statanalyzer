@@ -35,7 +35,7 @@ public class StatAnalyzer {
                     new PgGumbelDistribution(1, 1),
                     new PgWeibullDistribution(1, 1),
                     new PgFrechetDistribution(5, 1))
-            .toList();
+            .collect(Collectors.toUnmodifiableList());
     @Builder.Default
     private final LowlandModalityDetector modeDetector = new LowlandModalityDetector(0.5, 0.01, false);
     @Builder.Default

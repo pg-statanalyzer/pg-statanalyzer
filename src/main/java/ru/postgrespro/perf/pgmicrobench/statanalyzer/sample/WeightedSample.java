@@ -5,12 +5,13 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density.DensityHi
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WeightedSample extends Sample {
     private final List<Double> weights;
 
     @Getter(lazy = true)
-    private final List<Double> sortedWeights = weights.stream().sorted().toList();
+    private final List<Double> sortedWeights = weights.stream().sorted().collect(Collectors.toUnmodifiableList());
 
     public WeightedSample(List<Double> values, List<Double> weights) {
         super(values);
@@ -24,7 +25,7 @@ public class WeightedSample extends Sample {
             throw new IllegalArgumentException("Total weight must be positive.");
         }
 
-        this.weights = weights.stream().map(it -> it / totalWeight).toList();
+        this.weights = weights.stream().map(it -> it / totalWeight).collect(Collectors.toUnmodifiableList());
     }
 
     public static WeightedSample evenWeightedSample(List<Double> values) {

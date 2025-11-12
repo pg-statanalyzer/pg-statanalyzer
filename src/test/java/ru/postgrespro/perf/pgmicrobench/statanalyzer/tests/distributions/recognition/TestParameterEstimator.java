@@ -11,6 +11,7 @@ import ru.postgrespro.perf.pgmicrobench.statanalyzer.tests.StatAnalyzerTestUtils
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,7 +41,7 @@ public class TestParameterEstimator {
             new PgGumbelDistribution(10, 0.5),
             new PgGumbelDistribution(13, 5),
             new PgGumbelDistribution(20, 2)
-    ).toList();
+    ).collect(Collectors.toUnmodifiableList());
 
     static Stream<Arguments> provideParameters() {
         Random random = new Random(5431);
@@ -53,7 +54,7 @@ public class TestParameterEstimator {
                 distributions.stream().map(d -> Arguments.of(
                         estimator, d,
                         d.generate(2000, new Random(random.nextLong()))
-                )).toList()
+                )).collect(Collectors.toUnmodifiableList())
         ).flatMap(List::stream);
 
     }
