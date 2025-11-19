@@ -15,7 +15,7 @@ import java.util.Scanner;
  */
 public class Main {
     public static void main(String[] args) {
-        String file = "distributionSample/SELECT.csv";
+        String file = "distributionSample/17PR.txt";
 
         List<Double> dataList = new ArrayList<>(30000);
         try (Scanner scanner = new Scanner(new File(file))) {
@@ -35,6 +35,7 @@ public class Main {
 
         PgCompositeDistribution compositeDistribution = analysisResult.compositeDistribution;
 
+        System.out.println(analysisResult.pValue);
         System.out.println(compositeDistribution);
         Plot.plot(sample, compositeDistribution::pdf, "Final");
     }

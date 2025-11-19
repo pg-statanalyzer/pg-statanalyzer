@@ -14,6 +14,7 @@ import java.util.function.Function;
 @Data
 public class AnalysisResult {
     final int modeNumber;
+    final double pValue;
     final List<ModeReport> modeReports;
     final PgCompositeDistribution compositeDistribution;
 }

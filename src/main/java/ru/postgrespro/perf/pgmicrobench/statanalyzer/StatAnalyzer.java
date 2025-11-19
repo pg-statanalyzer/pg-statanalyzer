@@ -3,7 +3,7 @@ package ru.postgrespro.perf.pgmicrobench.statanalyzer;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.apache.commons.math3.util.Pair;
+import lombok.Data;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.*;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition.*;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality.LowlandModalityDetector;
@@ -97,48 +97,61 @@ public class StatAnalyzer {
 
         ModalityData modalityData = findModes(sample);
 
-        List<ModeReport> modeReports = getModeReports(sample, modalityData);
+        ParamTestSample paramTestSample = splitParamsTest(sample);
+
+        List<ModeReport> modeReports = getModeReports(paramTestSample, modalityData);
 
         PgCompositeDistribution compositeDistribution = getCompositeDistribution(modeReports, values.size());
 
+        double resultPValue = distributionTest.test(paramTestSample.getTestSample(), compositeDistribution);
+
         if (optimizeFinalSolution) {
-            EstimatedParameters estimatedParameters = finalParameterEstimator.fit(sample, compositeDistribution);
+            EstimatedParameters estimatedParameters = finalParameterEstimator
+                    .fit(paramTestSample.getParametersSample(), compositeDistribution);
+
             compositeDistribution = (PgCompositeDistribution) estimatedParameters.getDistribution();
         }
 
         if (!recursiveModeDetection) {
-            return new AnalysisResult(modalityData.getModality(), modeReports, compositeDistribution);
+            return new AnalysisResult(modalityData.getModality(), resultPValue, modeReports, compositeDistribution);
         }
 
-        return recursiveModeDetection(sample, compositeDistribution, modalityData, modeReports, values.size());
+        return recursiveModeDetection(paramTestSample, compositeDistribution, modalityData, modeReports, values.size());
     }
 
     /**
      * Performs recursive mode detection by filtering data points below PDF.
      * Detecting additional modes and refining composite distribution
      *
-     * @param sample              original sample containing data points
+     * @param paramTestSample     original sample containing data points
      * @param initialDistribution initial composite distribution before recursive detection
      * @param initialModalityData initial modality data detected before recursion
      * @param modeReports         list to store mode reports found during analysis
      * @param originalSampleSize  original size of sample before filtering
      * @return {@code AnalysisResult} containing updated modality data, mode reports and refined composite distribution
      */
-    private AnalysisResult recursiveModeDetection(Sample sample, PgCompositeDistribution initialDistribution,
+    private AnalysisResult recursiveModeDetection(ParamTestSample paramTestSample, PgCompositeDistribution initialDistribution,
                                                   ModalityData initialModalityData, List<ModeReport> modeReports,
                                                   int originalSampleSize) {
         final double MODE_SIZE_THRESHOLD = 0.07;
 
+        Sample sample = paramTestSample.getParametersSample();
+
         List<Double> filteredSampleData = RecursiveLowlandModalityDetector.filterBinsAbovePdf(sample, initialDistribution::pdf);
         WeightedSample filteredSample = WeightedSample.evenWeightedSample(filteredSampleData);
 
+        ParamTestSample filteredParamTestSample = splitParamsTest(filteredSample);
+
         ModalityData newModalityData = findModes(filteredSample);
-        List<ModeReport> newModeReports = getModeReports(filteredSample, newModalityData);
+        List<ModeReport> newModeReports = getModeReports(filteredParamTestSample, newModalityData);
 
         newModeReports.removeIf(mode -> mode.getSize() < originalSampleSize * MODE_SIZE_THRESHOLD);
 
+
         if (newModeReports.isEmpty()) {
-            return new AnalysisResult(initialModalityData.getModality(), modeReports, initialDistribution);
+            double resultPvalue = distributionTest.test(paramTestSample.getTestSample(), initialDistribution);
+
+            return new AnalysisResult(initialModalityData.getModality(), resultPvalue, modeReports, initialDistribution);
         }
 
         modeReports.addAll(newModeReports);
@@ -158,8 +171,10 @@ public class StatAnalyzer {
         EstimatedParameters optimizedParameters = finalParameterEstimator.fit(sample, combinedDistribution);
         combinedDistribution = (PgCompositeDistribution) optimizedParameters.getDistribution();
 
+        double resultPvalue = distributionTest.test(paramTestSample.getTestSample(), combinedDistribution);
+
         return new AnalysisResult(
-                modeReports.size(),
+                modeReports.size(), resultPvalue,
                 modeReports, combinedDistribution
         );
     }
@@ -203,7 +218,7 @@ public class StatAnalyzer {
      * @param modalityData the modality data containing detected modes
      * @return a list of ModeReport objects for each ranged mode
      */
-    private List<ModeReport> getModeReports(Sample sample, ModalityData modalityData) {
+    private List<ModeReport> getModeReports(ParamTestSample sample, ModalityData modalityData) {
         return modalityData.getModes().stream()
                 .map(mode -> CompletableFuture.supplyAsync(() -> getModeReport(sample, mode), pool))
                 .map(CompletableFuture::join)
@@ -226,7 +241,7 @@ public class StatAnalyzer {
      * @param sample the sample to split
      * @return a Pair containing the parameter sample and test sample
      */
-    public Pair<Sample, Sample> splitParamsTest(Sample sample) {
+    public ParamTestSample splitParamsTest(Sample sample) {
         List<Double> shuffled = new ArrayList<>(sample.getValues());
         Collections.shuffle(shuffled, random);
         int testSize = (int) (shuffled.size() * TEST_SIZE);
@@ -240,7 +255,7 @@ public class StatAnalyzer {
                         .mapToObj(shuffled::get)
                         .collect(Collectors.toList()));
 
-        return new Pair<>(paramsSample, testSample);
+        return new ParamTestSample(paramsSample, testSample);
     }
 
     /**
@@ -250,16 +265,15 @@ public class StatAnalyzer {
      * @param mode the mode for which to generate the report
      * @return a ModeReport containing the results for the mode
      */
-    public ModeReport getModeReport(Sample sample, RangedMode mode) {
-        Sample modeSample = findModeValues(sample, mode);
-        Pair<Sample, Sample> paramsTest = splitParamsTest(modeSample);
-        Sample paramsSample = paramsTest.getFirst();
-        Sample testSample = paramsTest.getSecond();
+    public ModeReport getModeReport(ParamTestSample sample, RangedMode mode) {
+        Sample modeParamSample = findModeValues(sample.getParametersSample(), mode);
+        Sample modeTestSample = findModeValues(sample.getTestSample(), mode);
 
-        List<FittedDistribution> fittedDistributions = fitDistribution(paramsSample, testSample);
+        List<FittedDistribution> fittedDistributions = fitDistribution(modeParamSample, modeTestSample);
         FittedDistribution bestDistribution = fittedDistributions.get(0);
 
-        return new ModeReport(modeSample.size(), mode.getLocation(), mode.getLeft(), mode.getRight(), bestDistribution, fittedDistributions);
+        return new ModeReport(modeTestSample.size() + modeTestSample.size(), mode.getLocation(),
+                mode.getLeft(), mode.getRight(), bestDistribution, fittedDistributions);
     }
 
     /**
@@ -290,5 +304,11 @@ public class StatAnalyzer {
                 .map(CompletableFuture::join)
                 .sorted(Comparator.comparingDouble(FittedDistribution::getPValue).reversed())
                 .collect(Collectors.toList());
+    }
+
+    @Data
+    public static class ParamTestSample {
+        private final Sample parametersSample;
+        private final Sample testSample;
     }
 }
