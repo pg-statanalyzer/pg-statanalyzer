@@ -48,7 +48,8 @@ public class ModalityDetectorTests {
      */
     @Test
     public void testLatencyLoading() {
-        List<Double> latencies = PgNormalDistribution.generate(10000, 5.0, 1.0);
+        PgNormalDistribution distribution = new PgNormalDistribution(5.0, 1.0);
+        List<Double> latencies = distribution.generate(10000, new Random()).getValues();
         analyzer.loadLatencies(latencies);
 
         Assertions.assertEquals(10000,
@@ -63,14 +64,11 @@ public class ModalityDetectorTests {
      */
     @Test
     public void testModalityDetectionWithMixedDistributions() {
-        List<Double> values = new ArrayList<>();
+		PgNormalDistribution normalDistribution = new PgNormalDistribution(5.0, 1.0);
+		List<Double> values = new ArrayList<>(normalDistribution.generate(10000, new Random()).getValues());
 
-        values.addAll(PgNormalDistribution.generate(10000, 5.0, 1.0));
-
-        values.addAll(PgUniformDistribution.generate(new Random(),
-                10.0,
-                15.0,
-                10000).getValues());
+        PgUniformDistribution uniformDistribution = new PgUniformDistribution(10.0, 15.0);
+        values.addAll(uniformDistribution.generate(10000, new Random()).getValues());
 
         WeightedSample sample = WeightedSample.evenWeightedSample(values);
         ModalityData result = detector.detectModes(sample);
@@ -96,7 +94,8 @@ public class ModalityDetectorTests {
      */
     @Test
     public void testHistogramDatasetCreation() {
-        List<Double> values = PgNormalDistribution.generate(1000, 5.0, 1.0);
+        PgNormalDistribution distribution = new PgNormalDistribution(5.0, 1.0);
+        List<Double> values = distribution.generate(10000, new Random()).getValues();
         HistogramDataset dataset = createHistogramDataset(values, 20);
 
         assertEquals(1,

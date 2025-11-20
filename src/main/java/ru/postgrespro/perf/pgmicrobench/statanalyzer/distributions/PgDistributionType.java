@@ -5,6 +5,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.function.Function;
 
+/**
+ * enum for types of supported distributions
+ * List of supported distributions:
+ * Normal, LogNormal, Gumbel, Frechet, Weibull, Gamma
+ */
 @RequiredArgsConstructor
 public enum PgDistributionType {
     NORMAL(2, params -> new PgNormalDistribution(params[0], params[1]), new double[]{1, 1}),

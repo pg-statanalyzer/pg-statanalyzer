@@ -13,7 +13,6 @@ import java.util.Random;
  * Represents Gumbel distribution, probability distribution used to model
  * distribution of maximum (or minimum) of number of samples of various distributions.
  */
-
 public class PgGumbelDistribution implements PgSimpleDistribution {
     private static final double EulerMascheroni = 0.57721566490153286060651209008240243104215933593992;
     private final double location;
@@ -36,17 +35,6 @@ public class PgGumbelDistribution implements PgSimpleDistribution {
         }
         this.location = location;
         this.scale = scale;
-    }
-
-    /**
-     * Generation.
-     */
-    public static Sample generate(Random random,
-                                  double location,
-                                  double scale,
-                                  int count) {
-        PgGumbelDistribution distribution = new PgGumbelDistribution(location, scale);
-        return distribution.generate(count, random);
     }
 
     /**

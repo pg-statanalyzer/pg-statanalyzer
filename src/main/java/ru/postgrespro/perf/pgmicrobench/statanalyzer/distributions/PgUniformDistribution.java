@@ -27,32 +27,6 @@ public class PgUniformDistribution implements PgSimpleDistribution {
         this.max = max;
     }
 
-    /**
-     * Generates list of random numbers uniformly distributed between specified minimum and maximum values.
-     *
-     * @param random random number generator to use.
-     * @param min    minimum value (inclusive) of range.
-     * @param max    maximum value (exclusive) of range.
-     * @param count  number of random values to generate.
-     * @return list containing generated random values.
-     * @throws IllegalArgumentException if {@code max} is less than or equal to {@code min} or {@code count} is negative.
-     */
-    public static Sample generate(Random random, double min, double max, int count) {
-        if (max <= min) {
-            throw new IllegalArgumentException("Max must be greater than Min.");
-        }
-        if (count < 0) {
-            throw new IllegalArgumentException("Count cannot be negative.");
-        }
-
-        List<Double> values = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            double value = min + (max - min) * random.nextDouble();
-            values.add(value);
-        }
-        return new Sample(values);
-    }
-
     @Override
     public double pdf(double value) {
         if (value < min || value >= max) {
@@ -102,7 +76,19 @@ public class PgUniformDistribution implements PgSimpleDistribution {
 
     @Override
     public Sample generate(int size, Random random) {
-        return generate(random, min, max, size);
+        if (max <= min) {
+            throw new IllegalArgumentException("Max must be greater than Min.");
+        }
+        if (size < 0) {
+            throw new IllegalArgumentException("Count cannot be negative.");
+        }
+
+        List<Double> values = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            double value = min + (max - min) * random.nextDouble();
+            values.add(value);
+        }
+        return new Sample(values);
     }
 
     @Override

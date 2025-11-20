@@ -26,23 +26,6 @@ public class PgNormalDistribution implements PgSimpleDistribution {
         this.standardDeviation = standardDeviation;
     }
 
-    /**
-     * Generates list of random numbers following normal (Gaussian) distribution.
-     *
-     * @param size   number of values to generate.
-     * @param mean   mean of distribution.
-     * @param stdDev standard deviation of distribution.
-     * @return list of randomly generated numbers.
-     */
-    public static List<Double> generate(int size, double mean, double stdDev) {
-        Random random = new Random();
-        List<Double> data = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            data.add(mean + stdDev * random.nextGaussian());
-        }
-        return data;
-    }
-
     @Override
     public double pdf(double value) {
         double exponent = -((value - mean) * (value - mean)) / (2 * standardDeviation * standardDeviation);
