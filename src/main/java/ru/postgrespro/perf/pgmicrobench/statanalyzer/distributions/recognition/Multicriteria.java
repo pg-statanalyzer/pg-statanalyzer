@@ -79,7 +79,7 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
     /**
      * Calculates the deviation between the skewness and kurtosis of the dataset and the distribution.
      *
-     * @param sample         the input dataset statistic.
+     * @param sample         the input dataset
      * @param pgDistribution the distribution to compare against.
      * @return the combined deviation in skewness and kurtosis.
      */
@@ -108,7 +108,7 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
 
     /**
      * Computes a multicriteria statistic for evaluating the goodness-of-fit of a distribution.
-     * The statistic incorporates measures such as CDF and PDF deviations, Kolmogorov-Smirnov
+     * The statistic incorporates measures such as CDF and PDF deviations, Cramer-von-Mises
      * statistic, skewness, and kurtosis.
      *
      * @param sample       the input dataset.
@@ -128,7 +128,7 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
      *
      * @param sample       the input dataset to fit the distribution to.
      * @param distribution the type of the distribution to fit
-     * @return a {@link FittedDistribution} object with fitted parameters, sample, and p-value
+     * @return a {@link EstimatedParameters} object with fitted parameters and p-value
      */
     @Override
     public EstimatedParameters fit(Sample sample, PgSimpleDistribution distribution) {
@@ -140,6 +140,13 @@ public class Multicriteria implements IDistributionTest, IParameterEstimator {
         return new EstimatedParameters(optimizedDist, pValue);
     }
 
+    /**
+     * Fits a statistical distribution to the given data using a multicriteria optimization approach.
+     *
+     * @param sample       the input dataset to fit the distribution to.
+     * @param distribution the type of the composite distribution, which contains list of simple distributions to fit
+     * @return a {@link EstimatedParameters} object with fitted parameters and p-value
+     */
     @Override
     public EstimatedParameters fit(Sample sample, PgCompositeDistribution distribution) {
         double[] solution = PgOptimizer.optimize(sample, distribution, new Multicriteria());

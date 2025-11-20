@@ -24,8 +24,8 @@ public class PgCompositeDistribution implements PgDistribution {
     private final int size;
     private final int paramNumber;
     
-    /** Constructor.
-     *
+    /**
+     * Constructor.
      * @param distributions distributions.
      * @param weights weights.
      */
@@ -38,6 +38,9 @@ public class PgCompositeDistribution implements PgDistribution {
                 throw new IllegalArgumentException("Negative weight");
             }
         }
+        if (weights.stream().mapToDouble(Double::doubleValue).sum() > 1) {
+            throw new IllegalArgumentException("Weights must sum to 1");
+        }
 
         double sumWeight = weights.stream().mapToDouble(Double::doubleValue).sum();
         this.weights = weights.stream().map((x) -> x / sumWeight).collect(Collectors.toList());
@@ -46,16 +49,35 @@ public class PgCompositeDistribution implements PgDistribution {
         this.paramNumber = this.distributions.stream().mapToInt(PgDistribution::getParamNumber).sum() + size;
     }
 
+    /**
+     * Calculate result of Probability Density Function of composite distribution at some given value.
+     *
+     * @param value given argument
+     * @return value of composite distribution's PDF
+     */
     @Override
     public double pdf(double value) {
         return weightedResult((dist) -> dist.pdf(value));
     }
 
+    /**
+     * Calculate result of Cumulative Distribution Function of composite distribution at some given value.
+     *
+     * @param value given argument
+     * @return value of composite distribution's CDF
+     */
     @Override
     public double cdf(double value) {
         return weightedResult((dist) -> dist.cdf(value));
     }
 
+    /**
+     * Generates a sample of given size and {@link Random} object.
+     *
+     * @param size of generated sample
+     * @param random your {@link Random} object
+     * @return {@link Sample} object with generated dataset of values
+     */
     @Override
     public Sample generate(int size, Random random) {
         ArrayList<Double> values = new ArrayList<>(size);
@@ -67,16 +89,32 @@ public class PgCompositeDistribution implements PgDistribution {
         return new Sample(values);
     }
 
+    /**
+     * Returns null because a composite distribution doesn't have a single type
+     * @return null
+     */
     @Override
     public PgDistributionType getType() {
-        throw new RuntimeException();
+        return null;
     }
 
+    /**
+     * Returns number of parameters in a composite distribution, which means sum of number of parameters in all
+     * simple distributions
+     *
+     * @return number of parameters
+     */
     @Override
     public int getParamNumber() {
         return paramNumber;
     }
 
+    /**
+     * Creates new {@link PgCompositeDistribution} object based on given parameters.
+     *
+     * @param params array of given parameters
+     * @return a {@link PgCompositeDistribution} object with desired distribution
+     */
     @Override
     public PgCompositeDistribution newDistribution(double[] params) {
         if (params.length != paramNumber) {
@@ -107,6 +145,9 @@ public class PgCompositeDistribution implements PgDistribution {
         throw new RuntimeException("Not implemented");
     }
 
+    /**
+     * @return total number of parameters in a composite distribution
+     */
     @Override
     public double[] getParamArray() {
         double[] paramArray = new double[paramNumber];
