@@ -26,6 +26,7 @@ public class PgCompositeDistribution implements PgDistribution {
     
     /**
      * Constructor.
+     *
      * @param distributions distributions.
      * @param weights weights.
      */
@@ -90,7 +91,8 @@ public class PgCompositeDistribution implements PgDistribution {
     }
 
     /**
-     * Returns null because a composite distribution doesn't have a single type
+     * Returns null because a composite distribution doesn't have a single type.
+     *
      * @return null
      */
     @Override
@@ -100,7 +102,7 @@ public class PgCompositeDistribution implements PgDistribution {
 
     /**
      * Returns number of parameters in a composite distribution, which means sum of number of parameters in all
-     * simple distributions
+     * simple distributions.
      *
      * @return number of parameters
      */
@@ -146,6 +148,8 @@ public class PgCompositeDistribution implements PgDistribution {
     }
 
     /**
+     * Calculates total number of parameters across all distributions inside the {@link PgCompositeDistribution}.
+     *
      * @return total number of parameters in a composite distribution
      */
     @Override
