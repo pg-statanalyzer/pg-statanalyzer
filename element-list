@@ -1,0 +1,14 @@
+ru.postgrespro.perf.pgmicrobench.statanalyzer
+ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions
+ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.recognition
+ru.postgrespro.perf.pgmicrobench.statanalyzer.estimators
+ru.postgrespro.perf.pgmicrobench.statanalyzer.exceptions
+ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram
+ru.postgrespro.perf.pgmicrobench.statanalyzer.histogram.density
+ru.postgrespro.perf.pgmicrobench.statanalyzer.loader
+ru.postgrespro.perf.pgmicrobench.statanalyzer.multimodality
+ru.postgrespro.perf.pgmicrobench.statanalyzer.optimizer
+ru.postgrespro.perf.pgmicrobench.statanalyzer.plotting
+ru.postgrespro.perf.pgmicrobench.statanalyzer.sample
+ru.postgrespro.perf.pgmicrobench.statanalyzer.sequences
+ru.postgrespro.perf.pgmicrobench.statanalyzer.util
