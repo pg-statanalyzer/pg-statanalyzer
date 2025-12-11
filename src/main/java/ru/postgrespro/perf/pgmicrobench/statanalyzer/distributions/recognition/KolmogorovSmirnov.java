@@ -66,7 +66,7 @@ public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator
      *
      * @param sample       the observed data
      * @param distribution the type of distribution to fit
-     * @return a EstimatedParameters object with fitted parameters, sample, and p-value
+     * @return a {@link EstimatedParameters} with fitted parameters, sample, and p-value
      */
     @Override
     public EstimatedParameters fit(Sample sample, PgSimpleDistribution distribution) {
@@ -78,6 +78,13 @@ public class KolmogorovSmirnov implements IDistributionTest, IParameterEstimator
         return new EstimatedParameters(optimizedDist, pValue);
     }
 
+    /**
+     * Fits a distribution to the observed data by minimizing the Kolmogorov-Smirnov statistic.
+     *
+     * @param sample       the observed data
+     * @param distribution the type of distribution to fit
+     * @return a {@link EstimatedParameters} object with fitted parameters, sample, and p-value
+     */
     @Override
     public EstimatedParameters fit(Sample sample, PgCompositeDistribution distribution) {
         double[] solution = PgOptimizer.optimize(sample, distribution, new KolmogorovSmirnov());
