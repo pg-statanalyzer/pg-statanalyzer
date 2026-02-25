@@ -4,7 +4,6 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.postgrespro.perf.pgmicrobench.statanalyzer.sample.Sample;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgNormalDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.distributions.PgUniformDistribution;
 import ru.postgrespro.perf.pgmicrobench.statanalyzer.loader.Loader;
@@ -64,8 +63,8 @@ public class ModalityDetectorTests {
      */
     @Test
     public void testModalityDetectionWithMixedDistributions() {
-		PgNormalDistribution normalDistribution = new PgNormalDistribution(5.0, 1.0);
-		List<Double> values = new ArrayList<>(normalDistribution.generate(10000, new Random()).getValues());
+        PgNormalDistribution normalDistribution = new PgNormalDistribution(5.0, 1.0);
+        List<Double> values = new ArrayList<>(normalDistribution.generate(10000, new Random()).getValues());
 
         PgUniformDistribution uniformDistribution = new PgUniformDistribution(10.0, 15.0);
         values.addAll(uniformDistribution.generate(10000, new Random()).getValues());

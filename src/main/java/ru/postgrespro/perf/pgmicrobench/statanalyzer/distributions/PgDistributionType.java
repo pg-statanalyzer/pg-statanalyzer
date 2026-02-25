@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.function.Function;
 
 /**
- * enum for types of supported distributions
+ * enum for types of supported distributions.
  * List of supported distributions:
  * Normal, LogNormal, Gumbel, Frechet, Weibull, Gamma
  */
