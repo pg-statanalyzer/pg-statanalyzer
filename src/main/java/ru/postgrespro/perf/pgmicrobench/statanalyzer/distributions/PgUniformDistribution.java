@@ -17,7 +17,11 @@ public class PgUniformDistribution implements PgSimpleDistribution {
     private final double max;
 
     /**
-     * Constructor.
+     * Constructor to create Gamma distribution with specified shape and scale parameters.
+     *
+     * @param min parameter.
+     * @param max parameter.
+     * @throws IllegalArgumentException if min is more or less than max
      */
     public PgUniformDistribution(double min, double max) {
         if (max <= min) {

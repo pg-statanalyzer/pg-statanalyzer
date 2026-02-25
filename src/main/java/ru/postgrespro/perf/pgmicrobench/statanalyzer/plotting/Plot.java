@@ -65,6 +65,7 @@ public class Plot {
      *
      * @param sample a collection of Double values to be plotted as a histogram.
      * @param pdf    a function that defines the density to be plotted alongside the histogram.
+     * @param title  a title of the histogram
      */
     public static void plot(Sample sample, Function<Double, Double> pdf, String title) {
         int bins = (int) Math.sqrt(sample.size()) + 1;

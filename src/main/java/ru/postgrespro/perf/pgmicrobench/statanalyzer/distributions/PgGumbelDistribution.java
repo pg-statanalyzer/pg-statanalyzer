@@ -27,7 +27,11 @@ public class PgGumbelDistribution implements PgSimpleDistribution {
     }
 
     /**
-     * Gumbel distribution.
+     * Constructor to create Gumbel distribution with specified location and scale parameters.
+     *
+     * @param location location parameter.
+     * @param scale scale parameter (must be positive).
+     * @throws IllegalArgumentException if scale parameters is less than or equal to 0.
      */
     public PgGumbelDistribution(double location, double scale) {
         if (scale <= 0) {
@@ -136,7 +140,9 @@ public class PgGumbelDistribution implements PgSimpleDistribution {
     }
 
     /**
-     * Quantile.
+     * Method for quantile calculation
+     * @param p value between 0 and 1
+     * @return result of a desired quantile
      */
     public double quantile(double p) {
         if (p == 0) {
@@ -149,7 +155,9 @@ public class PgGumbelDistribution implements PgSimpleDistribution {
     }
 
     /**
-     * Random.
+     * Generates single random value following Gamma distribution.
+     * @param random your {@link Random} object
+     * @return single value of a Gamma distribution
      */
     public double random(Random random) {
         double u = random.nextDouble();

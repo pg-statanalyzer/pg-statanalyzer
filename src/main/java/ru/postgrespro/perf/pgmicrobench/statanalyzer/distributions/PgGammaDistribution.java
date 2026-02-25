@@ -163,6 +163,8 @@ public class PgGammaDistribution implements PgSimpleDistribution {
 
     /**
      * Quantile function (inverse CDF) approximation for Gamma distribution.
+     * @param p value between 0 and 1
+     * @return result of a desired quantile
      */
     public double quantile(double p) {
         if (p <= 0) {
@@ -176,6 +178,8 @@ public class PgGammaDistribution implements PgSimpleDistribution {
 
     /**
      * Generates single random value following Gamma distribution.
+     * @param random your {@link Random} object
+     * @return single value of a Gamma distribution
      */
     public double random(Random random) {
         if (shape < 1) {

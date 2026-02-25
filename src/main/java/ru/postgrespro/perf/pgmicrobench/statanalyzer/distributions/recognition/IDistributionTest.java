@@ -21,8 +21,8 @@ public interface IDistributionTest {
      * If your p-value is less than 0.05 (alpha), then your sample doesn't have this distribution type.
      * If your p-value is more than 0.05, then MAYBE your sample has this distribution type. It is kind of tricky,
      * because you can't tell for certain that your sample has this distribution type, but you can't deny it either.
-     * We recommend to do it this way: if out of list of distributions only one has p-value > 0.05, then you have your
-     * best distribution. If 2 or more distributions have p-value > 0.05, then it's on user's choice.
+     * We recommend to do it this way: if out of list of distributions only one has {@code p-value > 0.05}, then you have your
+     * best distribution. If 2 or more distributions have {@code p-value > 0.05}, then it's on user's choice.
      *
      * @param sample Sample
      * @param distribution Presumed distribution
