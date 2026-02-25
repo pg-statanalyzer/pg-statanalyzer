@@ -27,7 +27,7 @@ public class MaximumLikelihoodEstimation implements IParameterEstimator {
      *
      * @param sample       an array of observed data for which the distribution parameters need to be estimated
      * @param distribution the type of distribution to be fitted to the data
-     * @return a EstimatedParameters object containing the estimated parameters and the corresponding distribution
+     * @return a {@link EstimatedParameters} object containing the estimated parameters with corresponding distribution
      */
     // TODO тут могут быть проблемы, нодо потестить
     @Override

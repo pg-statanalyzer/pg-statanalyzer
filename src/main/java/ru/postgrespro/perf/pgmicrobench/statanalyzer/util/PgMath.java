@@ -10,12 +10,12 @@ public class PgMath {
     }
 
     /**
-     * Обратное значение функции value = x * Gamma(x)^2 / Gamma(2 * x) / 2.
+     * Inverse of the function value = x * Gamma(x)^2 / Gamma(2 * x) / 2.
      * aka value = Gamma(x + 1)^2 / Gamma(2 * x + 1).
      * D(f) = (0; 1)
      * E(f) = (0; +inf)
      *
-     * @param value value.
+     * @param value value in range [0, 1].
      * @return x.
      */
     public static double invSquareGammaDoubleGammaRatio(double value) {
@@ -40,12 +40,12 @@ public class PgMath {
     }
 
     /**
-     * Обратное значение функции value = -x * Gamma(-x)^2 / Gamma(-2 * x) / 2.
+     * Inverse of the function value = -x * Gamma(-x)^2 / Gamma(-2 * x) / 2.
      * aka value = Gamma(-x + 1)^2 / Gamma(-2 * x + 1).
-     * D(f) = [0; 1]
+     * Domain(f) = [0; 1]
      * E(f) = [0; 0.5]
      *
-     * @param value value.
+     * @param value value in range [0, 1].
      * @return x.
      */
     public static double minusInvSquareGammaDoubleGammaRatio(double value) {

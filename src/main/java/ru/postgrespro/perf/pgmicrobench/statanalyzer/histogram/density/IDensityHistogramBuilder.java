@@ -15,7 +15,7 @@ public interface IDensityHistogramBuilder {
      *
      * @param sample   sample data from which histogram is to be built.
      * @param binCount number of bins in histogram. Must be positive integer.
-     * @return {@code DensityHistogram} representing data distribution of sample.
+     * @return {@link DensityHistogram} representing data distribution of sample.
      * @throws IllegalArgumentException if {@code binCount} is not positive integer.
      */
     DensityHistogram build(WeightedSample sample, int binCount);

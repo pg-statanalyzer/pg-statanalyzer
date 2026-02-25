@@ -51,12 +51,15 @@ public class ModalityGumbelLocationProgressionDataSet {
 
         List<Double> valuesList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            valuesList.addAll(PgGumbelDistribution.generate(random, locationFactor * i, scale, batch).getValues());
+            PgGumbelDistribution distribution = new PgGumbelDistribution(locationFactor * i, scale);
+            valuesList.addAll(distribution.generate(batch, random).getValues());
 
             if (noisy) {
                 double d = locationFactor / 5.0;
-                valuesList.addAll(PgUniformDistribution.generate(random, 0, 3 * d, batch / 10).getValues());
-                valuesList.addAll(PgUniformDistribution.generate(random, -2 * d, 0, batch / 10).getValues());
+                PgUniformDistribution distribution1 = new PgUniformDistribution(0, 3 * d);
+                valuesList.addAll(distribution1.generate(batch / 10, random).getValues());
+                PgUniformDistribution distribution2 = new PgUniformDistribution(-2 * d, 0);
+                valuesList.addAll(distribution2.generate(batch / 10, random).getValues());
             }
         }
 

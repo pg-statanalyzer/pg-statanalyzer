@@ -14,6 +14,8 @@ import java.util.Objects;
 /**
  * Implements Harrell-Davis quantile estimator.
  * This estimator provides quantile estimates based on weighted sample moments.
+ * We recommend reading original article from A. Akinshin:
+ * <a href="https://aakinshin.net/posts/qrde-hd/">Quantile-respectful density estimation based on the Harrell-Davis quantile estimator</a>
  */
 
 public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
@@ -62,6 +64,15 @@ public class HarrellDavisQuantileEstimator implements IQuantileEstimator {
         return true;
     }
 
+    /**
+     * Computes Harrell-Davis quantile estimate using beta-distribution based weighting.
+     * Weights order statistics using differences in Beta((n+1)p, (n+1)(1-p)) CDF values.
+     *
+     * @param sample weighted sample data
+     * @param probability quantile probability level
+     * @param calcSecondMoment whether to compute second moment for variance estimation
+     * @return Moments containing quantile estimate (c1) and optionally second moment (c2)
+     */
     private Moments getMoment(WeightedSample sample, double probability, boolean calcSecondMoment) {
         int n = sample.size();
         double a = (n + 1) * probability;
