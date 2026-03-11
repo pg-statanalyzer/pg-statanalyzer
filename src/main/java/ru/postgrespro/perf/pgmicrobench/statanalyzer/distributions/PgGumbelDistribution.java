@@ -141,6 +141,7 @@ public class PgGumbelDistribution implements PgSimpleDistribution {
 
     /**
      * Method for quantile calculation
+     *
      * @param p value between 0 and 1
      * @return result of a desired quantile
      */
@@ -155,9 +156,10 @@ public class PgGumbelDistribution implements PgSimpleDistribution {
     }
 
     /**
-     * Generates single random value following Gamma distribution.
+     * Generates single random value following Gumbel distribution.
+     *
      * @param random your {@link Random} object
-     * @return single value of a Gamma distribution
+     * @return single value of a Gumbel distribution
      */
     public double random(Random random) {
         double u = random.nextDouble();
