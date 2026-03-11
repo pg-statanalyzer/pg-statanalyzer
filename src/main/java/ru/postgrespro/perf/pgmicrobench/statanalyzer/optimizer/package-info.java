@@ -15,7 +15,7 @@
  *
  * <p>Supported optimization methods:</p>
  * <ul>
- *   <li> Covariance Matrix Adaptation Evolution Strategy (CMA-ES)/li>
+ *   <li> Covariance Matrix Adaptation Evolution Strategy (CMA-ES)</li>
  * </ul>
  *
  * <p>The optimizer is used internally during distribution fitting to:</p>

@@ -19,7 +19,11 @@ public class PgWeibullDistribution implements PgSimpleDistribution {
     private final double scale;
 
     /**
-     * Constructor.
+     * Constructor to create Weibull distribution with specified shape and scale parameters.
+     *
+     * @param shape shape parameter (must be positive).
+     * @param scale scale parameter (must be positive).
+     * @throws IllegalArgumentException if either shape or scale parameters are less than or equal to 0.
      */
     public PgWeibullDistribution(double shape, double scale) {
         this.shape = shape;

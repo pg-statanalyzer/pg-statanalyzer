@@ -16,7 +16,11 @@ public class PgNormalDistribution implements PgSimpleDistribution {
     private final double standardDeviation;
 
     /**
-     * Constructor.
+     * Constructor to create Normal distribution with specified shape and scale parameters.
+     *
+     * @param mean shape parameter.
+     * @param standardDeviation scale parameter (must be positive).
+     * @throws IllegalArgumentException if std parameter is less than or equal to 0.
      */
     public PgNormalDistribution(double mean, double standardDeviation) {
         if (standardDeviation <= 0) {

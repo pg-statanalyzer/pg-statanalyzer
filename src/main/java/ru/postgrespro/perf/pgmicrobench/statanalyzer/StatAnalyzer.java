@@ -182,6 +182,9 @@ public class StatAnalyzer {
     /**
      * Combines original PDF with weighted sum of PDFs.
      *
+     * @param originalDistribution {@link PgCompositeDistribution} object of a current state distribution
+     * @param lowlandDistribution {@link PgCompositeDistribution} object of a new distribution detected by
+     *                                                           recursive algorithm
      * @param totalModeSize total size of modes, which is used to calculate weight of lowland PDF
      * @param sampleSize    size of original sample, which is used to calculate weight of original PDF
      * @return new function that represents combined PDF with scaled contributions
@@ -215,6 +218,8 @@ public class StatAnalyzer {
     /**
      * Generates mode reports for each detected mode in parallel.
      *
+     * @param sample {@link ParamTestSample} object, which includes split parameters sample
+     *                                      and test sample
      * @param modalityData the modality data containing detected modes
      * @return a list of ModeReport objects for each ranged mode
      */
@@ -262,6 +267,8 @@ public class StatAnalyzer {
      * Generates a report for the specified mode based on the fitted
      * distributions.
      *
+     * @param sample {@link ParamTestSample} object, which includes split parameters sample
+     *                                      and test sample
      * @param mode the mode for which to generate the report
      * @return a ModeReport containing the results for the mode
      */
