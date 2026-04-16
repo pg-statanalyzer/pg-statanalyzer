@@ -39,7 +39,7 @@ public class PgCompositeDistribution implements PgDistribution {
                 throw new IllegalArgumentException("Negative weight");
             }
         }
-        if (weights.stream().mapToDouble(Double::doubleValue).sum() > 1) {
+        if (weights.stream().mapToDouble(Double::doubleValue).sum() - 1 > 1e-6) {
             throw new IllegalArgumentException("Weights must sum to 1");
         }
 
@@ -138,6 +138,9 @@ public class PgCompositeDistribution implements PgDistribution {
         for (int i = 0; i < size; i++) {
             newWeights.add(params[cur++]);
         }
+
+        double sumWeight = newWeights.stream().mapToDouble(it -> it).sum();
+        newWeights.replaceAll(it -> it / sumWeight);
 
         return new PgCompositeDistribution(newDist, newWeights);
     }
